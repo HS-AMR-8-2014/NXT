@@ -248,6 +248,10 @@ public class NavigationAT implements INavigation{
 	 * detects parking slots and manage them by initializing new slots, re-characterizing old slots or merge old and detected slots. 
 	 */
 	private void detectParkingSlot(){
+		
+	//Kommentar	
+		
+		
 		return; // has to be implemented by students
 	}
 }
