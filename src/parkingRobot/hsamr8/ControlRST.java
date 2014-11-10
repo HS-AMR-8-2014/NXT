@@ -72,6 +72,17 @@ public class ControlRST implements IControl {
 	
     double currentDistance = 0.0;
     double Distance = 0.0;
+    
+    
+    
+    double esum = 0;
+	double e = 0;
+	double ealt = 0;
+	double kp = 0.5;
+	double ki =0.2;
+	double kd =0.2;
+	double y = 0;
+	double deltaT = 104/100;
   
 	
 	/**
@@ -218,13 +229,12 @@ public class ControlRST implements IControl {
 	}
 	
 	//für 3.1.3 liniensensordaten von 0 bis 100
-	/**
-	 * private void update_LINECTRL_Parameter(){
+	
+    /**private void update_LINECTRL_Parameter(){
 		this.lineSensorRight		= perception.getRightLineSensorValue();
 		this.lineSensorLeft  		= perception.getLeftLineSensorValue();		
-	}
-	 * 
-	 */
+	}*/
+	
 	
 	/**
 	 * The car can be driven with velocity in m/s or angular velocity in grade during VW Control Mode
@@ -319,21 +329,25 @@ public class ControlRST implements IControl {
 		//int lowPower = 1;
 		//int midPower = 20; //mittlere Power eingeführt
 		//int highPower = 40; //maximale geschwindigkeiten bei den keine linienüberschreitung stattfindet
-		double esum = 0;
-		double e = 0;
-		double ealt = 0;
-		double kp = 1;
-		double ki =1;
-		double kd =1;
-		double y = 0;
-		double deltaT = 0;
+		
 		
 		
 		e = this.lineSensorRight - this.lineSensorLeft;
 		esum = esum + e; //integrationsanteil
 		y = kp*e + ki*esum*deltaT + kd*(e - ealt)/deltaT;
 		ealt = e;
-		
+		if(y<0){
+			
+			leftMotor.setPower((int) ((-y)/100*30));
+			rightMotor.setPower((int) (30-30/100*(-y)));	}
+		if(y>0){
+			rightMotor.setPower((int) (y/100*30));
+			leftMotor.setPower((int) (30-30/100*(y)));
+		}
+		if(y == 0){
+			rightMotor.setPower(30);
+			leftMotor.setPower(30);
+		}
 		
 		
 	}
