@@ -99,7 +99,7 @@ public class ControlRST implements IControl {
 		
 		this.ctrlThread = new ControlThread(this);
 		
-		ctrlThread.setPriority(Thread.MAX_PRIORITY - 1);
+		ctrlThread.setPriority(Thread.MAX_PRIORITY - 1); //legt 2.höhste priorität fest
 		ctrlThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		ctrlThread.start();
 	}
@@ -128,7 +128,7 @@ public class ControlRST implements IControl {
 	 * set destination
 	 * @see parkingRobot.IControl#setDestination(double heading, double x, double y)
 	 */
-	public void setDestination(double heading, double x, double y){
+	public void setDestination(double heading, double x, double y){ //ist heading der winkel????????!!!!!!!
 		this.destination.setHeading((float) heading);
 		this.destination.setLocation((float) x, (float) y);
 	}
@@ -169,6 +169,7 @@ public class ControlRST implements IControl {
 		{
 		  case LINE_CTRL	: update_LINECTRL_Parameter();
 		                      exec_LINECTRL_ALGO();
+		                      //exec_LINECTRL_ALGO_PID();
 		                      break;
 		  case VW_CTRL		: update_VWCTRL_Parameter();
 		   					  exec_VWCTRL_ALGO();
@@ -216,6 +217,15 @@ public class ControlRST implements IControl {
 		this.lineSensorLeft  		= perception.getLeftLineSensor();		
 	}
 	
+	//für 3.1.3 liniensensordaten von 0 bis 100
+	/**
+	 * private void update_LINECTRL_Parameter(){
+		this.lineSensorRight		= perception.getRightLineSensorValue();
+		this.lineSensorLeft  		= perception.getLeftLineSensorValue();		
+	}
+	 * 
+	 */
+	
 	/**
 	 * The car can be driven with velocity in m/s or angular velocity in grade during VW Control Mode
 	 * optionally one of them could be set to zero for simple test.
@@ -250,7 +260,8 @@ public class ControlRST implements IControl {
 		leftMotor.forward();
 		rightMotor.forward();
 		int lowPower = 1;
-		int highPower = 30;
+		int midPower = 20; //mittlere Power eingeführt
+		int highPower = 40; //maximale geschwindigkeiten bei den keine linienüberschreitung stattfindet
 		
 
         if(this.lineSensorLeft == 2 && (this.lineSensorRight == 1)){
@@ -282,7 +293,7 @@ public class ControlRST implements IControl {
 		else if(this.lineSensorLeft == 1 && this.lineSensorRight == 0) {
 				
 			// when left sensor is on the line, turn left
-			leftMotor.setPower(lowPower);
+			leftMotor.setPower(midPower); //mittlere Power eingesetzt
 			rightMotor.setPower(highPower);
 				
 		} 
@@ -290,9 +301,46 @@ public class ControlRST implements IControl {
 			
 			// when right sensor is on the line, turn right
 			leftMotor.setPower(highPower);
-			rightMotor.setPower(lowPower);
+			rightMotor.setPower(midPower);   //mittlere Power eingesetzt
+		}
+		else if (this.lineSensorLeft == 0 && this.lineSensorRight == 0) { 
+			
+			//wenn beide Sensoren auf weiß sind, geradeaus fahren
+			//fehleranfällig bei verlassen der führungslinie!!!!!!!! TESTEN!!!!
+			leftMotor.setPower(highPower);
+			rightMotor.setPower(highPower);
 		}
 	}
+	
+	//für 3.1.3 methode mit PID-Regler
+	private void exec_LINECTRL_ALGO_PID() {  
+		leftMotor.forward();
+		rightMotor.forward();
+		//int lowPower = 1;
+		//int midPower = 20; //mittlere Power eingeführt
+		//int highPower = 40; //maximale geschwindigkeiten bei den keine linienüberschreitung stattfindet
+		double esum = 0;
+		double e = 0;
+		double ealt = 0;
+		double kp = 1;
+		double ki =1;
+		double kd =1;
+		double y = 0;
+		double deltaT = 0;
+		
+		
+		e = this.lineSensorRight - this.lineSensorLeft;
+		esum = esum + e; //integrationsanteil
+		y = kp*e + ki*esum*deltaT + kd*(e - ealt)/deltaT;
+		ealt = e;
+		
+		
+		
+	}
+	
+	
+	
+	
 	
 	private void stop(){
 		this.leftMotor.stop();

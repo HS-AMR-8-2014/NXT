@@ -264,7 +264,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_3kn0wGNbEeSPo4Pl5KsscA" elementId="org.eclipse.ui.workbench.file">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_3k2eQGNbEeSPo4Pl5KsscA" elementId="print" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" enabled="false" command="_3AzWM2NbEeSPo4Pl5KsscA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_mNzIEGjbEeSckKXAKjbWVA" elementId="print" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" enabled="false" command="_3AzWM2NbEeSPo4Pl5KsscA"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_3kn0wWNbEeSPo4Pl5KsscA" elementId="additions" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -288,7 +288,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_3kqRAmNbEeSPo4Pl5KsscA" elementId="org.eclipse.ui.workbench.navigate">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_3lCrgGNbEeSPo4Pl5KsscA" elementId="org.eclipse.ui.window.pinEditor" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_3Aw5xmNbEeSPo4Pl5KsscA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_mN85EGjbEeSckKXAKjbWVA" elementId="org.eclipse.ui.window.pinEditor" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_3Aw5xmNbEeSPo4Pl5KsscA"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_3kqRA2NbEeSPo4Pl5KsscA" elementId="group.editor" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -298,7 +298,7 @@
         <tags>toolbarSeparator</tags>
         <children xsi:type="menu:ToolBarSeparator" xmi:id="_3kqRBmNbEeSPo4Pl5KsscA" elementId="group.help" toBeRendered="false"/>
       </children>
-      <children xsi:type="menu:ToolBar" xmi:id="_3kqRB2NbEeSPo4Pl5KsscA" elementId="org.eclipse.ui.workbench.help">
+      <children xsi:type="menu:ToolBar" xmi:id="_3kqRB2NbEeSPo4Pl5KsscA" elementId="org.eclipse.ui.workbench.help" visible="false">
         <tags>Draggable</tags>
       </children>
       <children xsi:type="menu:ToolControl" xmi:id="_3v0YIGNbEeSPo4Pl5KsscA" elementId="PerspectiveSpacer" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.renderers.swt/org.eclipse.e4.ui.workbench.renderers.swt.LayoutModifierToolControl">
@@ -547,6 +547,19 @@
     <bindings xmi:id="_3DNw1WNbEeSPo4Pl5KsscA" keySequence="ALT+SHIFT+Q V" command="_3AsBQGNbEeSPo4Pl5KsscA">
       <parameters xmi:id="_3DNw1mNbEeSPo4Pl5KsscA" elementId="org.eclipse.ui.views.showView.viewId" name="org.eclipse.ui.views.showView.viewId" value="org.eclipse.debug.ui.VariableView"/>
     </bindings>
+    <bindings xmi:id="_ly570GjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+D" command="_lx9gq2jbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_ly7xAGjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+C" command="_lx-Hx2jbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_ly7xAWjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+A" command="_lx9grWjbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_ly-NQGjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+S" command="_lx-uwmjbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_lzACcGjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+P" command="_lx-HtWjbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_lzDs0GjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+E" command="_lx-Hu2jbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_lzFiAGjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+U" command="_lx-HuGjbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_lzHXMGjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+T" command="_lx9goGjbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_lzH-QGjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+I" command="_lx-Ht2jbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_lzIlUGjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+K" command="_lx-HvWjbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_lzJMYGjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+L" command="_lx-uwGjbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_lzJMYWjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+Y" command="_lx-HxmjbEeSckKXAKjbWVA"/>
+    <bindings xmi:id="_lzJzcGjbEeSckKXAKjbWVA" keySequence="ALT+CTRL+R" command="_lx-uxGjbEeSckKXAKjbWVA"/>
   </bindingTables>
   <bindingTables xmi:id="_3CafkmNbEeSPo4Pl5KsscA" elementId="org.eclipse.ui.textEditorScope" bindingContext="_3BEbwmNbEeSPo4Pl5KsscA">
     <bindings xmi:id="_3Cafk2NbEeSPo4Pl5KsscA" keySequence="CTRL+ARROW_DOWN" command="_3A6q9WNbEeSPo4Pl5KsscA"/>
@@ -717,6 +730,8 @@
   <bindingTables xmi:id="_34P7cWNbEeSPo4Pl5KsscA" bindingContext="_34P7cGNbEeSPo4Pl5KsscA"/>
   <bindingTables xmi:id="_34SXoWNbEeSPo4Pl5KsscA" bindingContext="_34SXoGNbEeSPo4Pl5KsscA"/>
   <bindingTables xmi:id="_34SXo2NbEeSPo4Pl5KsscA" bindingContext="_34SXomNbEeSPo4Pl5KsscA"/>
+  <bindingTables xmi:id="_mE5qwWjbEeSckKXAKjbWVA" bindingContext="_mE5qwGjbEeSckKXAKjbWVA"/>
+  <bindingTables xmi:id="_mE6R0WjbEeSckKXAKjbWVA" bindingContext="_mE6R0GjbEeSckKXAKjbWVA"/>
   <rootContext xmi:id="_2_FexGNbEeSPo4Pl5KsscA" elementId="org.eclipse.ui.contexts.dialogAndWindow" contributorURI="platform:/plugin/org.eclipse.platform" name="In Dialogs and Windows" description="Either a dialog or a window is open">
     <children xmi:id="_2_FexWNbEeSPo4Pl5KsscA" elementId="org.eclipse.ui.contexts.window" contributorURI="platform:/plugin/org.eclipse.platform" name="In Windows" description="A window is open">
       <children xmi:id="_2_FexmNbEeSPo4Pl5KsscA" elementId="org.eclipse.e4.ui.contexts.views" contributorURI="platform:/plugin/org.eclipse.platform" name="%bindingcontext.name.bindingView"/>
@@ -802,6 +817,8 @@
   <rootContext xmi:id="_34P7cGNbEeSPo4Pl5KsscA" elementId="org.eclipse.ui.edit.text.actionSet.presentation" name="Auto::org.eclipse.ui.edit.text.actionSet.presentation"/>
   <rootContext xmi:id="_34SXoGNbEeSPo4Pl5KsscA" elementId="org.eclipse.wb.core.ui.actionset" name="Auto::org.eclipse.wb.core.ui.actionset"/>
   <rootContext xmi:id="_34SXomNbEeSPo4Pl5KsscA" elementId="org.lejos.nxt.ldt.actionSet" name="Auto::org.lejos.nxt.ldt.actionSet"/>
+  <rootContext xmi:id="_mE5qwGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.revision.graph.action.shortcuts" name="Auto::org.eclipse.team.svn.revision.graph.action.shortcuts"/>
+  <rootContext xmi:id="_mE6R0GjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.action.shortcuts" name="Auto::org.eclipse.team.svn.ui.action.shortcuts"/>
   <descriptors xmi:id="_3HwSkGNbEeSPo4Pl5KsscA" elementId="org.eclipse.e4.ui.compatibility.editor" allowMultiple="true" category="org.eclipse.e4.primaryDataStack" closeable="true" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor">
     <tags>Editor</tags>
   </descriptors>
@@ -1052,6 +1069,26 @@
   <descriptors xmi:id="_3J0IEGNbEeSPo4Pl5KsscA" elementId="org.eclipse.wst.xml.ui.contentmodel.view" label="Content Model" iconURI="platform:/plugin/org.eclipse.wst.xml.ui/icons/full/view16/hierarchy.gif" category="org.eclipse.e4.secondaryDataStack" closeable="true" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView">
     <tags>View</tags>
     <tags>categoryTag:XML</tags>
+  </descriptors>
+  <descriptors xmi:id="_l2yWQGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.repository.RepositoriesView" label="SVN Repositories" iconURI="platform:/plugin/org.eclipse.team.svn.ui/icons/views/repositories.gif" category="org.eclipse.e4.secondaryDataStack" closeable="true" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView">
+    <tags>View</tags>
+    <tags>categoryTag:SVN</tags>
+  </descriptors>
+  <descriptors xmi:id="_l2310GjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.properties.PropertiesView" label="SVN Properties" iconURI="platform:/plugin/org.eclipse.team.svn.ui/icons/views/propertiesedit.gif" category="org.eclipse.e4.secondaryDataStack" closeable="true" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView">
+    <tags>View</tags>
+    <tags>categoryTag:SVN</tags>
+  </descriptors>
+  <descriptors xmi:id="_l25rAGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.repository.browser.RepositoryBrowser" label="SVN Repository Browser " iconURI="platform:/plugin/org.eclipse.team.svn.ui/icons/views/repositories/browser.gif" category="org.eclipse.e4.secondaryDataStack" closeable="true" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView">
+    <tags>View</tags>
+    <tags>categoryTag:SVN</tags>
+  </descriptors>
+  <descriptors xmi:id="_l26SEGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.properties.RevPropertiesView" label="Revision Properties" iconURI="platform:/plugin/org.eclipse.team.svn.ui/icons/views/propertiesedit.gif" category="org.eclipse.e4.secondaryDataStack" closeable="true" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView">
+    <tags>View</tags>
+    <tags>categoryTag:SVN</tags>
+  </descriptors>
+  <descriptors xmi:id="_l27gMGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.lock.LocksView" label="SVN Locks" iconURI="platform:/plugin/org.eclipse.team.svn.ui/icons/views/locksview.gif" category="org.eclipse.e4.secondaryDataStack" closeable="true" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView">
+    <tags>View</tags>
+    <tags>categoryTag:SVN</tags>
   </descriptors>
   <trimContributions xmi:id="_2r10UF9tEeO-yojH_y4TJA" elementId="org.eclipse.ui.ide.application.trimcontribution.QuickAccess" contributorURI="platform:/plugin/org.eclipse.ui.ide.application" toBeRendered="false" parentId="org.eclipse.ui.main.toolbar" positionInParent="last">
     <children xsi:type="menu:ToolControl" xmi:id="_76uUAF9tEeO-yojH_y4TJA" elementId="Spacer Glue" contributorURI="platform:/plugin/org.eclipse.ui.ide.application" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.renderers.swt/org.eclipse.e4.ui.workbench.renderers.swt.LayoutModifierToolControl">
@@ -1964,6 +2001,53 @@
   <commands xmi:id="_3Z3WQWNbEeSPo4Pl5KsscA" elementId="AUTOGEN:::org.eclipse.mylyn.tasks.ui.actions.view/org.eclipse.mylyn.tasks.ui.open.repositories.view" commandName="Show Task Repositories View" description="Show Task Repositories View" category="_3AWDHmNbEeSPo4Pl5KsscA"/>
   <commands xmi:id="_3Z3WQmNbEeSPo4Pl5KsscA" elementId="AUTOGEN:::org.eclipse.mylyn.tasks.ui.actions.view/org.eclipse.mylyn.doc.legend.show.action" commandName="Show UI Legend" description="Show Tasks UI Legend" category="_3AWDHmNbEeSPo4Pl5KsscA"/>
   <commands xmi:id="_3Z3WQ2NbEeSPo4Pl5KsscA" elementId="AUTOGEN:::org.eclipse.mylyn.tasks.ui.actions.view/org.eclipse.mylyn.context.ui.actions.tasklist.focus" commandName="Focus on Workweek" description="Focus on Workweek" category="_3AWDHmNbEeSPo4Pl5KsscA"/>
+  <commands xmi:id="_lx9goGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.EditPropertiesCommand" commandName="Show Properties" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9goWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CompareWithTagCommand" commandName="Tag..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9gomjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.MarkAsMergedCommand" commandName="Mark as Merged" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9go2jbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.TagCommand" commandName="Tag..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9gpGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CopyCommand" commandName="Copy To..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9gpWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CompareTwoSelectedRepositoryResourcesCommand" commandName="Compare" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9gpmjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CleanupCommand" commandName="Cleanup" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9gp2jbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CompareRepositoryWithTagCommand" commandName="Compare With Tag..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9gqGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.SetKeywordsCommand" commandName="Set Keywords..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9gqWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.ReplaceWithTagCommand" commandName="Tag..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9gqmjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.ShowResourceHistoryCommand" commandName="Show History" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9gq2jbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.UpdateToRevisionCommand" commandName="Update to Revision" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9grGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.ShareProjectsCommand" commandName="Share Projects..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9grWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.ShowAnnotationCommand" commandName="Show Annotation..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx9grmjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.EditConflictsCommand" commandName="Edit Conflicts" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HsGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.SetPropertyCommand" commandName="Set Property..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HsWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.DisconnectCommand" commandName="Disconnect" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HsmjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.AddRevisionLinkCommand" commandName="Add Revision Link..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-Hs2jbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.UnlockCommand" commandName="Unlock..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HtGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.ReplaceWithRevisionCommand" commandName="URL..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HtWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CreatePatchCommand" commandName="Create Patch..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HtmjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CompareTwoRepositoryResourcesCommand" commandName="Compare With URL..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-Ht2jbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.AddToSVNIgnoreCommand" commandName="Add to svn:ignore..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HuGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.UpdateCommand" commandName="Update" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HuWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CopyUrlCommand" commandName="Copy URL" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HumjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.AddToSVNCommand" commandName="Add to Version Control..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-Hu2jbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.MergeCommand" commandName="Merge..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HvGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.UpgradeProjectsCommand" commandName="Upgrade Projects..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HvWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.LockCommand" commandName="Lock..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HvmjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.ExportCommand" commandName="Export..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-Hv2jbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.SwitchCommand" commandName="Switch..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HwGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.SetExternalDefinitionCommand" commandName="Set External Definition..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HwWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CompareRepositoryWithBranchCommand" commandName="Compare With Branch..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HwmjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.ReplaceWithLatestRevisionCommand" commandName="Latest from Repository" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-Hw2jbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CompareWithBranchCommand" commandName="Branch..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HxGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.BranchCommand" commandName="Branch..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HxWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.ScanLocksCommand" commandName="Scan Locks" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HxmjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.revision.graph.command.ShowRevisionGraphCommand" commandName="Show Revision Graph..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-Hx2jbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CommitCommand" commandName="Commit..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-HyGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.RevertCommand" commandName="Revert..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-uwGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CompareWithLatestRevisionCommand" commandName="Latest from Repository" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-uwWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CompareWithWorkingCopyCommand" commandName="Base from Working Copy" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-uwmjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.SynchronizeCommand" commandName="Synchronize with Repository" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-uw2jbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.ReplaceWithBranchCommand" commandName="Branch..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-uxGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.CompareWithRevisionCommand" commandName="URL..." category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_lx-uxWjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.EditTreeConflictsCommand" commandName="Edit Tree Conflicts" category="_lx8SgGjbEeSckKXAKjbWVA"/>
+  <commands xmi:id="_mEWRIGjbEeSckKXAKjbWVA" elementId="AUTOGEN:::org.eclipse.team.svn.ui.action.shortcuts/org.eclipse.team.svn.ui.action.local.management.DisconnectAction" commandName="Disconnect" description="Disconnect from the SVN repository" category="_3AWDHmNbEeSPo4Pl5KsscA"/>
   <addons xmi:id="_2_FeyGNbEeSPo4Pl5KsscA" elementId="org.eclipse.e4.core.commands.service" contributorURI="platform:/plugin/org.eclipse.platform" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_2_FeyWNbEeSPo4Pl5KsscA" elementId="org.eclipse.e4.ui.contexts.service" contributorURI="platform:/plugin/org.eclipse.platform" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_2_FeymNbEeSPo4Pl5KsscA" elementId="org.eclipse.e4.ui.bindings.service" contributorURI="platform:/plugin/org.eclipse.platform" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
@@ -2006,4 +2090,5 @@
   <categories xmi:id="_3AWDHGNbEeSPo4Pl5KsscA" elementId="org.eclipse.jdt.ui.category.source" name="Source" description="Java Source Actions"/>
   <categories xmi:id="_3AWDHWNbEeSPo4Pl5KsscA" elementId="org.eclipse.mylyn.commons.repositories.ui.category.Team" name="Team"/>
   <categories xmi:id="_3AWDHmNbEeSPo4Pl5KsscA" elementId="org.eclipse.core.commands.categories.autogenerated" name="Uncategorized" description="Commands that were either auto-generated or have no category"/>
+  <categories xmi:id="_lx8SgGjbEeSckKXAKjbWVA" elementId="org.eclipse.team.svn.ui.command.category" name="SVN"/>
 </application:Application>
