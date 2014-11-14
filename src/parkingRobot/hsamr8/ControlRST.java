@@ -78,12 +78,11 @@ public class ControlRST implements IControl {
     double esum = 0;
 	double e = 0;
 	double ealt = 0;
-	double kp = 0.5;
-	double ki =0.2;
-	double kd =0.2;
+	double kp = 0.06;
+	double ki =0;
+	double kd =0;
 	double y = 0;
-	double deltaT = 104/100;
-  
+	
 	
 	/**
 	 * provides the reference transfer so that the class knows its corresponding navigation object (to obtain the current 
@@ -179,8 +178,8 @@ public class ControlRST implements IControl {
 		switch (currentCTRLMODE)
 		{
 		  case LINE_CTRL	: update_LINECTRL_Parameter();
-		                      exec_LINECTRL_ALGO();
-		                      //exec_LINECTRL_ALGO_PID();
+		                      //exec_LINECTRL_ALGO();
+		                      exec_LINECTRL_ALGO_PID();
 		                      break;
 		  case VW_CTRL		: update_VWCTRL_Parameter();
 		   					  exec_VWCTRL_ALGO();
@@ -223,17 +222,17 @@ public class ControlRST implements IControl {
 	/**
 	 * update parameters during LINE Control Mode
 	 */
-	private void update_LINECTRL_Parameter(){
+	/**private void update_LINECTRL_Parameter(){
 		this.lineSensorRight		= perception.getRightLineSensor();
 		this.lineSensorLeft  		= perception.getLeftLineSensor();		
-	}
+	}*/
 	
 	//für 3.1.3 liniensensordaten von 0 bis 100
 	
-    /**private void update_LINECTRL_Parameter(){
+    private void update_LINECTRL_Parameter(){
 		this.lineSensorRight		= perception.getRightLineSensorValue();
 		this.lineSensorLeft  		= perception.getLeftLineSensorValue();		
-	}*/
+	}
 	
 	
 	/**
@@ -333,10 +332,29 @@ public class ControlRST implements IControl {
 		
 		
 		e = this.lineSensorRight - this.lineSensorLeft;
-		esum = esum + e; //integrationsanteil
-		y = kp*e + ki*esum*deltaT + kd*(e - ealt)/deltaT;
-		ealt = e;
-		if(y<0){
+		
+	
+			
+			esum = esum + e; //integrationsanteil
+			y = kp*e + ki*esum + kd*(e - ealt);
+			ealt = e;
+		
+			rightMotor.setPower((int) (29+y));
+			leftMotor.setPower((int) (29-y));
+			
+		
+		/**else if(e < -90){
+			leftMotor.setPower(30);
+			rightMotor.setPower(-30);	
+			}
+		else if(e > 90){
+			rightMotor.setPower(30);
+			leftMotor.setPower(-30);
+			}
+		*/
+		
+		}
+		/**if(y<0){
 			
 			leftMotor.setPower((int) ((-y)/100*30));
 			rightMotor.setPower((int) (30-30/100*(-y)));	}
@@ -347,10 +365,10 @@ public class ControlRST implements IControl {
 		if(y == 0){
 			rightMotor.setPower(30);
 			leftMotor.setPower(30);
-		}
+		}*/
 		
 		
-	}
+
 	
 	
 	
