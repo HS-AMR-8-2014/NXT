@@ -5,6 +5,7 @@ import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
 import parkingRobot.IControl;
 import parkingRobot.IControl.*;
+import parkingRobot.INavigation.ParkingSlot;
 import parkingRobot.INxtHmi;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
@@ -177,7 +178,7 @@ public class GuidanceAT {
         			}
         			
         			//While action				
-        			showData_test1();			
+        			showData_test1(navigation,perception);			
         			
         			//State transition check
         			lastStatus = currentStatus;
@@ -192,8 +193,7 @@ public class GuidanceAT {
         			}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
         				currentStatus = CurrentStatus.EXIT;
         			}
-				
-        			//Leave action
+        			
         			if ( currentStatus != CurrentStatus.TEST1 ){
         				//nothing to do here
         			}
@@ -303,21 +303,26 @@ public class GuidanceAT {
 //		}
 	}
 	
-	protected static void showData_test1(INavigation navigation, IPerception perception){
+	protected static void showData_test1(INavigation navigation, IPerception perception)
+	{
 		LCD.clear();	
 		
 		LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 0);
 		LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 1);
 		LCD.drawString("Phi (grd): " + (navigation.getPose().getHeading()/Math.PI*180), 0, 2);
-		
-//		perception.showSensorData();
-		
-//    	if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
-//			LCD.drawString("HMI Mode SCOUT", 0, 3);
-//		}else if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
-//			LCD.drawString("HMI Mode PAUSE", 0, 3);
-//		}else{
-//			LCD.drawString("HMI Mode UNKNOWN", 0, 3);
-//		}
+		if (navigation.list_ParkingSlot.lengt>0)
+		{
+			LCD.drawString("ParkSlots: " + (navigation.list_ParkingSlot.length, 0, 3);						//Vorschlag: Methode in Navigation Get#ParkSlots()
+			LCD.drawString("Slot1:     (" 		+ (navigation.getSlotById(0).getFrontBoundaryPosition().getX()) 
+									+ "/" 		+ (navigation.getSlotById(0).getFrontBoundaryPosition().getY())
+									+ ") - ("	+ (navigation.getSlotById(0).getBackBoundaryPosition().getX()) 
+									+ "/" 		+ (navigation.getSlotById(0).getBackBoundaryPosition().getY())
+									+ ")" 		, 0, 4);
+		}
+		else
+		{
+			LCD.drawString("No ParkSlots detected yet!", 0, 3);	
+		}
+
 	}
 }
