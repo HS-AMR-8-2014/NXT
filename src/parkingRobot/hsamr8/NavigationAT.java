@@ -2,8 +2,10 @@ package parkingRobot.hsamr8;
 
 import lejos.geom.Line;
 import lejos.robotics.navigation.Pose;
+import lejos.geom.Point;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
+import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
 import parkingRobot.hsamr8.NavigationThread;
 
 
@@ -111,6 +113,12 @@ public class NavigationAT implements INavigation{
 	 * pose class containing bundled current X and Y location and corresponding heading angle phi
 	 */
 	Pose pose								= new Pose();
+    int id_aktuell =0;
+    boolean x_fix=false;
+    boolean y_fix=true;
+    int fix_value=0;
+	ParkingSlot[] list_ParkingSlot;
+	int abstand_sens_band=130; //Abstand von Sensor zur Bande
 
 	/**
 	 * thread started by the 'Navigation' class for background calculating
@@ -220,38 +228,190 @@ public class NavigationAT implements INavigation{
 		double xResult 		= 0;
 		double yResult 		= 0;
 		double angleResult 	= 0;
+		int abstandtriang=50;
 		
 		double deltaT       = ((double)this.angleMeasurementLeft.getDeltaT())/1000;
 		
 		if (R.isNaN()) { //robot don't move
-			xResult			= this.pose.getX();
-			yResult			= this.pose.getY();
+			if(x_fix==false){xResult= this.pose.getX();}
+			else{xResult=fix_value;}
+			if(y_fix==false){
+				yResult			= this.pose.getY();
+			}else{
+				yResult=fix_value; 
+			}
 			angleResult 	= this.pose.getHeading();
-		} else if (R.isInfinite()) { //robot moves straight forward/backward, vLeft==vRight
+			if(angleResult>360){
+				angleResult=angleResult-360;
+			}
+		} else if (R.isInfinite()||(this.backSideSensorDistance==this.frontSideSensorDistance )) { //robot moves straight forward/backward, vLeft==vRight
 			xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
 			yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
-			angleResult 	= this.pose.getHeading();
+				angleResult 	= this.pose.getHeading();
+				if(angleResult>360){
+					angleResult=angleResult-360;
+				}
+			
+			
 		} else {			
+			
+			if(this.frontSideSensorDistance<60 &&  this.backSideSensorDistance<60){
+				ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
+				ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
+				xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
+				yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
+				angleResult 	= this.pose.getHeading() + w * deltaT;
+				if(angleResult>360){
+					angleResult=angleResult-360;
+				}
+				
+			}
+			
+			else {
 			ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
 			ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
 		
 			xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
-			angleResult 	= this.pose.getHeading() + w * deltaT;
+		/**	angleResult 	= this.pose.getHeading() + w * deltaT;    */
+			angleResult     = this.pose.getHeading()+ Math.sin((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang);
+			if(angleResult>360){
+				angleResult=angleResult-360;
+			}
+		}
 		}
 		
+		/**		if(this.lineSensorLeft==2 || this.lineSensorRight==2){
+			int links=this.lineSensorLeft;
+			int rechts=this.lineSensorRight;
+		}
+			switch(links){
+	        case 2:
+	            if(rechts==0){
+	            	angleResult=
+	            };
+	            break;
+	        case 0:
+	            if(rechts==2){
+	            	
+	            };
+	            break;
+	        	
+            switch(rechts){
+		        case 2:
+		            if(links==0){
+		            	
+		            };
+		            break;
+		        case 0:
+		            if(links==2){
+		            	
+		            };
+		            break;
+            
+            }
+		} */
+			
+			
+			
 		this.pose.setLocation((float)xResult, (float)yResult);
 		this.pose.setHeading((float)angleResult);		 
 	}
 
 	/**
+	 * Wird von Guidance aufgerufen, um fixe Werte zu übergeben. Dies vereinfacht Schätzung der Pose.
+	 * 
+	 * @param a ist der x-Wert fix?
+	 * @param b ist der y-Wert fix?
+	 * @param c fixer Wert dessen Berechnung eingespart werden kann
+	 */
+	public void update_nav_line(boolean a, boolean b, int c){
+	x_fix=a;
+	y_fix=b;
+	fix_value=c;
+		
+	}
+	
+	
+	
+	
+	
+	
+	/**
 	 * detects parking slots and manage them by initializing new slots, re-characterizing old slots or merge old and detected slots. 
 	 */
 	private void detectParkingSlot(){
+//		double leftAngleSpeed 	= this.angleMeasurementLeft.getAngleSum()  / ((double)this.angleMeasurementLeft.getDeltaT()/1000);  //degree/seconds
+//		double rightAngleSpeed 	= this.angleMeasurementRight.getAngleSum() / ((double)this.angleMeasurementRight.getDeltaT()/1000); //degree/seconds
+	//	double firstcheckx=	0;
+//		double secondcheckx=0;
+//		double xweg 		= 0;
+//		double yweg 		= 0;
+//		double vLeft		= (leftAngleSpeed  * Math.PI * LEFT_WHEEL_RADIUS ) / 180 ; //velocity of left  wheel in m/s
+//		double vRight		= (rightAngleSpeed * Math.PI * RIGHT_WHEEL_RADIUS) / 180 ; //velocity of right wheel in m/s	
+//		double deltaT       = ((double)this.angleMeasurementLeft.getDeltaT())/1000;
+		boolean detectionactive = false;
+		Point anfang =new Point(0,0);
+		Point ende =new Point(0,0);
+		boolean bekannt=false;
+		int id_bekannte_luecke=0;
 		
-	//Kommentar	
 		
+		ParkingSlotStatus slotStatus=ParkingSlotStatus.BAD;
 		
-		return; // has to be implemented by students
+		if(this.frontSideSensorDistance>abstand_sens_band || this.backSideSensorDistance>abstand_sens_band){
+			
+			
+	 		if(this.frontSideSensorDistance>abstand_sens_band && (detectionactive==false)){
+	 		
+	 		//pruefe, ob Parkluecke schon vorhanden
+	 		for(int i=0; i==list_ParkingSlot.length;i++){	
+	 		double	deltax=this.pose.getX()-list_ParkingSlot[i].getFrontBoundaryPosition().getX();
+	 		double	deltay=this.pose.getY()-list_ParkingSlot[i].getFrontBoundaryPosition().getY();
+	 			if ((deltax<5) && (deltay<5)){
+	 			bekannt=true;
+	 			id_bekannte_luecke=i;
+	 			//Parklücken später direkt neu vermessen an dieser Stelle und mit alten Daten abgleichen
+	 			
+	 			}else{
+	 				anfang.setLocation(this.pose.getX(),this.pose.getY());
+	 				detectionactive=true;
+	 				
+	 				//Lücke vermessen und Speichern
+	 			}
+	 		}
+	 		
+	 		
+	 		
+	 		 
+	 		if(this.frontSideSensorDistance<abstand_sens_band && detectionactive==true){
+	 			ende.setLocation(this.pose.getX(),this.pose.getY());
+			detectionactive=false;
+	 		//Parklückenbewertung
+			
+			
+			list_ParkingSlot [id_aktuell] = new ParkingSlot(id_aktuell, anfang, ende, slotStatus);
+			
+			id_aktuell++;
+	 		}
+	 		
+	 
+	 		}	
+
+		}else{
+			
+		}
+			
+		
+		//muss abgesichert werden, dass nur positiv/gut vermessene Parklücken abgespeichert werden
+
+
+	
+		return ; // has to be implemented by students
 	}
+	public ParkingSlot getSlotById(int i){
+		return list_ParkingSlot[i];
+	}
+	
+	
 }
