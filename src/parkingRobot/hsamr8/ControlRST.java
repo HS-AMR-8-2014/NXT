@@ -63,7 +63,7 @@ public class ControlRST implements IControl {
 	Pose currentPosition = new Pose();
 	Pose destination = new Pose();
 	
-	ControlMode currentCTRLMODE = null;
+	ControlMode currentCTRLMODE = null ;
 	
 	EncoderSensor controlRightEncoder    = null;
 	EncoderSensor controlLeftEncoder     = null;
@@ -79,14 +79,14 @@ public class ControlRST implements IControl {
 	double e = 0;
 	double ealt = 0;
 	double kp = 0.08;
-	double ki =0.0025;
-	double kd =0.000001;
+	double ki =0.0025; //0.0025
+	double kd = 0.0000005; //0.000001
 	double y = 0;
 	
 	
-	double radius = 0;   //für meth drive(V;W-Control)
-	double wheelDiameter = ;
-	double trackWidth = ;
+	double radius = 0;   //für methode drive(V;W-Control)
+	double wheelDiameter = 5.6;
+	double trackWidth = 14;
 	double distancePerTurn = PI*wheelDiameter;
 	double distancePerDegree = distancePerTurn/360;
 	double rightSpeed = 0;
@@ -400,19 +400,19 @@ public class ControlRST implements IControl {
 		//Aufgabe 3.2
 		
 		
-		if( omega != 0){
+		if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben
 			radius = v/omega;
 			if(v != 0){
 				leftSpeed = v - (trackWidth/2*v/radius);
 				rightSpeed = v + (trackWidth/2*v/radius);
 			}
-			else{
+			else{                            //falls v=0
 				leftSpeed = trackWidth/2*omega;
 				rightSpeed = -trackWidth/2*omega;
 			};
 				
 		}
-		else{
+		else{                                      
 			leftSpeed = v;
 			rightSpeed = v;
 		};
