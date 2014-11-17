@@ -74,14 +74,25 @@ public class ControlRST implements IControl {
     double Distance = 0.0;
     
     
-    
-    double esum = 0;
+    double PI = 3.14159265359;
+    double esum = 0; //für linefollow
 	double e = 0;
 	double ealt = 0;
 	double kp = 0.08;
 	double ki =0.0025;
 	double kd =0.000001;
 	double y = 0;
+	
+	
+	double radius = 0;   //für meth drive(V;W-Control)
+	double wheelDiameter = ;
+	double trackWidth = ;
+	double distancePerTurn = PI*wheelDiameter;
+	double distancePerDegree = distancePerTurn/360;
+	double rightSpeed = 0;
+	double leftSpeed = 0;
+	
+	
 	
 	
 	/**
@@ -387,5 +398,27 @@ public class ControlRST implements IControl {
      */
 	private void drive(double v, double omega){
 		//Aufgabe 3.2
+		
+		
+		if( omega != 0){
+			radius = v/omega;
+			if(v != 0){
+				leftSpeed = v - (trackWidth/2*v/radius);
+				rightSpeed = v + (trackWidth/2*v/radius);
+			}
+			else{
+				leftSpeed = trackWidth/2*omega;
+				rightSpeed = -trackWidth/2*omega;
+			};
+				
+		}
+		else{
+			leftSpeed = v;
+			rightSpeed = v;
+		};
+		leftMotor.setPower((int)leftSpeed);
+		rightMotor.setPower((int)rightSpeed);
+		
 	}
+	
 }
