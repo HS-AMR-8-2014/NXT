@@ -51,7 +51,17 @@ public class GuidanceAT {
 		/**
 		 * indicates that shutdown of main program has initiated
 		 */
-		EXIT
+		EXIT,
+		/**
+		 * indicates that the robot moves closer to a a turning point on the parcours.
+		 * The sensors will be handled differently so the robot can do a 90 degree turn-around.
+		 */
+		CLOSE_TO_TURNING_POINT,
+		/**
+		 * indicates a mode to test parkingslot detection. First team test.
+		 * The mode equals DRIVING in scouting mode, but uses the NXT-Display to show test results.
+		 */
+		TEST1
 	}
 	
 	
@@ -85,7 +95,54 @@ public class GuidanceAT {
 	 */
 	static Line[] map = {line0, line1, line2, line3, line4, line5, line6, line7};
 	
+	/**
+	 * indicates on which line of the parcours the robot moves. Used to simplify orientation.
+	 */
 	
+	private int line_status = 0;
+	
+	/**
+	 * method to indicate which coordinates are fixed. Number of present line given by Guidance. 
+	 * Possibility to switch fixed values off by receiving false as first parameter
+	 */
+
+	public void update_nav_line(boolean enabled, int line_no)
+	{
+		x_fix = false;
+		y_fix = false;
+		fix_value = 0;
+		
+		if(enabled){
+			switch(line_no)
+			{
+				case 0: y_fix = true;
+						break;
+				case 1: x_fix = true;
+						fix_value = 180;
+						break;
+				case 2: y_fix = true;
+						fix_value = 60;
+						break;
+				case 3: x_fix = true;
+						fix_value = 150;
+						break;
+				case 4: y_fix = true;
+						fix_value = 30;
+						break;
+				case 5: x_fix = true;
+						fix_value = 30;
+						break;
+				case 6: y_fix = true;
+						fix_value = 60;
+						break;
+				case 7: x_fix = true;
+						break;
+				default://no action here
+						break;
+			}
+		}
+	}
+		
 	/**
 	 * main method of project 'ParkingRobot'
 	 * 
@@ -109,11 +166,39 @@ public class GuidanceAT {
 		INxtHmi  	hmi        = new HmiPLT(perception, navigation, control);
 				
 		while(true) {
-			showData(navigation, perception);
+			showData(navigation, perception); 													//wofuer soll das gut sein?
 			
         	switch ( currentStatus )
         	{
-				case DRIVING:
+        		case TEST1:
+        			//Into action
+        			if ( (lastStatus != CurrentStatus.DRIVING)||(lastStatus != CurrentStatus.TEST1) ){
+        				control.setCtrlMode(ControlMode.LINE_CTRL);
+        			}
+        			
+        			//While action				
+        			showData_test1();			
+        			
+        			//State transition check
+        			lastStatus = currentStatus;
+        			if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
+        				currentStatus = CurrentStatus.INACTIVE;
+        			}else if ( Button.ENTER.isDown() ){
+        				currentStatus = CurrentStatus.INACTIVE;
+        				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+        			}else if ( Button.ESCAPE.isDown() ){
+        				currentStatus = CurrentStatus.EXIT;
+        				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+        			}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
+        				currentStatus = CurrentStatus.EXIT;
+        			}
+				
+        			//Leave action
+        			if ( currentStatus != CurrentStatus.TEST1 ){
+        				//nothing to do here
+        			}
+        			break;				
+        		case DRIVING:
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING ){
 						control.setCtrlMode(ControlMode.LINE_CTRL);
@@ -157,9 +242,9 @@ public class GuidanceAT {
 					//State transition check
 					lastStatus = currentStatus;
 					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
-						currentStatus = CurrentStatus.DRIVING;						
+						currentStatus = CurrentStatus.TEST1;											//currentStatus = CurrentStatus.DRIVING;						
 					}else if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.DRIVING;
+						currentStatus = CurrentStatus.TEST1;											//currentStatus = CurrentStatus.DRIVING;
 						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;
@@ -201,6 +286,24 @@ public class GuidanceAT {
 	 * @param navigation reference to the navigation class for getting pose information
 	 */
 	protected static void showData(INavigation navigation, IPerception perception){
+		LCD.clear();	
+		
+		LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 0);
+		LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 1);
+		LCD.drawString("Phi (grd): " + (navigation.getPose().getHeading()/Math.PI*180), 0, 2);
+		
+//		perception.showSensorData();
+		
+//    	if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
+//			LCD.drawString("HMI Mode SCOUT", 0, 3);
+//		}else if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
+//			LCD.drawString("HMI Mode PAUSE", 0, 3);
+//		}else{
+//			LCD.drawString("HMI Mode UNKNOWN", 0, 3);
+//		}
+	}
+	
+	protected static void showData_test1(INavigation navigation, IPerception perception){
 		LCD.clear();	
 		
 		LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 0);
