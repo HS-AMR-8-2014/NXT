@@ -209,6 +209,44 @@ public class NavigationAT implements INavigation{
 		this.backSideSensorDistance	= perception.getBackSideSensorDistance();
 	}		 	
 	
+	
+	public void update_nav_line(boolean enabled, int line_no)
+	{
+		x_fix = false;
+		y_fix = false;
+		fix_value = 0;
+		
+		if(enabled){
+			switch(line_no)
+			{
+				case 0: y_fix = true;
+						break;
+				case 1: x_fix = true;
+						fix_value = 180;
+						break;
+				case 2: y_fix = true;
+						fix_value = 60;
+						break;
+				case 3: x_fix = true;
+						fix_value = 150;
+						break;
+				case 4: y_fix = true;
+						fix_value = 30;
+						break;
+				case 5: x_fix = true;
+						fix_value = 30;
+						break;
+				case 6: y_fix = true;
+						fix_value = 60;
+						break;
+				case 7: x_fix = true;
+						break;
+				default://no action here
+						break;
+			}
+		}
+	}
+	
 	/**
 	 * calculates the robot pose from the measurements
 	 */
@@ -274,7 +312,7 @@ public class NavigationAT implements INavigation{
 			xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 		/**	angleResult 	= this.pose.getHeading() + w * deltaT;    */
-			angleResult     = this.pose.getHeading()+ Math.sin((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang);
+			angleResult     = Math.sin((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang);
 			if(angleResult>360){
 				angleResult=angleResult-360;
 			}
