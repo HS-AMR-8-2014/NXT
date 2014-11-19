@@ -259,6 +259,7 @@ public class GuidanceAT {
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_VW_CONTROL ){
         				control.setCtrlMode(ControlMode.INACTIVE);
+        				control.exec_CTRL_ALGO();
         				LCD.clear();	
         				LCD.drawString("TEST_VW_CONTROL", 0, 0);
         				LCD.drawString("Enter: start driving", 0, 1);

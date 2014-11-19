@@ -258,8 +258,8 @@ public class ControlRST implements IControl {
 	 * optionally one of them could be set to zero for simple test.
 	 */
     private void exec_VWCTRL_ALGO(){  
-		this.drive(10, 0/**this.velocity, this.angularVelocity*/); //TEST!!!!!!!!!!!!!!!!!!
-	}
+		this.drive(this.velocity, this.angularVelocity); 
+		}
 	
     private void exec_SETPOSE_ALGO(){
     	//Aufgabe 3.3
