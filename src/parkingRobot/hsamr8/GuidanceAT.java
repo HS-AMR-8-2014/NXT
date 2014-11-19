@@ -158,7 +158,7 @@ public class GuidanceAT {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
-        currentStatus = CurrentStatus.INACTIVE;								//TEST
+        currentStatus = CurrentStatus.INACTIVE_TEST;								//TEST
         lastStatus    = CurrentStatus.EXIT;
 		
 		// Generate objects
@@ -265,7 +265,7 @@ public class GuidanceAT {
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_CONTROL ){
         				LCD.clear();	
-        				LCD.drawString("current mode: TEST_HMI"), 0, 0);
+        				LCD.drawString("current mode: TEST_CONTROL"), 0, 0);
         				LCD.drawString("start driving by pressing ENTER"), 0, 1);
         				LCD.drawString("proceed to next test by pressing ESC"), 0, 2);
  
