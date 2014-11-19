@@ -268,7 +268,7 @@ public class GuidanceAT {
         			if(control.getCtrlMode()==ControlMode.VW_CTRL)
         			{
         			LCD.clear();	
-        			LCD.drawString("TEST_CONTROL", 0, 0);
+        			LCD.drawString("TEST_VW_CONTROL", 0, 0);
         			LCD.drawString("driving activated", 0, 1);
         			LCD.drawString("ESC: next test", 0, 2);
         			AngleDifferenceMeasurement rightEncoder = perception.getControlRightEncoder().getEncoderMeasurement();
@@ -283,6 +283,7 @@ public class GuidanceAT {
         			if ( Button.ENTER.isDown() ){
         				//test action																//TEST ACTION
         				control.setCtrlMode(ControlMode.VW_CTRL);
+        				control.exec_CTRL_ALGO();
         				
         				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
         			}
@@ -296,9 +297,9 @@ public class GuidanceAT {
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_SLOTDETECTION ){
         				LCD.clear();	
-        				LCD.drawString("current mode: TEST_SLOTDETECTION", 0, 0);
-        				LCD.drawString("start driving by pressing ENTER", 0, 1);
-        				LCD.drawString("proceed to regular modes by pressing ESC", 0, 2);
+        				LCD.drawString("TEST_SLOTDETECTION", 0, 0);
+        				LCD.drawString("ENTER: start driving", 0, 1);
+        				LCD.drawString("ESC: regular modes", 0, 2);
         			}
         			
         			//While action				
