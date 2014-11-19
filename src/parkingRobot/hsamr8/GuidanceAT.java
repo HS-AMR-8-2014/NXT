@@ -272,10 +272,10 @@ public class GuidanceAT {
         			}
         			AngleDifferenceMeasurement rightEncoder = perception.getControlRightEncoder().getEncoderMeasurement();
         			AngleDifferenceMeasurement leftEncoder = perception.getControlLeftEncoder().getEncoderMeasurement();
-        			LCD.drawString("angle right"+ (rightEncoder.getAngleSum()),0,3);
-        			LCD.drawString("delta t right"+ (rightEncoder.getDeltaT()),0,4);
-        			LCD.drawString("angle left"+ (leftEncoder.getAngleSum()),0,5);
-        			LCD.drawString("delta t left"+ (leftEncoder.getDeltaT()),0,6);
+        			LCD.drawString("angle right:   "+ (rightEncoder.getAngleSum()),0,3);
+        			LCD.drawString("delta t right: "+ (rightEncoder.getDeltaT()),0,4);
+        			LCD.drawString("angle left:    "+ (leftEncoder.getAngleSum()),0,5);
+        			LCD.drawString("delta t left:  "+ (leftEncoder.getDeltaT()),0,6);
         			//State transition check
         			lastStatus = currentStatus;	
         			if ( Button.ENTER.isDown() ){
