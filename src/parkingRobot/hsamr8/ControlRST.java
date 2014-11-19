@@ -199,7 +199,7 @@ public class ControlRST implements IControl {
 		                      //exec_LINECTRL_ALGO();
 		                      exec_LINECTRL_ALGO_PID();
 		                      break;
-		  case VW_CTRL		: update_VWCTRL_Parameter();
+		  case VW_CTRL		: //update_VWCTRL_Parameter();
 		   					  exec_VWCTRL_ALGO();
 		   					  break; 
 		  case SETPOSE      : update_SETPOSE_Parameter();
@@ -258,7 +258,7 @@ public class ControlRST implements IControl {
 	 * optionally one of them could be set to zero for simple test.
 	 */
     private void exec_VWCTRL_ALGO(){  
-		this.drive(this.velocity, this.angularVelocity);
+		this.drive(10, 0/**this.velocity, this.angularVelocity*/); //TEST!!!!!!!!!!!!!!!!!!
 	}
 	
     private void exec_SETPOSE_ALGO(){
@@ -351,14 +351,14 @@ public class ControlRST implements IControl {
 		
 		e = this.lineSensorRight - this.lineSensorLeft;
 		
-		if(e < 98){                       //linkskurve
+		/**if(e < 98){                       //linkskurve
 			leftMotor.setPower(0);
 			rightMotor.setPower(25);
 			esum =0;
 			ealt=0;
 			
 		}
-		else{   
+		else{ */  
 		//if(e < 100 && e > -100){ 	
 			esum = esum + e; //integrationsanteil
 			y = kp*e + ki*esum + kd*(e - ealt);
@@ -366,7 +366,7 @@ public class ControlRST implements IControl {
 		
 			rightMotor.setPower((int) (40+y));
 			leftMotor.setPower((int) (40-y));
-		}
+		//}
 		/**
 		else if(e < -99){
 			leftMotor.setPower(30);
