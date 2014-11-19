@@ -91,6 +91,10 @@ public class ControlRST implements IControl {
 	double distancePerDegree = distancePerTurn/360;
 	double rightSpeed = 0;
 	double leftSpeed = 0;
+	double dleft = 0;
+	double dright = 0;
+	
+	
 	
 	
 	
@@ -344,7 +348,11 @@ public class ControlRST implements IControl {
 		
 		e = this.lineSensorRight - this.lineSensorLeft;
 		
-	
+		if(e < -95){                       //linkskurve
+			leftMotor.setPower(0);
+			rightMotor.setPower(25);
+		}
+		else{
 		//if(e < 100 && e > -100){ 	
 			esum = esum + e; //integrationsanteil
 			y = kp*e + ki*esum + kd*(e - ealt);
@@ -352,7 +360,7 @@ public class ControlRST implements IControl {
 		
 			rightMotor.setPower((int) (40+y));
 			leftMotor.setPower((int) (40-y));
-			
+		}
 		/**
 		else if(e < -99){
 			leftMotor.setPower(30);
@@ -365,18 +373,7 @@ public class ControlRST implements IControl {
 		
 		*/
 		}
-		/**if(y<0){
-			
-			leftMotor.setPower((int) ((-y)/100*30));
-			rightMotor.setPower((int) (30-30/100*(-y)));	}
-		if(y>0){
-			rightMotor.setPower((int) (y/100*30));
-			leftMotor.setPower((int) (30-30/100*(y)));
-		}
-		if(y == 0){
-			rightMotor.setPower(30);
-			leftMotor.setPower(30);
-		}*/
+		
 		
 		
 
@@ -418,6 +415,34 @@ public class ControlRST implements IControl {
 		};
 		leftMotor.setPower((int)leftSpeed);
 		rightMotor.setPower((int)rightSpeed);
+		
+		
+		/**
+		 * if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben
+			radius = v/omega;
+			if(v != 0){
+				leftSpeed = v - (trackWidth/2*v/radius);
+				rightSpeed = v + (trackWidth/2*v/radius);
+			}
+			else{                            //falls v=0
+				leftSpeed = trackWidth/2*omega;
+				rightSpeed = -trackWidth/2*omega;
+			};
+				
+		}
+		else{                                      
+			leftSpeed = v;
+			rightSpeed = v;
+		};
+		
+		dleft = leftSpeed - wheeldiameter/2*
+		
+		leftMotor.setPower((int)leftSpeed);
+		rightMotor.setPower((int)rightSpeed);
+		 * 
+		 * 
+		 * 
+		 */
 		
 	}
 	
