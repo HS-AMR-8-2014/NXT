@@ -86,6 +86,16 @@ public interface IControl {
 	 */
 	public void setCtrlMode(ControlMode ctrl_mode);
 	
+	
+	
+	
+	/**
+	 * get actual CNTRLMode
+	 * for test
+	 * @return 
+	 */
+	public ControlMode getCtrlMode();
+	
 	/**
 	 * set start time
 	 * @param startTime
