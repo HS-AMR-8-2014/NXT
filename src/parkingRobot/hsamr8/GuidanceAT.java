@@ -221,6 +221,7 @@ public class GuidanceAT {
         		case TEST_CONTROL:
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_CONTROL ){
+        				control.setCtrlMode(ControlMode.INACTIVE);
         				LCD.clear();	
         				LCD.drawString("TEST_CONTROL", 0, 0);
         				LCD.drawString("Enter: start driving", 0, 1);
@@ -257,6 +258,7 @@ public class GuidanceAT {
         		case TEST_VW_CONTROL:
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_VW_CONTROL ){
+        				control.setCtrlMode(ControlMode.INACTIVE);
         				LCD.clear();	
         				LCD.drawString("TEST_VW_CONTROL", 0, 0);
         				LCD.drawString("Enter: start driving", 0, 1);
