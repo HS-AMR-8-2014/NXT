@@ -133,7 +133,7 @@ public class GuidanceAT {
 		INxtHmi  	hmi        = new HmiPLT(perception, navigation, control);
 				
 		while(true) {
-			showData(navigation, perception); 													//wofuer soll das gut sein?
+			//showData(navigation, perception); 													//wofuer soll das gut sein?
 			
         	switch ( currentStatus )
         	{
@@ -144,8 +144,8 @@ public class GuidanceAT {
         			if ( lastStatus != CurrentStatus.INACTIVE_TEST )
         			{   control.setCtrlMode(ControlMode.INACTIVE);
         				LCD.clear();	
-        				LCD.drawString("current mode: INACTIVE", 0, 0);
-        				LCD.drawString("start Testing by pressing ESC", 0, 1);
+        				LCD.drawString("INACTIVE", 0, 0);
+        				LCD.drawString("ESC:start Testing", 0, 1);
         				lastStatus = currentStatus;	
         			}			
         			if ( Button.ESCAPE.isDown() )
@@ -159,9 +159,9 @@ public class GuidanceAT {
         			if ( lastStatus != CurrentStatus.TEST_LCD ){
         				control.setCtrlMode(ControlMode.INACTIVE);
         				LCD.clear();	
-        				LCD.drawString("current mode: TEST_LCD", 0, 0);
-        				LCD.drawString("add parking slot to list by pressing ENTER", 0, 1);
-        				LCD.drawString("proceed to next test by pressing ESC", 0, 2);
+        				LCD.drawString("TEST_LCD", 0, 0);
+        				LCD.drawString("Enter: add parking", 0, 1);
+        				LCD.drawString("ESC: next test", 0, 2);
         			}
 				
         			//State transition check
@@ -184,6 +184,13 @@ public class GuidanceAT {
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_PERCEPTION ){
         				control.setCtrlMode(ControlMode.INACTIVE);
+<<<<<<< HEAD
+=======
+        				LCD.clear();	
+        				LCD.drawString("TEST_PERCEPTION", 0, 0);
+        				LCD.drawString("Enter: do nothing", 0, 1);
+        				LCD.drawString("ESC: next test", 0, 2);
+>>>>>>> origin/master
         			}
         			perception.showSensorData();
         			//State transition check
@@ -200,9 +207,9 @@ public class GuidanceAT {
         			if ( lastStatus != CurrentStatus.TEST_HMI ){
         				control.setCtrlMode(ControlMode.INACTIVE);
         				LCD.clear();	
-        				LCD.drawString("current mode: TEST_HMI", 0, 0);
-        				LCD.drawString("do nothing by pressing ENTER", 0, 1);
-        				LCD.drawString("proceed to next test by pressing ESC", 0, 2);
+        				LCD.drawString("TEST_HMI", 0, 0);
+        				LCD.drawString("Enter: do nothing", 0, 1);
+        				LCD.drawString("ESC: next test", 0, 2);
         			}
 				
         			//State transition check
@@ -221,17 +228,17 @@ public class GuidanceAT {
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_CONTROL ){
         				LCD.clear();	
-        				LCD.drawString("current mode: TEST_CONTROL", 0, 0);
-        				LCD.drawString("start driving by pressing ENTER", 0, 1);
-        				LCD.drawString("proceed to next test by pressing ESC", 0, 2);
+        				LCD.drawString("TEST_CONTROL", 0, 0);
+        				LCD.drawString("Enter: start driving", 0, 1);
+        				LCD.drawString("ESC: next test", 0, 2);
  
         			}
         			if(control.getCtrlMode()==ControlMode.LINE_CTRL)
         			{
         			LCD.clear();	
-        			LCD.drawString("current mode: TEST_CONTROL", 0, 0);
+        			LCD.drawString("TEST_CONTROL", 0, 0);
         			LCD.drawString("driving activated", 0, 1);
-        			LCD.drawString("proceed to next test by pressing ESC", 0, 2);
+        			LCD.drawString("ESC: next test", 0, 2);
         			AngleDifferenceMeasurement rightEncoder = perception.getControlRightEncoder().getEncoderMeasurement();
         			AngleDifferenceMeasurement leftEncoder = perception.getControlLeftEncoder().getEncoderMeasurement();
         			LCD.drawString("angle right:   "+ (rightEncoder.getAngleSum()),0,3);

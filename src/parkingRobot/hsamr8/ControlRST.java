@@ -351,11 +351,11 @@ public class ControlRST implements IControl {
 		
 		e = this.lineSensorRight - this.lineSensorLeft;
 		
-		if(e < -95){                       //linkskurve
+		/*if(e < -95){                       //linkskurve
 			leftMotor.setPower(0);
 			rightMotor.setPower(25);
-		}
-		else{
+		}*/
+		
 		//if(e < 100 && e > -100){ 	
 			esum = esum + e; //integrationsanteil
 			y = kp*e + ki*esum + kd*(e - ealt);
@@ -363,7 +363,7 @@ public class ControlRST implements IControl {
 		
 			rightMotor.setPower((int) (40+y));
 			leftMotor.setPower((int) (40-y));
-		}
+		
 		/**
 		else if(e < -99){
 			leftMotor.setPower(30);
