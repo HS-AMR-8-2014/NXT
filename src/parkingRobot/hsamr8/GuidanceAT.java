@@ -184,13 +184,6 @@ public class GuidanceAT {
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_PERCEPTION ){
         				control.setCtrlMode(ControlMode.INACTIVE);
-<<<<<<< HEAD
-=======
-        				LCD.clear();	
-        				LCD.drawString("TEST_PERCEPTION", 0, 0);
-        				LCD.drawString("Enter: do nothing", 0, 1);
-        				LCD.drawString("ESC: next test", 0, 2);
->>>>>>> origin/master
         			}
         			perception.showSensorData();
         			//State transition check
