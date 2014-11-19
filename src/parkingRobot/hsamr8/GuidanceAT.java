@@ -114,42 +114,7 @@ public class GuidanceAT {
 	 * Possibility to switch fixed values off by receiving false as first parameter
 	 */
 
-	public void update_nav_line(boolean enabled, int line_no)
-	{
-		x_fix = false;
-		y_fix = false;
-		fix_value = 0;
-		
-		if(enabled){
-			switch(line_no)
-			{
-				case 0: y_fix = true;
-						break;
-				case 1: x_fix = true;
-						fix_value = 180;
-						break;
-				case 2: y_fix = true;
-						fix_value = 60;
-						break;
-				case 3: x_fix = true;
-						fix_value = 150;
-						break;
-				case 4: y_fix = true;
-						fix_value = 30;
-						break;
-				case 5: x_fix = true;
-						fix_value = 30;
-						break;
-				case 6: y_fix = true;
-						fix_value = 60;
-						break;
-				case 7: x_fix = true;
-						break;
-				default://no action here
-						break;
-			}
-		}
-	}
+	
 		
 	/**
 	 * main method of project 'ParkingRobot'
@@ -185,8 +150,8 @@ public class GuidanceAT {
         			if ( lastStatus != CurrentStatus.INACTIVE_TEST )
         			{   control.setCtrlMode(ControlMode.INACTIVE);
         				LCD.clear();	
-        				LCD.drawString("current mode: INACTIVE"), 0, 0);
-        				LCD.drawString("start Testing by pressing ESC"), 0, 1);
+        				LCD.drawString("current mode: INACTIVE", 0, 0);
+        				LCD.drawString("start Testing by pressing ESC", 0, 1);
         				lastStatus = currentStatus;	
         			}			
         			if ( Button.ESCAPE.isDown() )
@@ -200,9 +165,9 @@ public class GuidanceAT {
         			if ( lastStatus != CurrentStatus.TEST_LCD ){
         				control.setCtrlMode(ControlMode.INACTIVE);
         				LCD.clear();	
-        				LCD.drawString("current mode: TEST_LCD"), 0, 0);
-        				LCD.drawString("add parking slot to list by pressing ENTER"), 0, 1);
-        				LCD.drawString("proceed to next test by pressing ESC"), 0, 2);
+        				LCD.drawString("current mode: TEST_LCD", 0, 0);
+        				LCD.drawString("add parking slot to list by pressing ENTER", 0, 1);
+        				LCD.drawString("proceed to next test by pressing ESC", 0, 2);
         			}
 				
         			//State transition check
@@ -222,9 +187,9 @@ public class GuidanceAT {
         			if ( lastStatus != CurrentStatus.TEST_PERCEPTION ){
         				control.setCtrlMode(ControlMode.INACTIVE);
         				LCD.clear();	
-        				LCD.drawString("current mode: TEST_PERCEPTION"), 0, 0);
-        				LCD.drawString("do nothing by pressing ENTER"), 0, 1);
-        				LCD.drawString("proceed to next test by pressing ESC"), 0, 2);
+        				LCD.drawString("current mode: TEST_PERCEPTION", 0, 0);
+        				LCD.drawString("do nothing by pressing ENTER", 0, 1);
+        				LCD.drawString("proceed to next test by pressing ESC", 0, 2);
         			}
 				
         			//State transition check
@@ -244,9 +209,9 @@ public class GuidanceAT {
         			if ( lastStatus != CurrentStatus.TEST_HMI ){
         				control.setCtrlMode(ControlMode.INACTIVE);
         				LCD.clear();	
-        				LCD.drawString("current mode: TEST_HMI"), 0, 0);
-        				LCD.drawString("do nothing by pressing ENTER"), 0, 1);
-        				LCD.drawString("proceed to next test by pressing ESC"), 0, 2);
+        				LCD.drawString("current mode: TEST_HMI", 0, 0);
+        				LCD.drawString("do nothing by pressing ENTER", 0, 1);
+        				LCD.drawString("proceed to next test by pressing ESC", 0, 2);
         			}
 				
         			//State transition check
@@ -265,9 +230,9 @@ public class GuidanceAT {
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_CONTROL ){
         				LCD.clear();	
-        				LCD.drawString("current mode: TEST_CONTROL"), 0, 0);
-        				LCD.drawString("start driving by pressing ENTER"), 0, 1);
-        				LCD.drawString("proceed to next test by pressing ESC"), 0, 2);
+        				LCD.drawString("current mode: TEST_CONTROL", 0, 0);
+        				LCD.drawString("start driving by pressing ENTER", 0, 1);
+        				LCD.drawString("proceed to next test by pressing ESC", 0, 2);
  
         			}
         			AngleDifferenceMeasurement rightEncoder = perception.getControlRightEncoder().getEncoderMeasurement();
@@ -294,13 +259,13 @@ public class GuidanceAT {
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_SLOTDETECTION ){
         				LCD.clear();	
-        				LCD.drawString("current mode: TEST_SLOTDETECTION"), 0, 0);
-        				LCD.drawString("start driving by pressing ENTER"), 0, 1);
-        				LCD.drawString("proceed to regular modes by pressing ESC"), 0, 2);
+        				LCD.drawString("current mode: TEST_SLOTDETECTION", 0, 0);
+        				LCD.drawString("start driving by pressing ENTER", 0, 1);
+        				LCD.drawString("proceed to regular modes by pressing ESC", 0, 2);
         			}
         			
         			//While action				
-        			showData_test1(navigation,perception);			
+        			//showData_test1(navigation,perception);			
         			
         			//State transition check
         			lastStatus = currentStatus;
@@ -429,7 +394,7 @@ public class GuidanceAT {
 //		}
 	}
 	
-	protected static void showData_test1(INavigation navigation, IPerception perception)
+	/**protected static void showData_test1(INavigation navigation, IPerception perception)
 	{
 		LCD.clear();	
 		
@@ -451,4 +416,5 @@ public class GuidanceAT {
 		}
 
 	}
+	*/
 }

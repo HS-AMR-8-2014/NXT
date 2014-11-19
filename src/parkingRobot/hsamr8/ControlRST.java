@@ -176,7 +176,10 @@ public class ControlRST implements IControl {
 	public void setCtrlMode(ControlMode ctrl_mode) {
 		this.currentCTRLMODE = ctrl_mode;
 	}
-		
+	
+	public ControlMode getCtrlMode(){
+		return currentCTRLMODE;
+	}
 	/**
 	 * set start time
 	 */
