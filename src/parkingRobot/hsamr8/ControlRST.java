@@ -5,7 +5,6 @@ import lejos.robotics.navigation.Pose;
 import parkingRobot.IControl;
 import parkingRobot.IPerception;
 import parkingRobot.IPerception.*;
-
 import lejos.nxt.NXTMotor;
 import parkingRobot.INavigation;
 
@@ -93,8 +92,15 @@ public class ControlRST implements IControl {
 	double leftSpeed = 0;
 	double dleft = 0;
 	double dright = 0;
-	
-	
+	double dleftsum =0;
+	double drightsum =0;
+	double dleftalt =0;
+	double drightalt =0;
+	double yleft =0;
+	double yright =0;
+	double kp1 =0;
+	double ki1 =0;
+	double kd1 =0;
 	
 	
 	
@@ -403,6 +409,31 @@ public class ControlRST implements IControl {
 		//Aufgabe 3.2
 		
 		
+		/**if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben
+			radius = v/omega;
+			if(v != 0){
+				leftSpeed = v - (trackWidth/2*v/radius);
+				rightSpeed = v + (trackWidth/2*v/radius);
+			}
+			else{                            //falls v=0
+				leftSpeed = trackWidth/2*omega;
+				rightSpeed = -trackWidth/2*omega;
+			};
+				
+		}
+		else{                                      
+			leftSpeed = v;
+			rightSpeed = v;
+		};
+		leftMotor.setPower((int)leftSpeed);
+		rightMotor.setPower((int)rightSpeed);
+		
+		*/
+		
+		AngleDifferenceMeasurement rightEncoder = perception.getControlRightEncoder().getEncoderMeasurement();    //mit ludwig absprechen an welcher stelle zu platzieren
+		AngleDifferenceMeasurement leftEncoder = perception.getControlLeftEncoder().getEncoderMeasurement();      //mit ludwig absprechen an welcher stelle zu platzieren
+		
+		//mit regelung
 		if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben
 			radius = v/omega;
 			if(v != 0){
@@ -419,36 +450,22 @@ public class ControlRST implements IControl {
 			leftSpeed = v;
 			rightSpeed = v;
 		};
-		leftMotor.setPower((int)leftSpeed);
-		rightMotor.setPower((int)rightSpeed);
+		
+		dleft = leftSpeed - wheelDiameter/2*(leftEncoder.getAngleSum())/(leftEncoder.getDeltaT());                //Fehler des linken Rades
+		dright = rightSpeed - wheelDiameter/2*(rightEncoder.getAngleSum())/(rightEncoder.getDeltaT());			  //Fehler der rechten Rades
+		
+		dleftsum = dleftsum + dleft; //integrationsanteil
+		yleft = kp1*dleft + ki1*dleftsum + kd1*(dleft - dleftalt);
+		dleftalt = dleft;
+		
+		drightsum = drightsum + dright; //integrationsanteil
+		yright = kp1*dright + ki1*drightsum + kd1*(dright - drightalt);
+		drightalt = dright;
 		
 		
-		/**
-		 * if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben
-			radius = v/omega;
-			if(v != 0){
-				leftSpeed = v - (trackWidth/2*v/radius);
-				rightSpeed = v + (trackWidth/2*v/radius);
-			}
-			else{                            //falls v=0
-				leftSpeed = trackWidth/2*omega;
-				rightSpeed = -trackWidth/2*omega;
-			};
-				
-		}
-		else{                                      
-			leftSpeed = v;
-			rightSpeed = v;
-		};
-		
-		dleft = leftSpeed - wheeldiameter/2*
-		
-		leftMotor.setPower((int)leftSpeed);
-		rightMotor.setPower((int)rightSpeed);
-		 * 
-		 * 
-		 * 
-		 */
+		leftMotor.setPower((int)(leftSpeed+dleft));
+		rightMotor.setPower((int)(rightSpeed+dright));
+	
 		
 	}
 	
