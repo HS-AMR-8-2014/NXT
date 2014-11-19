@@ -109,10 +109,6 @@ public class GuidanceAT {
 	
 	private int line_status = 0;
 
-<<<<<<< HEAD
-=======
-	
->>>>>>> origin/master
 		
 	/**
 	 * main method of project 'ParkingRobot'
@@ -274,11 +270,9 @@ public class GuidanceAT {
         			}
         			
         			//While action				
-<<<<<<< HEAD
+
         												//showData_test1(navigation,perception);			
-=======
-        			//showData_test1(navigation,perception);			
->>>>>>> origin/master
+
         			
         			//State transition check
         			lastStatus = currentStatus;
@@ -407,11 +401,9 @@ public class GuidanceAT {
 //		}
 	}
 	
-<<<<<<< HEAD
+
 	/*protected static void showData_test1(INavigation navigation, IPerception perception)
-=======
-	/**protected static void showData_test1(INavigation navigation, IPerception perception)
->>>>>>> origin/master
+
 	{
 		LCD.clear();	
 		
@@ -432,10 +424,6 @@ public class GuidanceAT {
 			LCD.drawString("No ParkSlots detected yet!", 0, 3);	
 		}
 
-<<<<<<< HEAD
 	}*/
-=======
-	}
-	*/
->>>>>>> origin/master
+
 }
