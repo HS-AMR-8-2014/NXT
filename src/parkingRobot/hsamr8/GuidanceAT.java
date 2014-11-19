@@ -9,6 +9,8 @@ import parkingRobot.INavigation.ParkingSlot;
 import parkingRobot.INxtHmi;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
+import parkingRobot.IPerception.AngleDifferenceMeasurement;
+import parkingRobot.IPerception.EncoderSensor;
 import lejos.geom.Line;
 import lejos.nxt.LCD;
 import parkingRobot.hsamr8.ControlRST;
@@ -59,10 +61,15 @@ public class GuidanceAT {
 		 */
 		CLOSE_TO_TURNING_POINT,
 		/**
-		 * indicates a mode to test parkingslot detection. First team test.
-		 * The mode equals DRIVING in scouting mode, but uses the NXT-Display to show test results.
+		 * a cascade of modes  to test different values and functions. First team test.
+		 * The modes only allows the buttons enter and esc, hmi will be included after passing all the tests.
 		 */
-		TEST1
+		INACTIVE_TEST, 
+		TEST_LCD, 
+		TEST_PERCEPTION, 
+		TEST_HMI, 
+		TEST_CONTROL,
+		TEST_SLOTDETECTION
 	}
 	
 	
@@ -151,7 +158,7 @@ public class GuidanceAT {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
-        currentStatus = CurrentStatus.INACTIVE;
+        currentStatus = CurrentStatus.INACTIVE;								//TEST
         lastStatus    = CurrentStatus.EXIT;
 		
 		// Generate objects
@@ -171,10 +178,125 @@ public class GuidanceAT {
 			
         	switch ( currentStatus )
         	{
-        		case TEST1:
+
+//*********************************************************entering test modes*********************************************************        	
+        	
+        		case INACTIVE_TEST:
+        			if ( lastStatus != CurrentStatus.INACTIVE_TEST )
+        			{   control.setCtrlMode(ControlMode.INACTIVE);
+        				LCD.clear();	
+        				LCD.drawString("current mode: INACTIVE"), 0, 0);
+        				LCD.drawString("start Testing by pressing ESC"), 0, 1);
+        				lastStatus = currentStatus;	
+        			}			
+        			if ( Button.ESCAPE.isDown() )
+        			{
+        				currentStatus = CurrentStatus.TEST_LCD;
+        				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+        			}								
+        			break;
+        		case TEST_LCD:
         			//Into action
-        			if ( (lastStatus != CurrentStatus.DRIVING)||(lastStatus != CurrentStatus.TEST1) ){
+        			if ( lastStatus != CurrentStatus.TEST_LCD ){
+        				control.setCtrlMode(ControlMode.INACTIVE);
+        				LCD.clear();	
+        				LCD.drawString("current mode: TEST_LCD"), 0, 0);
+        				LCD.drawString("add parking slot to list by pressing ENTER"), 0, 1);
+        				LCD.drawString("proceed to next test by pressing ESC"), 0, 2);
+        			}
+				
+        			//State transition check
+        			lastStatus = currentStatus;	
+        			if ( Button.ENTER.isDown() ){
+        				//test action																//TEST ACTION
+        				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+        			}
+        			if ( Button.ESCAPE.isDown() )
+        			{
+        				currentStatus = CurrentStatus.TEST_PERCEPTION;
+        				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+        			}
+        			break;
+        		case TEST_PERCEPTION:
+        			//Into action
+        			if ( lastStatus != CurrentStatus.TEST_PERCEPTION ){
+        				control.setCtrlMode(ControlMode.INACTIVE);
+        				LCD.clear();	
+        				LCD.drawString("current mode: TEST_PERCEPTION"), 0, 0);
+        				LCD.drawString("do nothing by pressing ENTER"), 0, 1);
+        				LCD.drawString("proceed to next test by pressing ESC"), 0, 2);
+        			}
+				
+        			//State transition check
+        			lastStatus = currentStatus;	
+        			if ( Button.ENTER.isDown() ){
+        				//test action																//TEST ACTION
+        				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+        			}
+        			if ( Button.ESCAPE.isDown() )
+        			{
+        				currentStatus = CurrentStatus.TEST_HMI;
+        				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+        			}								
+        			break;
+        		case TEST_HMI:
+        			//Into action
+        			if ( lastStatus != CurrentStatus.TEST_HMI ){
+        				control.setCtrlMode(ControlMode.INACTIVE);
+        				LCD.clear();	
+        				LCD.drawString("current mode: TEST_HMI"), 0, 0);
+        				LCD.drawString("do nothing by pressing ENTER"), 0, 1);
+        				LCD.drawString("proceed to next test by pressing ESC"), 0, 2);
+        			}
+				
+        			//State transition check
+        			lastStatus = currentStatus;	
+        			if ( Button.ENTER.isDown() ){
+        				//test action																//TEST ACTION
+        				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+        			}
+        			if ( Button.ESCAPE.isDown() )
+        			{
+        				currentStatus = CurrentStatus.TEST_CONTROL;
+        				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+        			}								
+        			break;
+        		case TEST_CONTROL:
+        			//Into action
+        			if ( lastStatus != CurrentStatus.TEST_CONTROL ){
+        				LCD.clear();	
+        				LCD.drawString("current mode: TEST_HMI"), 0, 0);
+        				LCD.drawString("start driving by pressing ENTER"), 0, 1);
+        				LCD.drawString("proceed to next test by pressing ESC"), 0, 2);
+ 
+        			}
+        			AngleDifferenceMeasurement rightEncoder = perception.getControlRightEncoder().getEncoderMeasurement();
+        			AngleDifferenceMeasurement leftEncoder = perception.getControlLeftEncoder().getEncoderMeasurement();
+        			LCD.drawString("angle right"+ (rightEncoder.getAngleSum()),0,3);
+        			LCD.drawString("delta t right"+ (rightEncoder.getDeltaT()),0,4);
+        			LCD.drawString("angle left"+ (leftEncoder.getAngleSum()),0,5);
+        			LCD.drawString("delta t left"+ (leftEncoder.getDeltaT()),0,6);
+        			//State transition check
+        			lastStatus = currentStatus;	
+        			if ( Button.ENTER.isDown() ){
+        				//test action																//TEST ACTION
         				control.setCtrlMode(ControlMode.LINE_CTRL);
+        				
+        				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+        			}
+        			if ( Button.ESCAPE.isDown() )
+        			{
+        				currentStatus = CurrentStatus.TEST_SLOTDETECTION;
+        				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+        			}								
+        			break;	
+        		case TEST_SLOTDETECTION:
+        			//Into action
+        			if ( lastStatus != CurrentStatus.TEST_SLOTDETECTION ){
+        				LCD.clear();	
+        				LCD.drawString("current mode: TEST_SLOTDETECTION"), 0, 0);
+        				LCD.drawString("start driving by pressing ENTER"), 0, 1);
+        				LCD.drawString("proceed to regular modes by pressing ESC"), 0, 2);
         			}
         			
         			//While action				
@@ -182,22 +304,26 @@ public class GuidanceAT {
         			
         			//State transition check
         			lastStatus = currentStatus;
-        			if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
-        				currentStatus = CurrentStatus.INACTIVE;
-        			}else if ( Button.ENTER.isDown() ){
-        				currentStatus = CurrentStatus.INACTIVE;
+        			if ( Button.ENTER.isDown() ){
+        				control.setCtrlMode(ControlMode.LINE_CTRL);
         				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-        			}else if ( Button.ESCAPE.isDown() ){
-        				currentStatus = CurrentStatus.EXIT;
+        			}
+        			if ( Button.ESCAPE.isDown() ){
+        				currentStatus = CurrentStatus.INACTIVE;
         				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
-        			}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
-        				currentStatus = CurrentStatus.EXIT;
         			}
         			
-        			if ( currentStatus != CurrentStatus.TEST1 ){
-        				//nothing to do here
+        			if ( currentStatus != CurrentStatus.TEST_SLOTDETECTION ){
+        				//leaving action
+        				LCD.clear();
+        				showData(navigation, perception); 	
         			}
-        			break;				
+        			break;		
+        			
+//*********************************************************leaving test modes*********************************************************
+        			
+        			
+        			
         		case DRIVING:
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING ){
@@ -242,9 +368,9 @@ public class GuidanceAT {
 					//State transition check
 					lastStatus = currentStatus;
 					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
-						currentStatus = CurrentStatus.TEST1;											//currentStatus = CurrentStatus.DRIVING;						
+						currentStatus = CurrentStatus.DRIVING;						
 					}else if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.TEST1;											//currentStatus = CurrentStatus.DRIVING;
+						currentStatus = CurrentStatus.DRIVING;
 						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;
