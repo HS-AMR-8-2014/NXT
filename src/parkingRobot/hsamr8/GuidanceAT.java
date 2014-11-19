@@ -69,6 +69,7 @@ public class GuidanceAT {
 		TEST_PERCEPTION, 
 		TEST_HMI, 
 		TEST_CONTROL,
+		TEST_VW_CONTROL,
 		TEST_SLOTDETECTION
 	}
 	
@@ -244,6 +245,42 @@ public class GuidanceAT {
         			if ( Button.ENTER.isDown() ){
         				//test action																//TEST ACTION
         				control.setCtrlMode(ControlMode.LINE_CTRL);
+        				
+        				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+        			}
+        			if ( Button.ESCAPE.isDown() )
+        			{
+        				currentStatus = CurrentStatus.TEST_VW_CONTROL;
+        				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+        			}								
+        			break;	
+        		case TEST_VW_CONTROL:
+        			//Into action
+        			if ( lastStatus != CurrentStatus.TEST_VW_CONTROL ){
+        				LCD.clear();	
+        				LCD.drawString("TEST_VW_CONTROL", 0, 0);
+        				LCD.drawString("Enter: start driving", 0, 1);
+        				LCD.drawString("ESC: next test", 0, 2);
+ 
+        			}
+        			if(control.getCtrlMode()==ControlMode.VW_CTRL)
+        			{
+        			LCD.clear();	
+        			LCD.drawString("TEST_CONTROL", 0, 0);
+        			LCD.drawString("driving activated", 0, 1);
+        			LCD.drawString("ESC: next test", 0, 2);
+        			AngleDifferenceMeasurement rightEncoder = perception.getControlRightEncoder().getEncoderMeasurement();
+        			AngleDifferenceMeasurement leftEncoder = perception.getControlLeftEncoder().getEncoderMeasurement();
+        			LCD.drawString("angle right:   "+ (rightEncoder.getAngleSum()),0,3);
+        			LCD.drawString("delta t right: "+ (rightEncoder.getDeltaT()),0,4);
+        			LCD.drawString("angle left:    "+ (leftEncoder.getAngleSum()),0,5);
+        			LCD.drawString("delta t left:  "+ (leftEncoder.getDeltaT()),0,6);
+        			}
+        			//State transition check
+        			lastStatus = currentStatus;	
+        			if ( Button.ENTER.isDown() ){
+        				//test action																//TEST ACTION
+        				control.setCtrlMode(ControlMode.VW_CTRL);
         				
         				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
         			}
