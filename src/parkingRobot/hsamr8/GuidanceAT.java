@@ -184,18 +184,11 @@ public class GuidanceAT {
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_PERCEPTION ){
         				control.setCtrlMode(ControlMode.INACTIVE);
-        				LCD.clear();	
-        				LCD.drawString("current mode: TEST_PERCEPTION", 0, 0);
-        				LCD.drawString("do nothing by pressing ENTER", 0, 1);
-        				LCD.drawString("proceed to next test by pressing ESC", 0, 2);
         			}
-				
+        			perception.showSensorData();
         			//State transition check
         			lastStatus = currentStatus;	
-        			if ( Button.ENTER.isDown() ){
-        				//test action																//TEST ACTION
-        				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-        			}
+
         			if ( Button.ESCAPE.isDown() )
         			{
         				currentStatus = CurrentStatus.TEST_HMI;
