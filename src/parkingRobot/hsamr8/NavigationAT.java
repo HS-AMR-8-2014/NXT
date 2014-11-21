@@ -118,7 +118,7 @@ public class NavigationAT implements INavigation{
     boolean y_fix=true;
     int fix_value=0;
 	ParkingSlot[] list_ParkingSlot;
-	int abstand_sens_band=130; //Abstand von Sensor zur Bande
+	int abstand_sens_band=160; //Abstand von Sensor zur Bande in mm
 
 	/**
 	 * thread started by the 'Navigation' class for background calculating
@@ -282,12 +282,18 @@ public class NavigationAT implements INavigation{
 			if(angleResult>360){
 				angleResult=angleResult-360;
 			}
-		} else if (R.isInfinite()||(this.backSideSensorDistance==this.frontSideSensorDistance )) { //robot moves straight forward/backward, vLeft==vRight
+			if(angleResult<0){
+				angleResult=angleResult+360;
+			}
+		} else if (R.isInfinite()||(((this.backSideSensorDistance==this.frontSideSensorDistance)&&((vLeft>0) || (vRight>0)) ))) { //robot moves straight forward/backward, vLeft==vRight
 			xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
 			yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
 				angleResult 	= this.pose.getHeading();
 				if(angleResult>360){
 					angleResult=angleResult-360;
+				}
+				if(angleResult<0){
+					angleResult=angleResult+360;
 				}
 			
 			
@@ -301,6 +307,9 @@ public class NavigationAT implements INavigation{
 				angleResult 	= this.pose.getHeading() + w * deltaT;
 				if(angleResult>360){
 					angleResult=angleResult-360;
+				}
+				if(angleResult<0){
+					angleResult=angleResult+360;
 				}
 				
 			}
@@ -316,44 +325,18 @@ public class NavigationAT implements INavigation{
 			if(angleResult>360){
 				angleResult=angleResult-360;
 			}
+			if(angleResult<0){
+				angleResult=angleResult+360;
+			}
 		}
 		}
 		
-		/**		if(this.lineSensorLeft==2 || this.lineSensorRight==2){
-			int links=this.lineSensorLeft;
-			int rechts=this.lineSensorRight;
-		}
-			switch(links){
-	        case 2:
-	            if(rechts==0){
-	            	angleResult=
-	            };
-	            break;
-	        case 0:
-	            if(rechts==2){
-	            	
-	            };
-	            break;
-	        	
-            switch(rechts){
-		        case 2:
-		            if(links==0){
-		            	
-		            };
-		            break;
-		        case 0:
-		            if(links==2){
-		            	
-		            };
-		            break;
-            
-            }
-		} */
+		
 			
 			
 			
-		this.pose.setLocation((float)xResult, (float)yResult);
-		this.pose.setHeading((float)angleResult);		 
+		this.pose.setLocation((float)xResult, (float)yResult); //Pose setzen
+		this.pose.setHeading((float)angleResult);		       //Winkel setzen
 	}
 
 	/**
@@ -381,7 +364,7 @@ public class NavigationAT implements INavigation{
 	private void detectParkingSlot(){
 //		double leftAngleSpeed 	= this.angleMeasurementLeft.getAngleSum()  / ((double)this.angleMeasurementLeft.getDeltaT()/1000);  //degree/seconds
 //		double rightAngleSpeed 	= this.angleMeasurementRight.getAngleSum() / ((double)this.angleMeasurementRight.getDeltaT()/1000); //degree/seconds
-	//	double firstcheckx=	0;
+//	double firstcheckx=	0;
 //		double secondcheckx=0;
 //		double xweg 		= 0;
 //		double yweg 		= 0;
@@ -404,16 +387,16 @@ public class NavigationAT implements INavigation{
 	 		
 	 		//pruefe, ob Parkluecke schon vorhanden
 	 		for(int i=0; i==list_ParkingSlot.length;i++){	
-	 		double	deltax=this.pose.getX()-list_ParkingSlot[i].getFrontBoundaryPosition().getX();
-	 		double	deltay=this.pose.getY()-list_ParkingSlot[i].getFrontBoundaryPosition().getY();
-	 			if ((deltax<5) && (deltay<5)){
-	 			bekannt=true;
-	 			id_bekannte_luecke=i;
-	 			//Parklücken später direkt neu vermessen an dieser Stelle und mit alten Daten abgleichen
+	 			double	deltax=this.pose.getX()-list_ParkingSlot[i].getFrontBoundaryPosition().getX();
+	 			double	deltay=this.pose.getY()-list_ParkingSlot[i].getFrontBoundaryPosition().getY();
+	 				if ((deltax<7) && (deltay<7)){
+	 					bekannt=true;
+	 					id_bekannte_luecke=i;
+	 					//Parklücken später direkt neu vermessen an dieser Stelle und mit alten Daten abgleichen
 	 			
-	 			}else{
-	 				anfang.setLocation(this.pose.getX(),this.pose.getY());
-	 				detectionactive=true;
+	 				}else{
+	 					anfang.setLocation(this.pose.getX(),this.pose.getY());
+	 					detectionactive=true;
 	 				
 	 				//Lücke vermessen und Speichern
 	 			}
@@ -425,7 +408,7 @@ public class NavigationAT implements INavigation{
 	 		if(this.frontSideSensorDistance<abstand_sens_band && detectionactive==true){
 	 			ende.setLocation(this.pose.getX(),this.pose.getY());
 			detectionactive=false;
-	 		//Parklückenbewertung
+	 		//Parklückenbewertung folgt hier später
 			
 			
 			list_ParkingSlot [id_aktuell] = new ParkingSlot(id_aktuell, anfang, ende, slotStatus);
@@ -447,6 +430,12 @@ public class NavigationAT implements INavigation{
 	
 		return ; // has to be implemented by students
 	}
+	
+	/**
+	 * 
+	 * @param i ID der gewünschten Parklücke
+	 * @return ParkingSlot aus dem ARRAY mit der ID
+	 */
 	public ParkingSlot getSlotById(int i){
 		return list_ParkingSlot[i];
 	}
