@@ -78,8 +78,8 @@ public class ControlRST implements IControl {
 	double e = 0;
 	double ealt = 0;
 	double kp = 0.08;
-	double ki =0.0025; //0.0025
-	double kd = 0.0000005; //0.000001
+	double ki =0.0; //0.0025
+	double kd = 0.0; //0.000001
 	double y = 0;
 	
 	

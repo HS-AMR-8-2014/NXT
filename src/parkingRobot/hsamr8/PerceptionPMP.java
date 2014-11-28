@@ -109,10 +109,14 @@ public class PerceptionPMP implements IPerception {
 	}
 	
 	public int getLeftLineSensorValue(){
+		//return this.LeftLineSensor;
+		
 		return ((this.LeftLineSensor-this.LSlblack)/(this.LSlwhite-this.LSlblack))*100;
 	}
 	
 	public int getRightLineSensorValue(){
+		//return this.RightLineSensor;
+		
 		return ((this.RightLineSensor-this.LSrblack)/(this.LSrwhite-this.LSrblack))*100;
 	}
 	
