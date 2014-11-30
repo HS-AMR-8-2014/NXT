@@ -118,7 +118,7 @@ public class GuidanceAT {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
-        currentStatus = CurrentStatus.INACTIVE_TEST;								//TEST
+        currentStatus = CurrentStatus.INACTIVE;								//TEST
         lastStatus    = CurrentStatus.EXIT;
 		
 		// Generate objects
