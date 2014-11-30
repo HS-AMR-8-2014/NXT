@@ -220,7 +220,7 @@ public class NavigationAT implements INavigation {
 	 * @see parkingRobot.INavigation#getParkingSlots()
 	 */
 	public synchronized ParkingSlot[] getParkingSlots() {
-		return null;
+		return list_ParkingSlot;
 	}
 
 	// Private methods

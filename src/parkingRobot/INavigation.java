@@ -59,6 +59,12 @@ public interface INavigation {
 	 */
 	public ParkingSlot[] getParkingSlots();
 	
+	/**
+	 * 	returns a chosen ParkingSlot, indicated b its index
+	 * @param i		ID der gewünschten Parklücke
+	 * @return		ParkingSlot aus dem ARRAY mit der ID für die anderen Module
+	 */
+	public ParkingSlot getSlotById(int i);
 	
 	// Subclasses
 	
@@ -198,5 +204,7 @@ public interface INavigation {
 		public void setStatus(ParkingSlotStatus status) {
 			this.status = status;
 		}
-	}	
+	}
+	
+
 }

@@ -118,7 +118,7 @@ public class GuidanceAT {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
-        currentStatus = CurrentStatus.INACTIVE;								//TEST
+        currentStatus = CurrentStatus.INACTIVE;										//TEST
         lastStatus    = CurrentStatus.EXIT;
 		
 		// Generate objects
@@ -134,7 +134,7 @@ public class GuidanceAT {
 		INxtHmi  	hmi        = new HmiPLT(perception, navigation, control);
 				
 		while(true) {
-			//showData(navigation, perception); 													//wofuer soll das gut sein?
+			//showData(navigation, perception);
 			
         	switch ( currentStatus )
         	{
@@ -151,24 +151,25 @@ public class GuidanceAT {
         			}			
         			if ( Button.ESCAPE.isDown() )
         			{
-        				currentStatus = CurrentStatus.TEST_LCD;
+        				currentStatus = CurrentStatus.TEST_PERCEPTION;
         				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
         			}								
         			break;
-        		case TEST_LCD:
+        		/**case TEST_LCD:
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_LCD ){
         				control.setCtrlMode(ControlMode.INACTIVE);
         				LCD.clear();	
         				LCD.drawString("TEST_LCD", 0, 0);
-        				LCD.drawString("Enter: add parking", 0, 1);
+        				LCD.drawString("Enter: add slot", 0, 1);
         				LCD.drawString("ESC: next test", 0, 2);
         			}
 				
         			//State transition check
         			lastStatus = currentStatus;	
         			if ( Button.ENTER.isDown() ){
-        				//test action																//TEST ACTION
+        				//extern einen ParkingSlot hinzuzufügen ist eher schwierig
+        				showData_test1(navigation,perception);															//TEST ACTION
         				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
         			}
         			if ( Button.ESCAPE.isDown() )
@@ -180,16 +181,23 @@ public class GuidanceAT {
         			if ( currentStatus != CurrentStatus.TEST_LCD ){
 						//nothing to do here
 					}
-        			break;
+        			break;*/
         		case TEST_PERCEPTION:
         			//Into action
         			if ( lastStatus != CurrentStatus.TEST_PERCEPTION ){
         				control.setCtrlMode(ControlMode.INACTIVE);
+        				LCD.clear();	
+        				LCD.drawString("TEST_PERCEPTION", 0, 0);
+        				LCD.drawString("Enter: show values", 0, 1);
+        				LCD.drawString("ESC: next test", 0, 2);
         			}
-        			perception.showSensorData();
+        			
         			//State transition check
         			lastStatus = currentStatus;	
-
+        			if ( Button.ENTER.isDown() ){
+        				perception.showSensorData();
+        				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+        			}
         			if ( Button.ESCAPE.isDown() )
         			{
         				currentStatus = CurrentStatus.TEST_HMI;
@@ -206,12 +214,22 @@ public class GuidanceAT {
         				LCD.drawString("ESC: next test", 0, 2);
         			}
 				
+        	    	if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
+        			LCD.drawString("HMI Mode SCOUT", 0, 3);
+        			}else if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
+        			LCD.drawString("HMI Mode PAUSE", 0, 3);
+        			}else if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_NOW ){
+            		LCD.drawString("HMI Mode PARK_NOW", 0, 3);
+        			}else if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS ){
+                	LCD.drawString("HMI Mode PARK_THIS", 0, 3);
+        			}else if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT ){
+                    LCD.drawString("HMI Mode DISCONNECT", 0, 3);
+        			}else{
+        			LCD.drawString("HMI Mode UNKNOWN", 0, 3);
+        			}
+        	    	
         			//State transition check
         			lastStatus = currentStatus;	
-        			if ( Button.ENTER.isDown() ){
-        				//test action																//TEST ACTION
-        				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-        			}
         			if ( Button.ESCAPE.isDown() )
         			{
         				currentStatus = CurrentStatus.TEST_CONTROL;
@@ -284,7 +302,7 @@ public class GuidanceAT {
         			if ( Button.ENTER.isDown() ){
         				//test action																//TEST ACTION
         				control.setCtrlMode(ControlMode.VW_CTRL);
-        				control.exec_CTRL_ALGO();
+        				//control.exec_CTRL_ALGO();											//PRÜFEN!
         				
         				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
         			}
@@ -302,16 +320,12 @@ public class GuidanceAT {
         				LCD.drawString("ENTER: start driving", 0, 1);
         				LCD.drawString("ESC: regular modes", 0, 2);
         			}
-        			
-        			//While action				
 
-        												//showData_test1(navigation,perception);			
-
-        			
         			//State transition check
         			lastStatus = currentStatus;
         			if ( Button.ENTER.isDown() ){
         				control.setCtrlMode(ControlMode.LINE_CTRL);
+        				showData_test1(navigation,perception);
         				while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
         			}
         			if ( Button.ESCAPE.isDown() ){
@@ -321,7 +335,6 @@ public class GuidanceAT {
         			
         			if ( currentStatus != CurrentStatus.TEST_SLOTDETECTION ){
         				//leaving action
-        				LCD.clear();
         				showData(navigation, perception); 	
         			}
         			break;		
@@ -359,7 +372,10 @@ public class GuidanceAT {
 					if ( currentStatus != CurrentStatus.DRIVING ){
 						//nothing to do here
 					}
-					break;				
+					break;	
+					
+					
+					
 				case INACTIVE:
 					//Into action
 					if ( lastStatus != CurrentStatus.INACTIVE ){
@@ -438,7 +454,7 @@ public class GuidanceAT {
 	}
 	
 
-	/*protected static void showData_test1(INavigation navigation, IPerception perception)
+	protected static void showData_test1(INavigation navigation, IPerception perception)
 
 	{
 		LCD.clear();	
@@ -446,20 +462,21 @@ public class GuidanceAT {
 		LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 0);
 		LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 1);
 		LCD.drawString("Phi (grd): " + (navigation.getPose().getHeading()/Math.PI*180), 0, 2);
-		if (navigation.list_ParkingSlot.lengt>0)
+		if (navigation.getParkingSlots().length>0)
 		{
-			LCD.drawString("ParkSlots: " + (navigation.list_ParkingSlot.length, 0, 3);						//Vorschlag: Methode in Navigation Get#ParkSlots()
-			LCD.drawString("Slot1:     (" 		+ (navigation.getSlotById(0).getFrontBoundaryPosition().getX()) 
-									+ "/" 		+ (navigation.getSlotById(0).getFrontBoundaryPosition().getY())
-									+ ") - ("	+ (navigation.getSlotById(0).getBackBoundaryPosition().getX()) 
-									+ "/" 		+ (navigation.getSlotById(0).getBackBoundaryPosition().getY())
-									+ ")" 		, 0, 4);
+			LCD.drawString("ParkSlots: " + (navigation.getParkingSlots().length), 0, 3);						//Vorschlag: Methode in Navigation Get#ParkSlots()
+			LCD.drawString("Slot1: ",0,4);
+			LCD.drawString( "(" +  (navigation.getSlotById(0).getFrontBoundaryPosition().getX()) 
+								+ "/" 		+ (navigation.getSlotById(0).getFrontBoundaryPosition().getY())
+								+ ") - ("	+ (navigation.getSlotById(0).getBackBoundaryPosition().getX()) 
+								+ "/" 		+ (navigation.getSlotById(0).getBackBoundaryPosition().getY())
+								+ ")" 		, 0, 5);
 		}
 		else
 		{
 			LCD.drawString("No ParkSlots detected yet!", 0, 3);	
 		}
 
-	}*/
+	}
 
 }
