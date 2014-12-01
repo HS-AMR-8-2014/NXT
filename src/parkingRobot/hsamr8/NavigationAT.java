@@ -338,160 +338,43 @@ public class NavigationAT implements INavigation {
 	 * calculates the robot pose from the measurements
 	 */
 	private void calculateLocation() {
-		double leftAngleSpeed = this.angleMeasurementLeft.getAngleSum()
-				/ ((double) this.angleMeasurementLeft.getDeltaT() / 1000); // degree/seconds
-		double rightAngleSpeed = this.angleMeasurementRight.getAngleSum()
-				/ ((double) this.angleMeasurementRight.getDeltaT() / 1000); // degree/seconds
+		double leftAngleSpeed 	= this.angleMeasurementLeft.getAngleSum()  / ((double)this.angleMeasurementLeft.getDeltaT()/1000);  //degree/seconds
+		double rightAngleSpeed 	= this.angleMeasurementRight.getAngleSum() / ((double)this.angleMeasurementRight.getDeltaT()/1000); //degree/seconds
 
-		double vLeft = (leftAngleSpeed * Math.PI * LEFT_WHEEL_RADIUS) / 180; // velocity
-																				// of
-																				// left
-																				// wheel
-																				// in
-																				// m/s
-		double vRight = (rightAngleSpeed * Math.PI * RIGHT_WHEEL_RADIUS) / 180; // velocity
-																				// of
-																				// right
-																				// wheel
-																				// in
-																				// m/s
-		double w = (vRight - vLeft) / WHEEL_DISTANCE; // angular velocity of
-														// robot in rad/s
-
-		Double R = new Double((WHEEL_DISTANCE / 2)
-				* ((vLeft + vRight) / (vRight - vLeft)));
-
-		double ICCx = 0;
-		double ICCy = 0;
+		double vLeft		= (leftAngleSpeed  * Math.PI * LEFT_WHEEL_RADIUS ) / 180 ; //velocity of left  wheel in m/s
+		double vRight		= (rightAngleSpeed * Math.PI * RIGHT_WHEEL_RADIUS) / 180 ; //velocity of right wheel in m/s		
+		double w 			= (vRight - vLeft) / WHEEL_DISTANCE; //angular velocity of robot in rad/s
 		
-		double xResult = 0;
-		double yResult = 0;
-		double angleResult = 0;
-		int abstandtriang = 50; // Abstand der beiden Triangulationssensoren
+		Double R 			= new Double(( WHEEL_DISTANCE / 2 ) * ( (vLeft + vRight) / (vRight - vLeft) ));								
 		
-		double deltaT = ((double) this.angleMeasurementLeft.getDeltaT()) / 1000;
+		double ICCx 		= 0;
+		double ICCy 		= 0;
 
-		if (R.isNaN()) { // robot don't move
-			xResult = this.pose.getX();
-
-			yResult = this.pose.getY();
-
-			angleResult = this.pose.getHeading();
-//			if (angleResult > 360) {
-//				angleResult = angleResult - 360;
-//			}
-//			if (angleResult < 0) {
-//				angleResult = angleResult + 360;
-//			}
-		} else if (R.isInfinite()
-				|| (((this.backSideSensorDistance == this.frontSideSensorDistance) && ((vLeft > 0) || (vRight > 0))))) { // robot
-																												// forward/backward,
-																															// vLeft==vRight
-			xResult = this.pose.getX() + vLeft
-					* Math.cos(this.pose.getHeading()) * deltaT;
-			yResult = this.pose.getY() + vLeft
-					* Math.sin(this.pose.getHeading()) * deltaT;
-			angleResult = this.pose.getHeading();
-			//angleResult= phi_kontroll;
-//			if (angleResult > 360) {
-//				angleResult = angleResult - 360;
-//			}
-//			if (angleResult < 0) {
-//				angleResult = angleResult + 360;
-//			}
-
-		} else {
-
-			ICCx = this.pose.getX() - R.doubleValue()
-					* Math.sin(this.pose.getHeading());
-			ICCy = this.pose.getY() + R.doubleValue()
-					* Math.cos(this.pose.getHeading());
-
-			xResult = Math.cos(w * deltaT) * (this.pose.getX() - ICCx)
-					- Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
-			yResult = Math.sin(w * deltaT) * (this.pose.getX() - ICCx)
-					+ Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
-			angleResult = this.pose.getHeading() + w * deltaT;
-//			if (angleResult > 360) {
-//				angleResult = angleResult - 360;
-//			}
-//			if (angleResult < 0) {
-//				angleResult = angleResult + 360;
-//			}
+		double xResult 		= 0;
+		double yResult 		= 0;
+		double angleResult 	= 0;
+		
+		double deltaT       = ((double)this.angleMeasurementLeft.getDeltaT())/1000;
+		
+		if (R.isNaN()) { //robot don't move
+			xResult			= this.pose.getX();
+			yResult			= this.pose.getY();
+			angleResult 	= this.pose.getHeading();
+		} else if (R.isInfinite()) { //robot moves straight forward/backward, vLeft==vRight
+			xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
+			yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
+			angleResult 	= this.pose.getHeading();
+		} else {			
+			ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
+			ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
+		
+			xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
+			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
+			angleResult 	= this.pose.getHeading() + w * deltaT;
 		}
-
-		// Anhand von Fixpunkten kann die Position gut geschätzt werden an gewissen Positionen
-		if (akt_linie == last_linie && fixpunktverfahren== true) {
-
-		} else { // Wenn Linie sich geändert hat
-			last_linie = akt_linie;			// alle Punkte in mm //TODO Testen
-			
-			if(fixpunktverfahren== true){
-				
-			
-			//TODO testen
-			// unabhängig von der eingespielten MAP wird Fixpunkt errechnet und der SOLL-Winkel
-			xResult=map[akt_linie].getX1()*10;
-			yResult=map[akt_linie].getY1()*10;
-			
-			anstieg= (map[akt_linie].getY2()-map[akt_linie].getY1())/(map[akt_linie].getX2()-map[akt_linie].getX1());
-			if(anstieg==0 && (map[akt_linie].getX2() > map[akt_linie].getX1())){
-				angleResult= 0;
-			}else if(anstieg==0 &&(map[akt_linie].getX2() < map[akt_linie].getX1())){
-				angleResult= 180;
-			}
-			if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())) {
-				angleResult=90;
-			}else if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())){
-				angleResult=270;
-			} 
-			}
-	/*		switch (akt_linie) {
-			case 0: {
-				xResult = 0;
-				yResult = 0;
-				
-			}
-			case 1: {
-				xResult = 1800;
-				yResult = 0;
-			}
-			case 2: {
-				xResult=1800;
-				yResult=600;
-			}
-			case 3: {
-				xResult=1500;
-				yResult=600;
-			}
-			case 4: {
-				xResult=1500;
-				yResult=300;
-			}
-			case 5: {
-				xResult=300;
-				yResult=300;
-			}
-			case 6: {
-				xResult=300;
-				yResult=600;
-			}
-			case 7: {
-				xResult=0;
-				yResult=600;
-			}
-			default:
-				break; // no action here
-			}*/
-
-		}
-//		xResult=xResult*1; // umrechnung in cm
-//		yResult=yResult*1; // umrechnung in cm
-		//Umrechnung korrekt?? auf HMI kontrollieren
 		
-		
-		this.pose.setLocation((float) xResult, (float) yResult); // Pose setzen
-		this.pose.setHeading((float) angleResult); // Winkel setzen
+		this.pose.setLocation((float)xResult, (float)yResult);
+		this.pose.setHeading((float)angleResult);		 
 	}
 
 	/**
