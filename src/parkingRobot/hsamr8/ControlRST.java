@@ -77,8 +77,8 @@ public class ControlRST implements IControl {
     double esum = 0; //für linefollow
 	double e = 0;
 	double ealt = 0;
-	double kp = 0.08;
-	double ki =0.0; //0.0025
+	double kp = 0.39;
+	double ki =0.05; //0.0025
 	double kd = 0.0; //0.000001
 	double y = 0;
 	
@@ -355,36 +355,33 @@ public class ControlRST implements IControl {
 		
 		
 		
-		e = (double)(this.lineSensorRight - this.lineSensorLeft);
+		e = (this.lineSensorRight - this.lineSensorLeft);  //(double)
 		
-		/**if(e < 98){                       //linkskurve
-			leftMotor.setPower(0);
-			rightMotor.setPower(25);
+		if(e > 93){                       //linkskurve
+			leftMotor.setPower(-20);
+			rightMotor.setPower(30);
 			esum =0;
 			ealt=0;
 			
 		}
-		else{ */  
-		//if(e < 100 && e > -100){ 	
-			esum = esum + e; //integrationsanteil
-			y = kp*e + ki*esum + kd*(e - ealt);
-			ealt = e;
-		
-			rightMotor.setPower((int) (40+y));
-			leftMotor.setPower((int) (40-y));
-		//}
-		/**
-		else if(e < -99){
+		else if (e < -93 ){
 			leftMotor.setPower(30);
-			rightMotor.setPower(-30);	
-			}
-		else if(e > 99){
-			rightMotor.setPower(30);
-			leftMotor.setPower(-30);
-			}
-		
-		*/
+			rightMotor.setPower(-20);
+			esum =0;
+			ealt=0;
 		}
+		else{  
+		//if(e < 100 && e > -100){ 	
+			esum = esum + (double)(e); //integrationsanteil
+			y = kp*(double)(e) + ki*esum + kd*((double)(e) - ealt);
+			ealt = (double)(e);
+		
+			rightMotor.setPower(38+(int)(y));
+			leftMotor.setPower(38-(int)(y));
+		
+		
+		}
+	}
 		
 		
 		
