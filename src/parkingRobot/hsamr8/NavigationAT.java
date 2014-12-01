@@ -6,6 +6,7 @@ import lejos.geom.Point;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
 import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
+import parkingRobot.IPerception.AngleDifferenceMeasurement;
 import parkingRobot.hsamr8.NavigationThread;
 
 /**
@@ -145,6 +146,12 @@ public class NavigationAT implements INavigation {
 	int last_linie = 0;
 	Double anstieg= new Double (0);
 	boolean fixpunktverfahren= false;
+	float winkelaenderung=0;
+	float zeitaenderung =0;
+	double kritischerwegvorn=12; //cm
+	boolean detectionecke=false;
+	double last_winkel=0;
+	double richtung=0;
 	
 	/**
 	 * thread started by the 'Navigation' class for background calculating
@@ -245,6 +252,7 @@ public class NavigationAT implements INavigation {
 		this.frontSideSensorDistance = perception.getFrontSideSensorDistance();
 		this.backSensorDistance = perception.getBackSensorDistance();
 		this.backSideSensorDistance = perception.getBackSideSensorDistance();
+		
 	}
 
 	/**
@@ -260,7 +268,23 @@ public class NavigationAT implements INavigation {
 		x_fix = false;
 		y_fix = false;
 		fix_value = 0;
+		
+		
+		
+		if (this.frontSensorDistance<kritischerwegvorn || ((this.pose.getHeading()-7<last_winkel)
+				&&(this.pose.getHeading()-7<last_winkel)) ){
+			
+				detectionecke=true;
+				last_winkel=last_winkel+90*richtung;
+				last_linie=akt_linie;
+		}else{
+			
+		}
+		
+		
+		
 		if(fixpunktverfahren== true){
+			
 			
 		
 		
@@ -279,6 +303,7 @@ public class NavigationAT implements INavigation {
 			phi_kontroll=270;
 		}
 		}
+		
 	/*	if (enabled) {
 			switch (line_no) {
 			case 0:
@@ -344,7 +369,7 @@ public class NavigationAT implements INavigation {
 		double vLeft		= (leftAngleSpeed  * Math.PI * LEFT_WHEEL_RADIUS ) / 180 ; //velocity of left  wheel in m/s
 		double vRight		= (rightAngleSpeed * Math.PI * RIGHT_WHEEL_RADIUS) / 180 ; //velocity of right wheel in m/s		
 		double w 			= (vRight - vLeft) / WHEEL_DISTANCE; //angular velocity of robot in rad/s
-		
+		double richtung		= w/(-1*w);
 		Double R 			= new Double(( WHEEL_DISTANCE / 2 ) * ( (vLeft + vRight) / (vRight - vLeft) ));								
 		
 		double ICCx 		= 0;
@@ -361,16 +386,26 @@ public class NavigationAT implements INavigation {
 			yResult			= this.pose.getY();
 			angleResult 	= this.pose.getHeading();
 		} else if (R.isInfinite()) { //robot moves straight forward/backward, vLeft==vRight
+			
+			
 			xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
 			yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
 			angleResult 	= this.pose.getHeading();
-		} else {			
+		} else {	
+			
+			
 			ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
 			ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
 		
 			xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 			angleResult 	= this.pose.getHeading() + w * deltaT;
+		}
+		
+		if(angleResult>360){
+			angleResult=angleResult-360;
+		}else{
+		
 		}
 		
 		this.pose.setLocation((float)xResult, (float)yResult);
