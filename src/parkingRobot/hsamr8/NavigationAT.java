@@ -268,27 +268,23 @@ public class NavigationAT implements INavigation {
 		x_fix = false;
 		y_fix = false;
 		fix_value = 0;
+		int i=0;
 		
 		
-		
-		if (this.frontSensorDistance<kritischerwegvorn || ((this.pose.getHeading()-7<last_winkel)
-				&&(this.pose.getHeading()-7<last_winkel)) ){
+		if (this.frontSensorDistance<kritischerwegvorn || ((this.pose.getHeading()-15<last_winkel)
+				&&(this.pose.getHeading()+15<last_winkel)) ){
 			
 				detectionecke=true;
 				last_winkel=last_winkel+90*richtung;
-				last_linie=akt_linie;
+				last_linie=i;
+				akt_linie=last_linie;
+				i++;
 		}else{
-			
+			detectionecke=false;
+		
 		}
-		
-		
-		
-		if(fixpunktverfahren== true){
+		if(detectionecke==true){
 			
-			
-		
-		
-		akt_linie=line_no;
 		
 		
 		anstieg= (map[akt_linie].getY2()-map[akt_linie].getY1())/(map[akt_linie].getX2()-map[akt_linie].getX1());
@@ -393,6 +389,14 @@ public class NavigationAT implements INavigation {
 			angleResult 	= this.pose.getHeading();
 		} else {	
 			
+			if(detectionecke=true){
+				angleResult=phi_kontroll;
+				yResult=map[akt_linie].getY1();
+				xResult=map[akt_linie].getX1();
+				
+			}else{
+				
+			
 			
 			ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
 			ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
@@ -400,16 +404,19 @@ public class NavigationAT implements INavigation {
 			xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 			angleResult 	= this.pose.getHeading() + w * deltaT;
+			}
 		}
 		
-		if(angleResult>360){
-			angleResult=angleResult-360;
+		if(angleResult>360){ // Wertebereich begrenzen
+			double angleResult2 = angleResult-360;
+			
+			this.pose.setHeading((float)angleResult2);
 		}else{
-		
+			this.pose.setHeading((float)angleResult);
 		}
 		
-		this.pose.setLocation((float)xResult, (float)yResult);
-		this.pose.setHeading((float)angleResult);		 
+		this.pose.setLocation((float)xResult, (float)yResult); //x und y setzen
+				 
 	}
 
 	/**
