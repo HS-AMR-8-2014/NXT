@@ -77,9 +77,9 @@ public class ControlRST implements IControl {
     double esum = 0; //für linefollow
 	double e = 0;
 	double ealt = 0;
-	double kp = 0.39;
-	double ki =0.004; //0.0025
-	double kd = 0.0005; //0.000001
+	double kp = 0.387;
+	double ki =0.0042; //0.0025
+	double kd = 0.00008; //0.000001
 	double y = 0;
 	
 	
@@ -357,14 +357,14 @@ public class ControlRST implements IControl {
 		
 		e = (this.lineSensorRight - this.lineSensorLeft);  //(double)
 		
-		if(e > 93){                       //linkskurve
+		if(e > 90){                       //linkskurve
 			leftMotor.setPower(-20);
 			rightMotor.setPower(30);
 			esum =0;
 			ealt=0;
 			
 		}
-		else if (e < -93 ){
+		else if (e < -90 ){
 			leftMotor.setPower(30);
 			rightMotor.setPower(-20);
 			esum =0;
