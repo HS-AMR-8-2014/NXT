@@ -505,7 +505,7 @@ public class NavigationAT implements INavigation {
 		// ; //velocity of left wheel in m/s
 		// double vRight = (rightAngleSpeed * Math.PI * RIGHT_WHEEL_RADIUS) /
 		// 180 ; //velocity of right wheel in m/s
-		double deltaT = ((double) this.angleMeasurementLeft.getDeltaT()) / 1000;
+	//	double deltaT = ((double) this.angleMeasurementLeft.getDeltaT()) / 1000;
 		boolean detectionactive = false;
 		Point anfang = new Point(0, 0);
 		Point ende = new Point(0, 0);
