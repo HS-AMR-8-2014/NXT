@@ -427,9 +427,7 @@ public class ControlRST implements IControl {
 		
 		*/
 		
-		AngleDifferenceMeasurement rightEncoder = perception.getControlRightEncoder().getEncoderMeasurement();    //mit ludwig absprechen an welcher stelle zu platzieren
-		AngleDifferenceMeasurement leftEncoder = perception.getControlLeftEncoder().getEncoderMeasurement();      //mit ludwig absprechen an welcher stelle zu platzieren
-		
+				
 		//mit regelung
 		if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben
 			radius = v/omega;
@@ -448,8 +446,8 @@ public class ControlRST implements IControl {
 			rightSpeed = v;
 		};
 		
-		dleft = leftSpeed - wheelDiameter/2*(leftEncoder.getAngleSum())/(leftEncoder.getDeltaT());                //Fehler des linken Rades
-		dright = rightSpeed - wheelDiameter/2*(rightEncoder.getAngleSum())/(rightEncoder.getDeltaT());			  //Fehler der rechten Rades
+		//dleft = leftSpeed - wheelDiameter/2*(leftEncoder.getAngleSum())/(leftEncoder.getDeltaT());                //Fehler des linken Rades
+		//dright = rightSpeed - wheelDiameter/2*(rightEncoder.getAngleSum())/(rightEncoder.getDeltaT());			  //Fehler der rechten Rades
 		
 		dleftsum = dleftsum + dleft; //integrationsanteil
 		yleft = kp1*dleft + ki1*dleftsum + kd1*(dleft - dleftalt);

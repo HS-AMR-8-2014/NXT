@@ -170,6 +170,9 @@ public interface INavigation {
 		
 		// Get methods
 		
+
+		
+		
 		/**
 		 * @return the parking slot ID that is the number of recent detected parking spaces incremented by one
 		 */

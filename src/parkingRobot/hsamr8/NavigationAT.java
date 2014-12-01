@@ -252,8 +252,26 @@ public class NavigationAT implements INavigation {
 		this.frontSideSensorDistance = perception.getFrontSideSensorDistance();
 		this.backSensorDistance = perception.getBackSensorDistance();
 		this.backSideSensorDistance = perception.getBackSideSensorDistance();
-		
+		/**AngleDifferenceMeasurement rightEncoder = perception.getControlRightEncoder().getEncoderMeasurement();    //mit ludwig absprechen an welcher stelle zu platzieren
+		AngleDifferenceMeasurement leftEncoder = perception.getControlLeftEncoder().getEncoderMeasurement();      //mit ludwig absprechen an welcher stelle zu platzieren
+		*/
+
 	}
+	
+	//Encoder Winkle + Zeit für Control
+	public double getRightEncoderAngle(){
+		return (this.angleMeasurementRight.getAngleSum());
+	}
+	public double getRightEncoderTime(){
+		return (this.angleMeasurementRight.getDeltaT());
+	}
+	public double getLeftEncoderAngle(){
+		return (this.angleMeasurementLeft.getAngleSum());
+	}
+	public double getLeftEncoderTime(){
+		return (this.angleMeasurementLeft.getDeltaT());
+	}
+	
 
 	/**
 	 * Guidance übergibt aktuelle Linie an NAV
