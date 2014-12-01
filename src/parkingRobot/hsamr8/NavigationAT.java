@@ -144,6 +144,7 @@ public class NavigationAT implements INavigation {
 	int akt_linie = 0;
 	int last_linie = 0;
 	Double anstieg= new Double (0);
+	boolean fixpunktverfahren= false;
 	
 	/**
 	 * thread started by the 'Navigation' class for background calculating
@@ -259,8 +260,12 @@ public class NavigationAT implements INavigation {
 		x_fix = false;
 		y_fix = false;
 		fix_value = 0;
-
+		if(fixpunktverfahren== true){
+			
+		
+		
 		akt_linie=line_no;
+		
 		
 		anstieg= (map[akt_linie].getY2()-map[akt_linie].getY1())/(map[akt_linie].getX2()-map[akt_linie].getX1());
 		if(anstieg==0 && (map[akt_linie].getX2() > map[akt_linie].getX1())){
@@ -273,7 +278,7 @@ public class NavigationAT implements INavigation {
 		}else if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())){
 			phi_kontroll=270;
 		}
-		
+		}
 	/*	if (enabled) {
 			switch (line_no) {
 			case 0:
@@ -386,8 +391,8 @@ public class NavigationAT implements INavigation {
 					* Math.cos(this.pose.getHeading()) * deltaT;
 			yResult = this.pose.getY() + vLeft
 					* Math.sin(this.pose.getHeading()) * deltaT;
-			//angleResult = this.pose.getHeading();
-			angleResult= phi_kontroll;
+			angleResult = this.pose.getHeading();
+			//angleResult= phi_kontroll;
 			if (angleResult > 360) {
 				angleResult = angleResult - 360;
 			}
@@ -416,10 +421,13 @@ public class NavigationAT implements INavigation {
 		}
 
 		// Anhand von Fixpunkten kann die Position gut geschätzt werden an gewissen Positionen
-		if (akt_linie == last_linie) {
+		if (akt_linie == last_linie && fixpunktverfahren== true) {
 
-		} else {
+		} else { // Wenn Linie sich geändert hat
 			last_linie = akt_linie;			// alle Punkte in mm //TODO Testen
+			
+			if(fixpunktverfahren== true){
+				
 			
 			//TODO testen
 			// unabhängig von der eingespielten MAP wird Fixpunkt errechnet und der SOLL-Winkel
@@ -437,7 +445,7 @@ public class NavigationAT implements INavigation {
 			}else if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())){
 				angleResult=270;
 			} 
-			
+			}
 	/*		switch (akt_linie) {
 			case 0: {
 				xResult = 0;
@@ -477,8 +485,8 @@ public class NavigationAT implements INavigation {
 			}*/
 
 		}
-		xResult=xResult*0.1; // umrechnung in cm
-		yResult=yResult*0.1; // umrechnung in cm
+		xResult=xResult*1; // umrechnung in cm
+		yResult=yResult*1; // umrechnung in cm
 		//Umrechnung korrekt?? auf HMI kontrollieren
 		this.pose.setLocation((float) xResult, (float) yResult); // Pose setzen
 		this.pose.setHeading((float) angleResult); // Winkel setzen
