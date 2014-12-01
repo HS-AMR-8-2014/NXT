@@ -143,6 +143,8 @@ public class NavigationAT implements INavigation {
 	double phi_kontroll = 0;
 	int akt_linie = 0;
 	int last_linie = 0;
+	Double anstieg= new Double (0);
+	
 	/**
 	 * thread started by the 'Navigation' class for background calculating
 	 */
@@ -252,12 +254,27 @@ public class NavigationAT implements INavigation {
 	 * @param line_no
 	 *            Nummer der Aktuellen Linie
 	 */
-	public void update_nav_line(boolean enabled, int line_no) {
+	//TODO Liste unabhänging machen von Karte
+	public void update_nav_line(int line_no) {
 		x_fix = false;
 		y_fix = false;
 		fix_value = 0;
 
-		if (enabled) {
+		akt_linie=line_no;
+		
+		anstieg= (map[akt_linie].getY2()-map[akt_linie].getY1())/(map[akt_linie].getX2()-map[akt_linie].getX1());
+		if(anstieg==0 && (map[akt_linie].getX2() > map[akt_linie].getX1())){
+			phi_kontroll= 0;
+		}else if(anstieg==0 &&(map[akt_linie].getX2() < map[akt_linie].getX1())){
+			phi_kontroll= 180;
+		}
+		if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())) {
+			phi_kontroll=90;
+		}else if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())){
+			phi_kontroll=270;
+		}
+		
+	/*	if (enabled) {
 			switch (line_no) {
 			case 0:
 				// y_fix = true;
@@ -309,7 +326,7 @@ public class NavigationAT implements INavigation {
 			default:// no action here
 				break;
 			}
-		}
+		} */
 	}
 
 	/**
@@ -346,7 +363,7 @@ public class NavigationAT implements INavigation {
 		double yResult = 0;
 		double angleResult = 0;
 		int abstandtriang = 50; // Abstand der beiden Triangulationssensoren
-
+		
 		double deltaT = ((double) this.angleMeasurementLeft.getDeltaT()) / 1000;
 
 		if (R.isNaN()) { // robot don't move
@@ -402,9 +419,26 @@ public class NavigationAT implements INavigation {
 		if (akt_linie == last_linie) {
 
 		} else {
-			last_linie = akt_linie;			// abhängig machen von der MAP ?- Testparcour oder großer Parcour
-				// alle Punkte in mm!!! Umrechnung am Ende, vor Ausgabe
-			switch (akt_linie) {
+			last_linie = akt_linie;			// alle Punkte in mm //TODO Testen
+			
+			//TODO testen
+			// unabhängig von der eingespielten MAP wird Fixpunkt errechnet und der SOLL-Winkel
+			xResult=map[akt_linie].getX1()*10;
+			yResult=map[akt_linie].getY1()*10;
+			
+			anstieg= (map[akt_linie].getY2()-map[akt_linie].getY1())/(map[akt_linie].getX2()-map[akt_linie].getX1());
+			if(anstieg==0 && (map[akt_linie].getX2() > map[akt_linie].getX1())){
+				angleResult= 0;
+			}else if(anstieg==0 &&(map[akt_linie].getX2() < map[akt_linie].getX1())){
+				angleResult= 180;
+			}
+			if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())) {
+				angleResult=90;
+			}else if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())){
+				angleResult=270;
+			} 
+			
+	/*		switch (akt_linie) {
 			case 0: {
 				xResult = 0;
 				yResult = 0;
@@ -440,7 +474,7 @@ public class NavigationAT implements INavigation {
 			}
 			default:
 				break; // no action here
-			}
+			}*/
 
 		}
 		xResult=xResult*0.1; // umrechnung in cm
