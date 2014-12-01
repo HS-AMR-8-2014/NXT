@@ -363,7 +363,7 @@ public class NavigationAT implements INavigation {
 
 		double ICCx = 0;
 		double ICCy = 0;
-
+		
 		double xResult = 0;
 		double yResult = 0;
 		double angleResult = 0;
@@ -377,12 +377,12 @@ public class NavigationAT implements INavigation {
 			yResult = this.pose.getY();
 
 			angleResult = this.pose.getHeading();
-			if (angleResult > 360) {
-				angleResult = angleResult - 360;
-			}
-			if (angleResult < 0) {
-				angleResult = angleResult + 360;
-			}
+//			if (angleResult > 360) {
+//				angleResult = angleResult - 360;
+//			}
+//			if (angleResult < 0) {
+//				angleResult = angleResult + 360;
+//			}
 		} else if (R.isInfinite()
 				|| (((this.backSideSensorDistance == this.frontSideSensorDistance) && ((vLeft > 0) || (vRight > 0))))) { // robot
 																												// forward/backward,
@@ -393,12 +393,12 @@ public class NavigationAT implements INavigation {
 					* Math.sin(this.pose.getHeading()) * deltaT;
 			angleResult = this.pose.getHeading();
 			//angleResult= phi_kontroll;
-			if (angleResult > 360) {
-				angleResult = angleResult - 360;
-			}
-			if (angleResult < 0) {
-				angleResult = angleResult + 360;
-			}
+//			if (angleResult > 360) {
+//				angleResult = angleResult - 360;
+//			}
+//			if (angleResult < 0) {
+//				angleResult = angleResult + 360;
+//			}
 
 		} else {
 
@@ -412,12 +412,12 @@ public class NavigationAT implements INavigation {
 			yResult = Math.sin(w * deltaT) * (this.pose.getX() - ICCx)
 					+ Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 			angleResult = this.pose.getHeading() + w * deltaT;
-			if (angleResult > 360) {
-				angleResult = angleResult - 360;
-			}
-			if (angleResult < 0) {
-				angleResult = angleResult + 360;
-			}
+//			if (angleResult > 360) {
+//				angleResult = angleResult - 360;
+//			}
+//			if (angleResult < 0) {
+//				angleResult = angleResult + 360;
+//			}
 		}
 
 		// Anhand von Fixpunkten kann die Position gut geschätzt werden an gewissen Positionen
@@ -485,9 +485,11 @@ public class NavigationAT implements INavigation {
 			}*/
 
 		}
-		xResult=xResult*1; // umrechnung in cm
-		yResult=yResult*1; // umrechnung in cm
+//		xResult=xResult*1; // umrechnung in cm
+//		yResult=yResult*1; // umrechnung in cm
 		//Umrechnung korrekt?? auf HMI kontrollieren
+		
+		
 		this.pose.setLocation((float) xResult, (float) yResult); // Pose setzen
 		this.pose.setHeading((float) angleResult); // Winkel setzen
 	}
