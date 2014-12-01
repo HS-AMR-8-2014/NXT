@@ -355,7 +355,7 @@ public class ControlRST implements IControl {
 		
 		
 		
-		e = this.lineSensorRight - this.lineSensorLeft;
+		e = (double)(this.lineSensorRight - this.lineSensorLeft);
 		
 		/**if(e < 98){                       //linkskurve
 			leftMotor.setPower(0);

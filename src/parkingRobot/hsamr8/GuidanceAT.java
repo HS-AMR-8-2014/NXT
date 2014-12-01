@@ -134,7 +134,7 @@ public class GuidanceAT {
 		INxtHmi  	hmi        = new HmiPLT(perception, navigation, control);
 				
 		while(true) {
-			//showData(navigation, perception);
+			showData(navigation, perception);
 			
         	switch ( currentStatus )
         	{
