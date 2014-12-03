@@ -84,10 +84,10 @@ public class ControlRST implements IControl {
 	
 	
 	double radius = 0;   //für methode drive(V;W-Control)
-	double wheelDiameter = 5.6;
-	double trackWidth = 14;
-	double distancePerTurn = Math.PI*wheelDiameter;
-	double distancePerDegree = distancePerTurn/360;
+	double wheelDiameter = 5.6/100;  //in m
+	double trackWidth = 14/100;   //in m
+	double distancePerTurn = Math.PI*wheelDiameter; //in m
+	double distancePerDegree = distancePerTurn/360; //in m
 	double rightSpeed = 0;
 	double leftSpeed = 0;
 	double dleft = 0;
@@ -430,14 +430,14 @@ public class ControlRST implements IControl {
 				
 		//mit regelung
 		if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben
-			radius = v/omega;
+			radius = v/omega;         //Radius in m
 			if(v != 0){
-				leftSpeed = v - (trackWidth/2*v/radius);
-				rightSpeed = v + (trackWidth/2*v/radius);
+				leftSpeed = v - (trackWidth*v/radius/2);
+				rightSpeed = v + (trackWidth*v/radius/2);
 			}
 			else{                            //falls v=0
-				leftSpeed = trackWidth/2*omega;
-				rightSpeed = -trackWidth/2*omega;
+				leftSpeed = trackWidth*omega/2;
+				rightSpeed = -trackWidth*omega/2;
 			};
 				
 		}
@@ -446,8 +446,8 @@ public class ControlRST implements IControl {
 			rightSpeed = v;
 		};
 		
-		dleft = leftSpeed - (navigation.getRightEncoderAngle())*distancePerDegree/(navigation.getLeftEncoderTime());                //Fehler des linken Rades
-		dright = rightSpeed - (navigation.getLeftEncoderAngle())*distancePerDegree/(navigation.getLeftEncoderTime());			  //Fehler der rechten Rades
+		dleft = leftSpeed - (navigation.getRightEncoderAngle())*distancePerDegree/(navigation.getLeftEncoderTime()/1000);                //Fehler des linken Rades
+		dright = rightSpeed - (navigation.getLeftEncoderAngle())*distancePerDegree/(navigation.getLeftEncoderTime()/1000);			  //Fehler der rechten Rades
 		
 		dleftsum = dleftsum + dleft; //integrationsanteil
 		yleft = kp1*dleft + ki1*dleftsum + kd1*(dleft - dleftalt);
