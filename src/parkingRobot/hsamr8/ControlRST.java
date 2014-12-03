@@ -122,8 +122,8 @@ public class ControlRST implements IControl {
 		
 		this.currentCTRLMODE = ControlMode.INACTIVE;
 			
-		this.encoderLeft  = perception.getControlLeftEncoder();
-		this.encoderRight = perception.getControlRightEncoder();
+		//this.encoderLeft  = perception.getControlLeftEncoder();
+		//this.encoderRight = perception.getControlRightEncoder();
 		this.lineSensorRight		= perception.getRightLineSensor();
 		this.lineSensorLeft  		= perception.getLeftLineSensor();
 		
