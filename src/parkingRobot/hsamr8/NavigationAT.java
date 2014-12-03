@@ -597,7 +597,7 @@ public class NavigationAT implements INavigation {
 			}
 		
 		
-		this.pose.setLocation((float)xResult*10, (float)yResult*10);
+		this.pose.setLocation((float)xResult, (float)yResult);
 		this.pose.setHeading((float)angleResult);		 
 		}
 		}
@@ -628,7 +628,7 @@ public class NavigationAT implements INavigation {
 		// später 2-fache Messung und Mittelung implementieren
 
 		
-		double x_abst_backsidesens = 50; // Abstand der Sensoren vom Punkt der
+		double x_abst_backsidesens = 5; // Abstand der Sensoren vom Punkt der
 											// POSE (X,Y)
 		double y_abst_backsidesens = 3; //cm
 		double x_abst_frontsidesens = 5; //cm
@@ -651,11 +651,9 @@ public class NavigationAT implements INavigation {
 		// korrektur4=Math.cos(this.pose.getHeading())*this.backSideSensorDistance
 		// - Math.sin(this.pose.getHeading())*this.backSideSensorDistance;
 
-		if (this.frontSideSensorDistance > abstand_sens_band // und Winkel
-																// gerade später implementieren
-				&& this.backSideSensorDistance > abstand_sens_band) {
+		
 
-			if (this.backSideSensorDistance > abstand_sens_band
+			if (this.frontSideSensorDistance > abstand_sens_band
 					&& (detectionactive == false)) {
 
 				// pruefe, ob Parkluecke schon vorhanden
@@ -729,9 +727,9 @@ public class NavigationAT implements INavigation {
 					id_aktuell++;
 				}
 
-			}
-
-		} else {
+			
+	
+}else {
 			// NICHTS machen wenn keine Lücke detektiert
 		}
 
