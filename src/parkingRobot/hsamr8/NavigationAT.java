@@ -464,17 +464,17 @@ public class NavigationAT implements INavigation {
 			yResult			= this.pose.getY();
 			angleResult 	= this.pose.getHeading();
 		} else if (R.isInfinite()) { //robot moves straight forward/backward, vLeft==vRight
-			if(seite_ist_was==true){
-				abstand_von_bande=(this.frontSideSensorDistance+this.backSideSensorDistance)/2;
-				xResult= this.pose.getX()+ 0.5*(vLeft+vRight)*Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang)*deltaT;
-				yResult= this.pose.getY()+ 0.5*(vLeft+vRight)*Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang)*deltaT;
-				angleResult= Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang) ;
-			}else{
+//			if(seite_ist_was==true){
+//				abstand_von_bande=(this.frontSideSensorDistance+this.backSideSensorDistance)/2;
+//				xResult= this.pose.getX()+ 0.5*(vLeft+vRight)*Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang)*deltaT;
+//				yResult= this.pose.getY()+ 0.5*(vLeft+vRight)*Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang)*deltaT;
+//				angleResult= Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang) ;
+//			}else{
 			
 			xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
 			yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
 			angleResult 	= this.pose.getHeading();
-			}
+		//	}
 		} else {
 			
 
@@ -492,7 +492,7 @@ public class NavigationAT implements INavigation {
 			
 				if(this.pose.getX()<190 && this.pose.getY()<10){
 					yResult=0;	
-					akt_linie=0;
+					
 				}else if(this.pose.getX()<190 && this.pose.getX()>170 && this.pose.getY()<60){
 					xResult=160;
 					//fixpunkt y
