@@ -155,7 +155,7 @@ public class NavigationAT implements INavigation {
 	
 	double xGenau=0;
 	double yGenau=0;
-	int minimalabstand=13;
+	int minimalabstand=11;
 	boolean seite_ist_was=false;
 	boolean hinten_ist_was=false;
 	boolean vorne_ist_was=false;
@@ -307,7 +307,7 @@ public class NavigationAT implements INavigation {
 			winkel2=270;
 		}
 		
-		if(this.frontSensorDistance<20){
+		if(this.frontSensorDistance<14){
 			vorne_ist_was=true;
 		}else{
 			vorne_ist_was=false;
