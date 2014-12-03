@@ -141,7 +141,7 @@ public class NavigationAT implements INavigation {
 	int fix_value = 0;
 	ParkingSlot[] list_ParkingSlot;
 	int abstand_sens_band = 16; // Abstand von Sensor zur Bande in mm
-	double phi_kontroll = 0;
+	int phi_kontroll = 0;
 	int akt_linie = 0;
 	int last_linie = 0;
 	Double anstieg= new Double (0);
@@ -152,7 +152,6 @@ public class NavigationAT implements INavigation {
 	boolean detectionecke=false;
 	double last_winkel=0;
 	double richtung=0;
-	
 	double xGenau=0;
 	double yGenau=0;
 	int minimalabstand=11;
@@ -415,34 +414,6 @@ public class NavigationAT implements INavigation {
 		
 		}
 		
-//		if (vorne_ist_was==true || ((this.pose.getHeading()-15<last_winkel)
-//				&&(this.pose.getHeading()+15<last_winkel)) ){
-//			
-//				detectionecke=true;
-//				last_winkel=last_winkel+90*richtung;
-//				last_linie=i;
-//				akt_linie=last_linie;
-//				i++;
-//		}else{
-//			detectionecke=false;
-//		
-//		}
-//		if(detectionecke==true){
-//			
-//		
-//		
-//		anstieg= (map[akt_linie].getY2()-map[akt_linie].getY1())/(map[akt_linie].getX2()-map[akt_linie].getX1());
-//		if(anstieg==0 && (map[akt_linie].getX2() > map[akt_linie].getX1())){
-//			phi_kontroll= 0;
-//		}else if(anstieg==0 &&(map[akt_linie].getX2() < map[akt_linie].getX1())){
-//			phi_kontroll= 180;
-//		}
-//		if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())) {
-//			phi_kontroll=90;
-//		}else if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())){
-//			phi_kontroll=270;
-//		}
-//		}
 		
 	}
 
@@ -484,6 +455,10 @@ public class NavigationAT implements INavigation {
 		}
 		
 		
+		
+		
+		
+		
 		if (R.isNaN()) { //robot don't move
 			xResult			= this.pose.getX();
 			yResult			= this.pose.getY();
@@ -500,13 +475,46 @@ public class NavigationAT implements INavigation {
 			yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
 			angleResult 	= this.pose.getHeading();
 			}
-		} else {		
-			if(this.lineSensorLeft==2){
+		} else {
+			
+
+			ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
+			ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
+		
+			
+			
+			if(detectionecke=true){
+				akt_linie=last_linie;
+				
+			}
+			
+			if(this.lineSensorLeft==2 || this.lineSensorRight==2){
+			
+				if(this.pose.getX()<190 && this.pose.getY()<10){
+					yResult=0;	
+					akt_linie=0;
+				}else if(this.pose.getX()<190 && this.pose.getX()>170 && this.pose.getY()<60){
+					xResult=160;
+					//fixpunkt y
+				}else if(this.pose.getX()<185 && this.pose.getX()>145 && this.pose.getY()>55){
+					yResult=60;	//fixpunkt y
+				
+				}else if(this.pose.getX()<160 && this.pose.getX()>140 && this.pose.getY()>25 &&this.pose.getY()<35){
+					xResult=150;	//fixpunkt y
+				}else if(this.pose.getX()<145 && this.pose.getX()>30 && this.pose.getY()>25 &&this.pose.getY()<35){
+					yResult=30;	//fixpunkt y
+				}else if(this.pose.getX()<35 && this.pose.getX()>25 && this.pose.getY()>25 &&this.pose.getY()<65){
+					xResult=30;	//fixpunkt y
+				}else if(this.pose.getX()<30 && this.pose.getX()>0 && this.pose.getY()>55 &&this.pose.getY()<65){
+					yResult=60;	//fixpunkt y
+				}else if(this.pose.getX()<10 && this.pose.getX()>0 && this.pose.getY()>-10 &&this.pose.getY()<60){
+					yResult=30;	//fixpunkt y
+				}
+					
 				
 			}else{
 			
-			ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
-			ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
+		
 		
 			xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
