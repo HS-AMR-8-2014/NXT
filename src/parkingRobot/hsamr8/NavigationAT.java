@@ -159,6 +159,7 @@ public class NavigationAT implements INavigation {
 	boolean seite_ist_was=false;
 	boolean hinten_ist_was=false;
 	boolean vorne_ist_was=false;
+	boolean detectionactive = false;
 	/**
 	 * thread started by the 'Navigation' class for background calculating
 	 */
@@ -552,7 +553,7 @@ public class NavigationAT implements INavigation {
 	private void detectParkingSlot() {
 		//Initialisierung
 		//	double deltaT = ((double) this.angleMeasurementLeft.getDeltaT()) / 1000;
-		boolean detectionactive = false;
+		
 		Point anfang = new Point(0, 0);
 		Point ende = new Point(0, 0);
 		boolean bekannt = false; // ist die Lücke bekannt?
