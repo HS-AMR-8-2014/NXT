@@ -66,6 +66,18 @@ public interface INavigation {
 	 */
 	public ParkingSlot getSlotById(int i);
 	
+	//Encoder Winkle + Zeit für Control freigeben
+		public double getRightEncoderAngle();
+		
+		public double getRightEncoderTime();
+		
+		public double getLeftEncoderAngle();
+		
+		public double getLeftEncoderTime();
+		
+		
+
+	
 	// Subclasses
 	
 	/**
