@@ -64,8 +64,8 @@ public class ControlRST implements IControl {
 	
 	ControlMode currentCTRLMODE = null ;
 	
-	EncoderSensor controlRightEncoder    = null;
-	EncoderSensor controlLeftEncoder     = null;
+	//EncoderSensor controlRightEncoder    = null;
+	//EncoderSensor controlLeftEncoder     = null;
 
 	int lastTime = 0;
 	
@@ -73,7 +73,7 @@ public class ControlRST implements IControl {
     double Distance = 0.0;
     
     
-    double PI = 3.14159265359;
+    //double PI = 3.14159265359;  //besreits definiert durch Math.PI
     double esum = 0; //für linefollow
 	double e = 0;
 	double ealt = 0;
@@ -86,7 +86,7 @@ public class ControlRST implements IControl {
 	double radius = 0;   //für methode drive(V;W-Control)
 	double wheelDiameter = 5.6;
 	double trackWidth = 14;
-	double distancePerTurn = PI*wheelDiameter;
+	double distancePerTurn = Math.PI*wheelDiameter;
 	double distancePerDegree = distancePerTurn/360;
 	double rightSpeed = 0;
 	double leftSpeed = 0;
@@ -205,7 +205,7 @@ public class ControlRST implements IControl {
 		                      //exec_LINECTRL_ALGO();
 		                      exec_LINECTRL_ALGO_PID();
 		                      break;
-		  case VW_CTRL		: //update_VWCTRL_Parameter();
+		  case VW_CTRL		: update_VWCTRL_Parameter();
 		   					  exec_VWCTRL_ALGO();
 		   					  break; 
 		  case SETPOSE      : update_SETPOSE_Parameter();

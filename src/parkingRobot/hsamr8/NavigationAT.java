@@ -449,7 +449,7 @@ public class NavigationAT implements INavigation {
 	 * calculates the robot pose from the measurements
 	 */
 	private void calculateLocation() {
-		this.update_nav_line(true);
+		this.update_nav_line(false);
 		double leftAngleSpeed 	= this.angleMeasurementLeft.getAngleSum()  / ((double)this.angleMeasurementLeft.getDeltaT()/1000);  //degree/seconds
 		double rightAngleSpeed 	= this.angleMeasurementRight.getAngleSum() / ((double)this.angleMeasurementRight.getDeltaT()/1000); //degree/seconds
 
