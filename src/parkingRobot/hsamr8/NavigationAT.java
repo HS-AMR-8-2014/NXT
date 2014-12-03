@@ -504,8 +504,8 @@ public class NavigationAT implements INavigation {
 			ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
 			ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
 
-			if(this.lineSensorLeft==2 || this.lineSensorRight==2)
-			{
+//			if(this.lineSensorLeft==2 || this.lineSensorRight==2)
+//			{
 //				if(this.pose.getX()<175 && this.pose.getX()>5 && this.pose.getY()<5){
 //					yResult=0;	
 //					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
@@ -543,7 +543,7 @@ public class NavigationAT implements INavigation {
 					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 					angleResult 	= this.pose.getHeading() + w * deltaT;
 					
-				}
+				//}
 			}
 				
 //				//detektiert ECKPUNKTE die bekannt sind
