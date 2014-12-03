@@ -544,7 +544,96 @@ public class NavigationAT implements INavigation {
 					angleResult 	= this.pose.getHeading() + w * deltaT;
 					
 				}
-			
+				
+				
+				//detektiert ECKPUNKTE die bekannt sind
+				if(vorne_ist_was==true){
+					
+					
+					
+				}
+				int winkel2=0;
+				float winkel=this.getPose().getHeading();
+				
+				if(winkel>75 && winkel<105){
+					winkel2=90;
+				}else if(winkel>165 && winkel<195){
+					winkel2=180;
+				}else if(winkel>0 && winkel<15){
+					winkel2 = 0;
+				}else if(winkel>255 && winkel<285){
+					winkel2=270;
+				}
+				
+				if(this.frontSensorDistance<8){
+					vorne_ist_was=true;
+				}else{
+					vorne_ist_was=false;
+				}
+				if(this.frontSideSensorDistance<minimalabstand && this.backSideSensorDistance<minimalabstand){
+					seite_ist_was=true;
+				}else{
+					seite_ist_was=false;
+				}
+				if(this.backSensorDistance<9){
+					hinten_ist_was=true;
+				}else{
+					hinten_ist_was=false;
+				}
+				
+				
+				
+				if(vorne_ist_was==true){
+					switch (winkel2) {
+					case 0:
+						phi_kontroll = 90;
+						akt_linie = 1;
+						xGenau=180;
+						yGenau=0;
+						detectionecke=true;
+						break;
+					case 90:
+						
+						phi_kontroll = 180;
+						detectionecke=true;
+						
+						akt_linie = 2;
+						xGenau=180;
+						yGenau=60;
+						
+						break;
+					case 180:
+						detectionecke=true;
+						
+						if(last_linie==1){
+						akt_linie = 2;	
+						phi_kontroll = 270;
+						xGenau=150;
+						yGenau=60;		
+						}else{
+							akt_linie=6;
+							phi_kontroll = 270;
+							xGenau=0;
+							yGenau=60;
+						}
+						
+						
+						break;
+					case 270:
+						phi_kontroll = 0;
+						
+						detectionecke=true;
+						akt_linie = 0;
+						xGenau=0;
+						yGenau=0;
+						break;
+					
+					default:// no action here
+						
+						break;
+					}
+					last_linie=akt_linie;
+				}
 				
 //			}
 //			if(this.lineSensorLeft==0 && this.lineSensorRight==0 && seite_ist_was==true){		
