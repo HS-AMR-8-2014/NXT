@@ -266,16 +266,16 @@ public class NavigationAT implements INavigation {
 	}
 	
 	//Encoder Winkle + Zeit für Control freigeben
-	public synchronized double getRightEncoderAngle(){
+	public double getRightEncoderAngle(){
 		return (this.angleMeasurementRight.getAngleSum());
 	}
-	public synchronized double getRightEncoderTime(){
+	public double getRightEncoderTime(){
 		return (this.angleMeasurementRight.getDeltaT());
 	}
-	public synchronized double getLeftEncoderAngle(){
+	public double getLeftEncoderAngle(){
 		return (this.angleMeasurementLeft.getAngleSum());
 	}
-	public synchronized double getLeftEncoderTime(){
+	public double getLeftEncoderTime(){
 		return (this.angleMeasurementLeft.getDeltaT());
 	}
 	
