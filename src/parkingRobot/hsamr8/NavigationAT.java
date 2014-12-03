@@ -416,6 +416,30 @@ public class NavigationAT implements INavigation {
 		
 		
 	}
+	
+	/**
+	 * detektiert die Umwelt des Roboters
+	 */
+	private void istirgendwowas(){
+		if((this.frontSensorDistance<11) &&(this.frontSensorDistance!=0)){
+			vorne_ist_was=true;
+		}else{
+			vorne_ist_was=false;
+		}
+		if(this.backSensorDistance<8){
+			hinten_ist_was=true;
+		}else{
+			hinten_ist_was=false;
+		}
+		if(this.frontSideSensorDistance<13 && this.backSideSensorDistance<13 && (this.frontSideSensorDistance!=0)){
+			seite_ist_was=true;
+		}else{
+			seite_ist_was=false;
+		}
+	}
+	
+	
+	
 
 	/**
 	 * calculates the robot pose from the measurements
@@ -443,16 +467,8 @@ public class NavigationAT implements INavigation {
 		
 		
 		double deltaT       = ((double)this.angleMeasurementLeft.getDeltaT())/1000;
-		//detektieren wo etwas ist
-		if(this.frontSensorDistance<11){
-			vorne_ist_was=true;
-		}
-		if(this.backSensorDistance<8){
-			hinten_ist_was=true;
-		}
-		if(this.frontSideSensorDistance<13 && this.backSideSensorDistance<13){
-			seite_ist_was=true;
-		}
+		//detektieren wo etwas ist 
+		istirgendwowas();
 		
 		
 		
@@ -487,90 +503,98 @@ public class NavigationAT implements INavigation {
 		
 			
 			
-			if(detectionecke=true){
-				akt_linie=last_linie;
-				
-			}
 			
-			if(this.lineSensorLeft==2 || this.lineSensorRight==2){
 			
-				if(this.pose.getX()<190 && this.pose.getY()<10){
+			if(this.lineSensorLeft==2 || this.lineSensorRight==2)
+			{
+				if(this.pose.getX()<175 && this.pose.getY()<5){
 					yResult=0;	
 					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 					akt_linie=0;
-				}else if(this.pose.getX()<190 && this.pose.getX()>170 && this.pose.getY()<60 && this.pose.getY()>0){
-					xResult=160;
+				}else if(this.pose.getX()<185 && this.pose.getX()>175 && this.pose.getY()<55 && this.pose.getY()>5){
+					xResult=180;
 					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 					akt_linie=1;//fixpunkt y
-				}else if(this.pose.getX()<185 && this.pose.getX()>145 && this.pose.getY()>55 && this.pose.getY()<70){
+				}else if(this.pose.getX()<185 && this.pose.getX()>155 && this.pose.getY()>55 && this.pose.getY()<65){
 					yResult=60;	//fixpunkt y
 					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 				akt_linie=2;
-				}else if(this.pose.getX()<160 && this.pose.getX()>140 && this.pose.getY()>25 &&this.pose.getY()<35){
+				}else if(this.pose.getX()<155 && this.pose.getX()>145 && this.pose.getY()>35 &&this.pose.getY()<55){
 					xResult=150;	//fixpunkt y
 					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 				akt_linie=3;
-				}else if(this.pose.getX()<145 && this.pose.getX()>30 && this.pose.getY()>25 &&this.pose.getY()<35){
+				}else if(this.pose.getX()<145 && this.pose.getX()>35 && this.pose.getY()>25 &&this.pose.getY()<35){
 					yResult=30;	//fixpunkt y
 					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 				akt_linie=4;
-				}else if(this.pose.getX()<35 && this.pose.getX()>25 && this.pose.getY()>25 &&this.pose.getY()<65){
+				}else if(this.pose.getX()<35 && this.pose.getX()>25 && this.pose.getY()>35 &&this.pose.getY()<55){
 					xResult=30;	//fixpunkt y
 					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 				akt_linie=5;
-				}else if(this.pose.getX()<30 && this.pose.getX()>0 && this.pose.getY()>55 &&this.pose.getY()<65){
+				}else if(this.pose.getX()<25 && this.pose.getX()>5 && this.pose.getY()>55 &&this.pose.getY()<65){
 					yResult=60;	//fixpunkt y
 					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 				akt_linie=6;
-				}else if(this.pose.getX()<10 && this.pose.getX()>0 && this.pose.getY()>-10 &&this.pose.getY()<60){
+				}else if(this.pose.getX()<5 && this.pose.getX()>-5 && this.pose.getY()>5 &&this.pose.getY()<55){
 					xResult=0;	//fixpunkt y
 					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 					akt_linie=7;
+				}else{
+					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
+					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
+					angleResult 	= this.pose.getHeading() + w * deltaT;
+					
 				}
-			}else if(this.lineSensorLeft==0 && this.lineSensorRight==0 && seite_ist_was==true){		
-				
-				double	winkel=0;
 			
-				winkel= Math.tan((this.backSideSensorDistance-this.frontSideSensorDistance)/abstandtriang);
 				
-				
-				switch (akt_linie) {
-				case 0:
-				angleResult=winkel;
-				break;
-				case 1:
-				angleResult=winkel+90;
-				break;
-				case 2:
-				angleResult=winkel+180;
-								
-				break;
-				case 3:
-				angleResult=winkel+270;
-				break;
-				case 4:
-				angleResult=winkel+180;
-				break;
-				case 5:angleResult=winkel+90;
-				break;
-				case 6:
-				angleResult=winkel+180;
-				break;
-				case 7:
-				angleResult=winkel+270;
-				break;
-			
-				default:// no action here
-				
-				break;
-			}
-				
-				
-				
-			}else{
-			xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
-			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
-			angleResult 	= this.pose.getHeading() + w * deltaT;
+//			}
+//			if(this.lineSensorLeft==0 && this.lineSensorRight==0 && seite_ist_was==true){		
+//				
+//				double	winkel=0;
+//			
+//				winkel= Math.tan((this.backSideSensorDistance-this.frontSideSensorDistance)/abstandtriang);
+//				xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
+//				yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
+//				
+//				switch (akt_linie) {
+//				case 0:
+//				angleResult=winkel;
+//				break;
+//				case 1:
+//				angleResult=winkel+90;
+//				break;
+//				case 2:
+//				angleResult=winkel+180;
+//								
+//				break;
+//				case 3:
+//				angleResult=winkel+270;
+//				break;
+//				case 4:
+//				angleResult=winkel+180;
+//				break;
+//				case 5:angleResult=winkel+90;
+//				break;
+//				case 6:
+//				angleResult=winkel+180;
+//				break;
+//				case 7:
+//				angleResult=winkel+270;
+//				break;
+//			
+//				default:// no action here
+//				
+//				break;
+//			}
+//				
+//				
+//				
+//			}else{
+//			xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
+//			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
+//			angleResult 	= this.pose.getHeading() + w * deltaT;
+//			
+//			}
 			}
 		}
 		
