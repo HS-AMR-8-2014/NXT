@@ -112,7 +112,7 @@ public class NavigationAT implements INavigation {
 	/**
 	 * robot specific constant: distance between wheels
 	 */
-	static final double WHEEL_DISTANCE = 0.114; // only rough guess, to be //TODO Messen
+	static final double WHEEL_DISTANCE = 0.114; // only rough guess, to be
 												// measured exactly and maybe
 												// refined by experiments
 
@@ -140,7 +140,7 @@ public class NavigationAT implements INavigation {
 	boolean y_fix = true;
 	int fix_value = 0;
 	ParkingSlot[] list_ParkingSlot;
-	int abstand_sens_band = 16; // Abstand von Sensor zur Bande in mm
+	int abstand_sens_band = 160; // Abstand von Sensor zur Bande in mm
 	double phi_kontroll = 0;
 	int akt_linie = 0;
 	int last_linie = 0;
@@ -153,6 +153,7 @@ public class NavigationAT implements INavigation {
 	double last_winkel=0;
 	double richtung=0;
 	
+<<<<<<< HEAD
 	double xGenau=0;
 	double yGenau=0;
 	int minimalabstand=11;
@@ -160,6 +161,8 @@ public class NavigationAT implements INavigation {
 	boolean hinten_ist_was=false;
 	boolean vorne_ist_was=false;
 	boolean detectionactive = false;
+=======
+>>>>>>> parent of a08ea4c... NAV..weitere Ã¤nderungen
 	/**
 	 * thread started by the 'Navigation' class for background calculating
 	 */
@@ -265,7 +268,7 @@ public class NavigationAT implements INavigation {
 
 	}
 	
-	//Encoder Winkle + Zeit für Control freigeben
+	//Encoder Winkle + Zeit für Control
 	public double getRightEncoderAngle(){
 		return (this.angleMeasurementRight.getAngleSum());
 	}
@@ -281,32 +284,22 @@ public class NavigationAT implements INavigation {
 	
 
 	/**
-	 * NAV errechnet aktuelle Linie auf der sich der Roboter befindet
+	 * Guidance übergibt aktuelle Linie an NAV
 	 * 
 	 * @param enabled
-	 *            ist die Berechnung aktiviert?
-	 * 
+	 *            ist die Fixierung aktiviert?
+	 * @param line_no
+	 *            Nummer der Aktuellen Linie
 	 */
-
-	public void update_nav_line(boolean enabled) {
-	
-		if(enabled){
-			
-		
+	//TODO Liste unabhänging machen von Karte
+	public void update_nav_line(int line_no) {
+		x_fix = false;
+		y_fix = false;
+		fix_value = 0;
 		int i=0;
-		int winkel2=0;
-		float winkel=this.getPose().getHeading();
 		
-		if(winkel>75 && winkel<105){
-			winkel2=90;
-		}else if(winkel>165 && winkel<195){
-			winkel2=180;
-		}else if(winkel>0 && winkel<15){
-			winkel2 = 0;
-		}else if(winkel>255 && winkel<285){
-			winkel2=270;
-		}
 		
+<<<<<<< HEAD
 		if(this.frontSensorDistance<14){
 			vorne_ist_was=true;
 		}else{
@@ -319,137 +312,96 @@ public class NavigationAT implements INavigation {
 		}
 		if(this.backSensorDistance<9){
 			hinten_ist_was=true;
+=======
+		if (this.frontSensorDistance<kritischerwegvorn || ((this.pose.getHeading()-15<last_winkel)
+				&&(this.pose.getHeading()+15<last_winkel)) ){
+			
+				detectionecke=true;
+				last_winkel=last_winkel+90*richtung;
+				last_linie=i;
+				akt_linie=last_linie;
+				i++;
+>>>>>>> parent of a08ea4c... NAV..weitere Ã¤nderungen
 		}else{
-			hinten_ist_was=false;
+			detectionecke=false;
+		
+		}
+		if(detectionecke==true){
+			
+		
+		
+		anstieg= (map[akt_linie].getY2()-map[akt_linie].getY1())/(map[akt_linie].getX2()-map[akt_linie].getX1());
+		if(anstieg==0 && (map[akt_linie].getX2() > map[akt_linie].getX1())){
+			phi_kontroll= 0;
+		}else if(anstieg==0 &&(map[akt_linie].getX2() < map[akt_linie].getX1())){
+			phi_kontroll= 180;
+		}
+		if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())) {
+			phi_kontroll=90;
+		}else if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())){
+			phi_kontroll=270;
+		}
 		}
 		
-		
-		
-		if(vorne_ist_was==true){
-			switch (winkel2) {
+	/*	if (enabled) {
+			switch (line_no) {
 			case 0:
-				phi_kontroll = 90; //Winkel der nächsten Geraden, sozusagen Winkel nach Drehung
-				last_linie=akt_linie; //Die akt. linie wird zu nächsten linie
-				akt_linie = 1; //setzen der neuen linie
-				xGenau=180; //fixpunkt x
-				yGenau=0;	//fixpunkt y
-				detectionecke=true; //Ecke wurde detektiert
-				break;
-			case 90:
-				
-				phi_kontroll = 180;
-				detectionecke=true;
-				last_linie=akt_linie;
-				akt_linie = 2;
-				xGenau=180;
-				yGenau=60;
-				
-				break;
-			case 180:
-				detectionecke=true;
-				
-				if(last_linie==1){
-				last_linie=akt_linie;
-				akt_linie = 2;	
-				phi_kontroll = 270;
-				xGenau=150;
-				yGenau=60;		
-				}else{
-					last_linie=akt_linie;
-					akt_linie=6;
-					phi_kontroll = 270;
-					xGenau=0;
-					yGenau=60;
-				}
-				
-				
-				break;
-			case 270:
+				// y_fix = true;
 				phi_kontroll = 0;
-				last_linie=akt_linie;
-				detectionecke=true;
 				akt_linie = 0;
-				xGenau=0;
-				yGenau=0;
 				break;
-			
-			default:// no action here
-				
-				break;
-			}
-			
-		}else if(vorne_ist_was=false){
-			switch (winkel2) {
-			case 0:
-				
-				break;
-			case 90:
-				
-				break;
-			case 180:
-				if(this.frontSensorDistance<30){
+			case 1:
+				// x_fix = true;
 				phi_kontroll = 90;
-				detectionecke=true;
-				last_linie=akt_linie;
-				akt_linie = 5;
-				xGenau=30;
-				yGenau=30;
-				}
-				
+				fix_value = 180;
+				akt_linie = 1;
 				break;
-			case 270:
+			case 2:
+				// y_fix = true;
 				phi_kontroll = 180;
-				detectionecke=true;
-				last_linie=akt_linie;
-				akt_linie = 4;
-				xGenau=150;
-				yGenau=30;
+				fix_value = 60;
+				akt_linie = 2;
 				break;
-			
+			case 3:
+				// x_fix = true;
+				phi_kontroll = 270;
+				fix_value = 150;
+				akt_linie = 3;
+				break;
+			case 4:
+				// y_fix = true;
+				phi_kontroll = 180;
+				fix_value = 30;
+				akt_linie = 4;
+				break;
+			case 5:
+				// x_fix = true;
+				phi_kontroll = 90;
+				fix_value = 30;
+				akt_linie = 5;
+
+				break;
+			case 6:
+				// y_fix = true;
+				phi_kontroll = 180;
+				fix_value = 60;
+				akt_linie = 6;
+				break;
+			case 7:
+				// x_fix = true;
+				phi_kontroll = 270;
+				akt_linie = 7;
+				break;
 			default:// no action here
-				
 				break;
 			}
-		}
-		
-		}
-		
-//		if (vorne_ist_was==true || ((this.pose.getHeading()-15<last_winkel)
-//				&&(this.pose.getHeading()+15<last_winkel)) ){
-//			
-//				detectionecke=true;
-//				last_winkel=last_winkel+90*richtung;
-//				last_linie=i;
-//				akt_linie=last_linie;
-//				i++;
-//		}else{
-//			detectionecke=false;
-//		
-//		}
-//		if(detectionecke==true){
-//			
-//		
-//		
-//		anstieg= (map[akt_linie].getY2()-map[akt_linie].getY1())/(map[akt_linie].getX2()-map[akt_linie].getX1());
-//		if(anstieg==0 && (map[akt_linie].getX2() > map[akt_linie].getX1())){
-//			phi_kontroll= 0;
-//		}else if(anstieg==0 &&(map[akt_linie].getX2() < map[akt_linie].getX1())){
-//			phi_kontroll= 180;
-//		}
-//		if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())) {
-//			phi_kontroll=90;
-//		}else if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())){
-//			phi_kontroll=270;
-//		}
-//		}
-		
+		} */
 	}
 
 	/**
 	 * calculates the robot pose from the measurements
 	 */
 	private void calculateLocation() {
-		this.update_nav_line(true);
 		double leftAngleSpeed 	= this.angleMeasurementLeft.getAngleSum()  / ((double)this.angleMeasurementLeft.getDeltaT()/1000);  //degree/seconds
 		double rightAngleSpeed 	= this.angleMeasurementRight.getAngleSum() / ((double)this.angleMeasurementRight.getDeltaT()/1000); //degree/seconds
 
@@ -466,8 +418,6 @@ public class NavigationAT implements INavigation {
 		double yResult 		= 0;
 		double angleResult 	= 0;
 		
-		double abstandtriang = 16.5; //Abstand der beiden Triangulationssensoren
-		
 		double deltaT       = ((double)this.angleMeasurementLeft.getDeltaT())/1000;
 		
 		if (R.isNaN()) { //robot don't move
@@ -475,42 +425,19 @@ public class NavigationAT implements INavigation {
 			yResult			= this.pose.getY();
 			angleResult 	= this.pose.getHeading();
 		} else if (R.isInfinite()) { //robot moves straight forward/backward, vLeft==vRight
-			if(this.frontSideSensorDistance>minimalabstand && this.backSideSensorDistance>minimalabstand && this.frontSideSensorDistance==this.backSideSensorDistance){
-				xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
-				yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
-				angleResult 	= phi_kontroll;
-			}
+			
 			
 			xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
 			yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
 			angleResult 	= this.pose.getHeading();
 		} else {	
-			// wird eine Ecke detektiert, dann wird der Wert an der Ecke übernommen
+			
 			if(detectionecke=true){
+				angleResult=phi_kontroll;
 				yResult=map[akt_linie].getY1();
 				xResult=map[akt_linie].getX1();
-				//angleResult=this.pose.getHeading()+w*deltaT;
-				angleResult=phi_kontroll;
+				
 			}else{
-			
-				if(this.frontSideSensorDistance<minimalabstand && this.backSideSensorDistance<minimalabstand){
-					ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
-					ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
-				
-					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
-					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
-				
-					angleResult= phi_kontroll+Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang);
-					
-				}else{
-					
-				if(detectionecke==true){
-					xResult=xGenau;
-					yResult=yGenau;
-					angleResult=phi_kontroll;
-							
-				}else if(detectionecke==false){
-					
 				
 			
 			
@@ -521,10 +448,7 @@ public class NavigationAT implements INavigation {
 			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 			angleResult 	= this.pose.getHeading() + w * deltaT;
 			}
-			}
-			}
 		}
-		
 		
 		if(angleResult>360){ // Wertebereich begrenzen
 			double angleResult2 = angleResult-360;
@@ -533,7 +457,6 @@ public class NavigationAT implements INavigation {
 		}else{
 			this.pose.setHeading((float)angleResult);
 		}
-		
 		
 		this.pose.setLocation((float)xResult, (float)yResult); //x und y setzen
 				 
@@ -544,23 +467,26 @@ public class NavigationAT implements INavigation {
 	 * re-characterizing old slots or merge old and detected slots. tatsächliche
 	 * Werte der Lücke gespeichert -> nicht nur Pose des Roboters
 	 */
-	
-	
-	
-	
-	
-	
 	private void detectParkingSlot() {
 		//Initialisierung
+<<<<<<< HEAD
 		//	double deltaT = ((double) this.angleMeasurementLeft.getDeltaT()) / 1000;
 		
+=======
+		// double vLeft = (leftAngleSpeed * Math.PI * LEFT_WHEEL_RADIUS ) / 180
+		// ; //velocity of left wheel in m/s
+		// double vRight = (rightAngleSpeed * Math.PI * RIGHT_WHEEL_RADIUS) /
+		// 180 ; //velocity of right wheel in m/s
+	//	double deltaT = ((double) this.angleMeasurementLeft.getDeltaT()) / 1000;
+		boolean detectionactive = false;
+>>>>>>> parent of a08ea4c... NAV..weitere Ã¤nderungen
 		Point anfang = new Point(0, 0);
 		Point ende = new Point(0, 0);
 		boolean bekannt = false; // ist die Lücke bekannt?
 		int id_bekannte_luecke = 0; // Nummer der Bek. Lücke
 		ParkingSlotStatus slotStatus = ParkingSlotStatus.BAD; // SlotStatus am
 																// Anfang setzen auf BAD
-		double groesse = 0; // Größe der Lücke in cm
+		double groesse = 0;
 		// später 2-fache Messung und Mittelung implementieren
 
 		
@@ -603,7 +529,7 @@ public class NavigationAT implements INavigation {
 					double deltay = this.pose.getY()
 							- list_ParkingSlot[i].getFrontBoundaryPosition()
 									.getY(); // IN CM
-					if ((deltax < 5) && (deltay < 5)) {
+					if ((deltax < 7) && (deltay < 7)) {
 						bekannt = true;
 						id_bekannte_luecke = i;
 						// Parklücken später direkt neu vermessen an dieser
@@ -611,8 +537,8 @@ public class NavigationAT implements INavigation {
 		
 						
 					} else {
-						anfang.setLocation(this.pose.getX() + korrektur1 + Math.sin(phi_kontroll)*(this.frontSideSensorDistance+this.backSideSensorDistance)/2,
-								this.pose.getY() + korrektur2 - Math.cos(phi_kontroll)*(this.frontSideSensorDistance+this.backSideSensorDistance)/2);
+						anfang.setLocation(this.pose.getX() + korrektur1,
+								this.pose.getY() + korrektur2);
 						detectionactive = true;
 
 						// Lücke vermessen und Speichern (in cm)
@@ -621,11 +547,11 @@ public class NavigationAT implements INavigation {
 
 				if (this.backSideSensorDistance < abstand_sens_band
 						&& detectionactive == true) {
-					ende.setLocation(this.pose.getX() + korrektur1 + Math.sin(phi_kontroll)*(this.frontSideSensorDistance+this.backSideSensorDistance)/2,
-							this.pose.getY() + korrektur2 - Math.cos(phi_kontroll)*(this.frontSideSensorDistance+this.backSideSensorDistance)/2);
+					ende.setLocation(this.pose.getX() + korrektur1,
+							this.pose.getY() + korrektur2);
 					detectionactive = false;
 					
-					//Vergleich mit bekannter Lücke für evtl. Neuvermessung
+					//Vergleich mit bekannter Lücke
 				//	if (bekannt=true){
 				//		distancefront=list_ParkingSlot[id_bekannte_luecke].getFrontBoundaryPosition().distance(anfang);
 					//	distanceback= list_ParkingSlot[id_bekannte_luecke].getBackBoundaryPosition().distance(ende);
@@ -643,11 +569,11 @@ public class NavigationAT implements INavigation {
 					
 					// Bewertung
 					groesse = anfang.distance(ende);
-//TODO Werte aufnehmen
-					if (groesse < 28) {
+
+					if (groesse < 25) {
 						// Status ZU KLEIN BAD
 						slotStatus = ParkingSlotStatus.BAD;
-					} else if ((groesse < 30) && (groesse >28.1 )) {
+					} else if ((groesse < 27) && (groesse > 25.1)) {
 						// Status auf ungeau -> neu zu vermessen setzen ->
 						// kritischer Wert
 						slotStatus = ParkingSlotStatus.RESCAN;
