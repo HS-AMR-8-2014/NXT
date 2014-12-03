@@ -497,11 +497,11 @@ public class NavigationAT implements INavigation {
 				if(this.pose.getX()<190 && this.pose.getY()<10){
 					yResult=0;	
 					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
-				}else if(this.pose.getX()<190 && this.pose.getX()>170 && this.pose.getY()<60){
+				}else if(this.pose.getX()<190 && this.pose.getX()>170 && this.pose.getY()<60 && this.pose.getY()>10){
 					xResult=160;
 					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 					//fixpunkt y
-				}else if(this.pose.getX()<185 && this.pose.getX()>145 && this.pose.getY()>55){
+				}else if(this.pose.getX()<185 && this.pose.getX()>145 && this.pose.getY()>55 && this.pose.getY()<70){
 					yResult=60;	//fixpunkt y
 					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 				}else if(this.pose.getX()<160 && this.pose.getX()>140 && this.pose.getY()>25 &&this.pose.getY()<35){
