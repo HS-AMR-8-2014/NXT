@@ -446,8 +446,8 @@ public class ControlRST implements IControl {
 			rightSpeed = v;
 		};
 		
-		//dleft = leftSpeed - wheelDiameter/2*(leftEncoder.getAngleSum())/(leftEncoder.getDeltaT());                //Fehler des linken Rades
-		//dright = rightSpeed - wheelDiameter/2*(rightEncoder.getAngleSum())/(rightEncoder.getDeltaT());			  //Fehler der rechten Rades
+		//dleft = leftSpeed - wheelDiameter/2*(navigation.getRightEncoderAngle)/(navigation.getLeftEncoderTime);                //Fehler des linken Rades
+		//dright = rightSpeed - wheelDiameter/2*(navigation.getLeftEncoderAngle)/(navigation.getLeftEncoderTime);			  //Fehler der rechten Rades
 		
 		dleftsum = dleftsum + dleft; //integrationsanteil
 		yleft = kp1*dleft + ki1*dleftsum + kd1*(dleft - dleftalt);
