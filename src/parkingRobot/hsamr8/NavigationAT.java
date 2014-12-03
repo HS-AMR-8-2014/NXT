@@ -160,6 +160,7 @@ public class NavigationAT implements INavigation {
 	boolean hinten_ist_was=false;
 	boolean vorne_ist_was=false;
 	boolean detectionactive = false;
+	int abstandtriang=4;
 	/**
 	 * thread started by the 'Navigation' class for background calculating
 	 */
@@ -467,24 +468,50 @@ public class NavigationAT implements INavigation {
 		double xResult 		= 0;
 		double yResult 		= 0;
 		double angleResult 	= 0;
+		double abstand_von_bande=0;
+		
 		
 		double deltaT       = ((double)this.angleMeasurementLeft.getDeltaT())/1000;
+		//detektieren wo etwas ist
+		if(this.frontSensorDistance<11){
+			vorne_ist_was=true;
+		}
+		if(this.backSensorDistance<8){
+			hinten_ist_was=true;
+		}
+		if(this.frontSideSensorDistance<13 && this.backSideSensorDistance<13){
+			seite_ist_was=true;
+		}
+		
 		
 		if (R.isNaN()) { //robot don't move
 			xResult			= this.pose.getX();
 			yResult			= this.pose.getY();
 			angleResult 	= this.pose.getHeading();
 		} else if (R.isInfinite()) { //robot moves straight forward/backward, vLeft==vRight
+			if(seite_ist_was==true){
+				abstand_von_bande=(this.frontSideSensorDistance+this.backSideSensorDistance)/2;
+				xResult= this.pose.getX()+ 0.5*(vLeft+vRight)*Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang)*deltaT;
+				yResult= this.pose.getY()+ 0.5*(vLeft+vRight)*Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang)*deltaT;
+				angleResult= Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang) ;
+			}else{
+			
 			xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
 			yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
 			angleResult 	= this.pose.getHeading();
-		} else {			
+			}
+		} else {		
+			if(this.lineSensorLeft==2){
+				
+			}else{
+			
 			ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
 			ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
 		
 			xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 			angleResult 	= this.pose.getHeading() + w * deltaT;
+			}
 		}
 		
 		this.pose.setLocation((float)xResult, (float)yResult);
