@@ -448,15 +448,17 @@ public class NavigationAT implements INavigation {
 	/**
 	 * calculates the robot pose from the measurements
 	 */
-	private void calculateLocation() {
-		this.update_nav_line(false);
+	/**
+	 * calculates the robot pose from the measurements
+	 */
+	private void calculateLocation(){
 		double leftAngleSpeed 	= this.angleMeasurementLeft.getAngleSum()  / ((double)this.angleMeasurementLeft.getDeltaT()/1000);  //degree/seconds
 		double rightAngleSpeed 	= this.angleMeasurementRight.getAngleSum() / ((double)this.angleMeasurementRight.getDeltaT()/1000); //degree/seconds
 
 		double vLeft		= (leftAngleSpeed  * Math.PI * LEFT_WHEEL_RADIUS ) / 180 ; //velocity of left  wheel in m/s
 		double vRight		= (rightAngleSpeed * Math.PI * RIGHT_WHEEL_RADIUS) / 180 ; //velocity of right wheel in m/s		
 		double w 			= (vRight - vLeft) / WHEEL_DISTANCE; //angular velocity of robot in rad/s
-		double richtung		= w/(-1*w);
+		
 		Double R 			= new Double(( WHEEL_DISTANCE / 2 ) * ( (vLeft + vRight) / (vRight - vLeft) ));								
 		
 		double ICCx 		= 0;
@@ -466,8 +468,6 @@ public class NavigationAT implements INavigation {
 		double yResult 		= 0;
 		double angleResult 	= 0;
 		
-		double abstandtriang = 16.5; //Abstand der beiden Triangulationssensoren
-		
 		double deltaT       = ((double)this.angleMeasurementLeft.getDeltaT())/1000;
 		
 		if (R.isNaN()) { //robot don't move
@@ -475,70 +475,21 @@ public class NavigationAT implements INavigation {
 			yResult			= this.pose.getY();
 			angleResult 	= this.pose.getHeading();
 		} else if (R.isInfinite()) { //robot moves straight forward/backward, vLeft==vRight
-			if(this.frontSideSensorDistance>minimalabstand && this.backSideSensorDistance>minimalabstand && this.frontSideSensorDistance==this.backSideSensorDistance){
-				xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
-				yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
-				angleResult 	= phi_kontroll;
-			}
-			
 			xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
 			yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
 			angleResult 	= this.pose.getHeading();
-		} else {	
-			// wird eine Ecke detektiert, dann wird der Wert an der Ecke übernommen
-			if(detectionecke=true){
-				yResult=map[akt_linie].getY1();
-				xResult=map[akt_linie].getX1();
-				//angleResult=this.pose.getHeading()+w*deltaT;
-				angleResult=phi_kontroll;
-			}else{
-			
-				if(this.frontSideSensorDistance<minimalabstand && this.backSideSensorDistance<minimalabstand){
-					ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
-					ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
-				
-					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
-					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
-				
-					angleResult= phi_kontroll+Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang);
-					
-				}else{
-					
-				if(detectionecke==true){
-					xResult=xGenau;
-					yResult=yGenau;
-					angleResult=phi_kontroll;
-							
-				}else if(detectionecke==false){
-					
-				
-			
-			
+		} else {			
 			ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
 			ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
 		
 			xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
 			yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
 			angleResult 	= this.pose.getHeading() + w * deltaT;
-			}
-			}
-			}
 		}
 		
-		
-		if(angleResult>360){ // Wertebereich begrenzen
-			double angleResult2 = angleResult-360;
-			
-			this.pose.setHeading((float)angleResult2);
-		}else{
-			this.pose.setHeading((float)angleResult);
-		}
-		
-		
-		this.pose.setLocation((float)xResult, (float)yResult); //x und y setzen
-				 
+		this.pose.setLocation((float)xResult, (float)yResult);
+		this.pose.setHeading((float)angleResult);		 
 	}
-
 	/**
 	 * detects parking slots and manage them by initializing new slots,
 	 * re-characterizing old slots or merge old and detected slots. tatsächliche
