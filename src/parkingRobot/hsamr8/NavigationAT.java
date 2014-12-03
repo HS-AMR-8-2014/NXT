@@ -475,6 +475,7 @@ public class NavigationAT implements INavigation {
 		
 		
 		
+		
 		if (R.isNaN()) { //robot don't move
 			xResult			= this.pose.getX();
 			yResult			= this.pose.getY();
@@ -482,17 +483,53 @@ public class NavigationAT implements INavigation {
 			
 			
 		} else if (R.isInfinite()) { //robot moves straight forward/backward, vLeft==vRight
-			if(seite_ist_was==true){
-				abstand_von_bande=(this.frontSideSensorDistance+this.backSideSensorDistance)/2;
-				xResult= this.pose.getX()+ 0.5*(vLeft+vRight)*Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang)*deltaT;
-				yResult= this.pose.getY()+ 0.5*(vLeft+vRight)*Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang)*deltaT;
-				angleResult= Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang) ;
-			}else{
+//			if(seite_ist_was==true){
+//				abstand_von_bande=(this.frontSideSensorDistance+this.backSideSensorDistance)/2;
+//				xResult= this.pose.getX()+ 0.5*(vLeft+vRight)*Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang)*deltaT;
+//				yResult= this.pose.getY()+ 0.5*(vLeft+vRight)*Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang)*deltaT;
+//				angleResult= Math.tan((this.frontSideSensorDistance-this.backSideSensorDistance)/abstandtriang) ;
+//			}else{
 			
 			xResult			= this.pose.getX() + vLeft * Math.cos(this.pose.getHeading()) * deltaT;
 			yResult			= this.pose.getY() + vLeft * Math.sin(this.pose.getHeading()) * deltaT;
 			angleResult 	= this.pose.getHeading();
-			}
+			if(this.lineSensorLeft==2 || this.lineSensorRight==2)
+			{
+				if(this.pose.getX()<175 && this.pose.getY()<5){
+					yResult=0;	
+					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
+					akt_linie=0;
+				}else if(this.pose.getX()<185 && this.pose.getX()>175 && this.pose.getY()<55 && this.pose.getY()>5){
+					xResult=180;
+					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
+					akt_linie=1;//fixpunkt y
+				}else if(this.pose.getX()<185 && this.pose.getX()>155 && this.pose.getY()>55 && this.pose.getY()<65){
+					yResult=60;	//fixpunkt y
+					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
+				akt_linie=2;
+				}else if(this.pose.getX()<155 && this.pose.getX()>145 && this.pose.getY()>35 &&this.pose.getY()<55){
+					xResult=150;	//fixpunkt y
+					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
+				akt_linie=3;
+				}else if(this.pose.getX()<145 && this.pose.getX()>35 && this.pose.getY()>25 &&this.pose.getY()<35){
+					yResult=30;	//fixpunkt y
+					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
+				akt_linie=4;
+				}else if(this.pose.getX()<35 && this.pose.getX()>25 && this.pose.getY()>35 &&this.pose.getY()<55){
+					xResult=30;	//fixpunkt y
+					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
+				akt_linie=5;
+				}else if(this.pose.getX()<25 && this.pose.getX()>5 && this.pose.getY()>55 &&this.pose.getY()<65){
+					yResult=60;	//fixpunkt y
+					xResult 		= Math.cos(w * deltaT) * (this.pose.getX()-ICCx) - Math.sin(w * deltaT) * (this.pose.getY() - ICCy) + ICCx;
+				akt_linie=6;
+				}else if(this.pose.getX()<5 && this.pose.getX()>-5 && this.pose.getY()>5 &&this.pose.getY()<55){
+					xResult=0;	//fixpunkt y
+					yResult 		= Math.sin(w * deltaT) * (this.pose.getX()-ICCx) + Math.cos(w * deltaT) * (this.pose.getY() - ICCy) + ICCy;
+					akt_linie=7;
+				}
+			
+		//	}
 			
 			
 		} else {
@@ -500,11 +537,7 @@ public class NavigationAT implements INavigation {
 
 			ICCx = this.pose.getX() - R.doubleValue() * Math.sin(this.pose.getHeading());
 			ICCy = this.pose.getY() + R.doubleValue() * Math.cos(this.pose.getHeading());
-		
-			
-			
-			
-			
+
 			if(this.lineSensorLeft==2 || this.lineSensorRight==2)
 			{
 				if(this.pose.getX()<175 && this.pose.getY()<5){
@@ -596,10 +629,12 @@ public class NavigationAT implements INavigation {
 //			
 //			}
 			}
-		}
+		
 		
 		this.pose.setLocation((float)xResult, (float)yResult);
 		this.pose.setHeading((float)angleResult);		 
+		}
+		}
 	}
 	/**
 	 * detects parking slots and manage them by initializing new slots,
