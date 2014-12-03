@@ -544,7 +544,7 @@ public class NavigationAT implements INavigation {
 					angleResult 	= this.pose.getHeading() + w * deltaT;
 					
 				}
-				
+			}
 				
 				//detektiert ECKPUNKTE die bekannt sind
 				if(vorne_ist_was==true){
@@ -689,7 +689,7 @@ public class NavigationAT implements INavigation {
 		this.pose.setLocation((float)xResult, (float)yResult);
 		this.pose.setHeading((float)angleResult);		 
 		}
-		}
+		
 	
 
 	/**
