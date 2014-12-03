@@ -293,7 +293,7 @@ public class NavigationAT implements INavigation {
 		if(enabled){
 			
 		
-		int i=0;
+		
 		int winkel2=0;
 		float winkel=this.getPose().getHeading();
 		
@@ -414,34 +414,7 @@ public class NavigationAT implements INavigation {
 		
 		}
 		
-//		if (vorne_ist_was==true || ((this.pose.getHeading()-15<last_winkel)
-//				&&(this.pose.getHeading()+15<last_winkel)) ){
-//			
-//				detectionecke=true;
-//				last_winkel=last_winkel+90*richtung;
-//				last_linie=i;
-//				akt_linie=last_linie;
-//				i++;
-//		}else{
-//			detectionecke=false;
-//		
-//		}
-//		if(detectionecke==true){
-//			
-//		
-//		
-//		anstieg= (map[akt_linie].getY2()-map[akt_linie].getY1())/(map[akt_linie].getX2()-map[akt_linie].getX1());
-//		if(anstieg==0 && (map[akt_linie].getX2() > map[akt_linie].getX1())){
-//			phi_kontroll= 0;
-//		}else if(anstieg==0 &&(map[akt_linie].getX2() < map[akt_linie].getX1())){
-//			phi_kontroll= 180;
-//		}
-//		if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())) {
-//			phi_kontroll=90;
-//		}else if(anstieg.isInfinite()&&(map[akt_linie].getY2() > map[akt_linie].getY1())){
-//			phi_kontroll=270;
-//		}
-//		}
+	
 		
 	}
 
@@ -449,14 +422,14 @@ public class NavigationAT implements INavigation {
 	 * calculates the robot pose from the measurements
 	 */
 	private void calculateLocation() {
-		this.update_nav_line(true);
+		update_nav_line(false);
 		double leftAngleSpeed 	= this.angleMeasurementLeft.getAngleSum()  / ((double)this.angleMeasurementLeft.getDeltaT()/1000);  //degree/seconds
 		double rightAngleSpeed 	= this.angleMeasurementRight.getAngleSum() / ((double)this.angleMeasurementRight.getDeltaT()/1000); //degree/seconds
 
 		double vLeft		= (leftAngleSpeed  * Math.PI * LEFT_WHEEL_RADIUS ) / 180 ; //velocity of left  wheel in m/s
 		double vRight		= (rightAngleSpeed * Math.PI * RIGHT_WHEEL_RADIUS) / 180 ; //velocity of right wheel in m/s		
 		double w 			= (vRight - vLeft) / WHEEL_DISTANCE; //angular velocity of robot in rad/s
-		double richtung		= w/(-1*w);
+		//double richtung		= w/(-1*w);
 		Double R 			= new Double(( WHEEL_DISTANCE / 2 ) * ( (vLeft + vRight) / (vRight - vLeft) ));								
 		
 		double ICCx 		= 0;
