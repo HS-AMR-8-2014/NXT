@@ -3,6 +3,7 @@ package parkingRobot.hsamr8;
 import java.io.IOException;
 
 import parkingRobot.INavigation.ParkingSlot;
+import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
 import parkingRobot.hsamr8.GuidanceAT;
 import parkingRobot.hsamr8.HmiPLT.Command;
 import lejos.nxt.comm.RConsole;
@@ -73,7 +74,10 @@ public class HmiSenderThread extends Thread{
 
 				while (newSlots > 0) {
 
+					//TODO write comment
 					ParkingSlot newSlot = hmi.navigation.getParkingSlots()[hmi.noOfParkingSlots - newSlots];
+					if(newSlot.getStatus() != ParkingSlotStatus.DUMMY)
+					{
 					hmi.dataOut.writeInt(Command.OUT_PARKSLOT.ordinal());
 					hmi.dataOut.writeInt(newSlot.getStatus().ordinal());
 					hmi.dataOut.writeInt(newSlot.getID());
@@ -82,6 +86,7 @@ public class HmiSenderThread extends Thread{
 					hmi.dataOut.writeFloat(newSlot.getBackBoundaryPosition().x);
 					hmi.dataOut.writeFloat(newSlot.getBackBoundaryPosition().y);
 					hmi.dataOut.flush();
+					}
 					newSlots--;
 				}
 

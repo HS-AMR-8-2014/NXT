@@ -36,7 +36,7 @@ public class NavigationThread extends Thread {
         		// inconsistency or corrupted data. In this example the whole updateNavigation method is
         		// synchronized. If more than one methods are called a synchronized block around all methods
         		// might be necessary!
-            	navigation.updateNavigation();
+            	navigation.updateNavigation();  //FEHLER!!!!
 	            
             	// A good seep time trade off is necessary:
             	// To less limit the CPU time of other threads,

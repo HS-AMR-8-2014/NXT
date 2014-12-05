@@ -101,7 +101,8 @@ public class ControlRST implements IControl {
 	double kp1 =0;
 	double ki1 =0;
 	double kd1 =0;
-	
+	double motorkonstRight=0.004825;
+	double motorkonstLeft=0.0044;
 	
 	
 	
@@ -227,6 +228,8 @@ public class ControlRST implements IControl {
 	 */
 	private void update_VWCTRL_Parameter(){
 		setPose(navigation.getPose());
+		this.encoderLeft  = perception.getControlLeftEncoder();
+		this.encoderRight = perception.getControlRightEncoder();
 	}
 	
 	/**
@@ -345,6 +348,7 @@ public class ControlRST implements IControl {
 		}
 	}
 	
+	
 	//für 3.1.3 methode mit PID-Regler
 	private void exec_LINECTRL_ALGO_PID() {  
 		leftMotor.forward();
@@ -352,9 +356,6 @@ public class ControlRST implements IControl {
 		//int lowPower = 1;
 		//int midPower = 20; //mittlere Power eingeführt
 		//int highPower = 40; //maximale geschwindigkeiten bei den keine linienüberschreitung stattfindet
-		
-		
-		
 		e = (this.lineSensorRight - this.lineSensorLeft);  //(double)
 		
 		if(e > 89){                       //linkskurve
@@ -446,8 +447,8 @@ public class ControlRST implements IControl {
 			rightSpeed = v;
 		};
 		
-		dleft = leftSpeed - (navigation.getRightEncoderAngle())*distancePerDegree/(navigation.getLeftEncoderTime()/1000);                //Fehler des linken Rades
-		dright = rightSpeed - (navigation.getLeftEncoderAngle())*distancePerDegree/(navigation.getLeftEncoderTime()/1000);			  //Fehler der rechten Rades
+		dleft = leftSpeed - (encoderLeft.getEncoderMeasurement().getAngleSum()*1000*distancePerDegree/encoderLeft.getEncoderMeasurement().getDeltaT());                //Fehler des linken Rades
+		dright = rightSpeed - (encoderRight.getEncoderMeasurement().getAngleSum()*1000*distancePerDegree/encoderRight.getEncoderMeasurement().getDeltaT());			  //Fehler der rechten Rades
 		
 		dleftsum = dleftsum + dleft; //integrationsanteil
 		yleft = kp1*dleft + ki1*dleftsum + kd1*(dleft - dleftalt);
@@ -458,8 +459,8 @@ public class ControlRST implements IControl {
 		drightalt = dright;
 		
 		
-		leftMotor.setPower((int)(leftSpeed+yleft));
-		rightMotor.setPower((int)(rightSpeed+yright));
+		leftMotor.setPower((Math.round((float)(yleft/motorkonstLeft))));
+		rightMotor.setPower((Math.round((float)(yright/motorkonstRight))));
 	
 		
 	}

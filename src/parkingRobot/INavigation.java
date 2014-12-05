@@ -66,15 +66,7 @@ public interface INavigation {
 	 */
 	public ParkingSlot getSlotById(int i);
 	
-	//Encoder Winkle + Zeit für Control freigeben
-		public double getRightEncoderAngle();
-		
-		public double getRightEncoderTime();
-		
-		public double getLeftEncoderAngle();
-		
-		public double getLeftEncoderTime();
-		
+
 		
 
 	
@@ -104,7 +96,11 @@ public interface INavigation {
 			/**
 			 * indicates that measurement was not satisfying yet
 			 */
-			RESCAN
+			RESCAN,
+			/**
+			 * indicates whether the slot is a dummy or not
+			 */
+			DUMMY
 		}
 		
 		/**
@@ -126,7 +122,6 @@ public interface INavigation {
 		 * RESCAN - measurement not satisfying, has to be scanned again
 		 */
 		private ParkingSlotStatus status = ParkingSlotStatus.RESCAN;
-		
 		
 		// Constructor
 		

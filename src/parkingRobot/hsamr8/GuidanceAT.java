@@ -128,7 +128,7 @@ public class GuidanceAT {
 		INavigation navigation = new NavigationAT(perception);
 		IControl    control    = new ControlRST(perception, navigation, leftMotor, rightMotor);
 		INxtHmi  	hmi        = new HmiPLT(perception, navigation, control);
-				
+		navigation.setMap(map);		
 		while(true) {
 			showData(navigation, perception);
 			
