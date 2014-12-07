@@ -358,14 +358,14 @@ public class ControlRST implements IControl {
 		//int highPower = 40; //maximale geschwindigkeiten bei den keine linienüberschreitung stattfindet
 		e = (this.lineSensorRight - this.lineSensorLeft);  //(double)
 		
-		if(e > 89){                       //linkskurve
+		if(e > 80){                       //linkskurve
 			leftMotor.setPower(-20);
 			rightMotor.setPower(30);
 			esum =0;
 			ealt=0;
 			
 		}
-		else if (e < -90 ){
+		else if (e < -80 ){   //-90
 			leftMotor.setPower(30);
 			rightMotor.setPower(-20);
 			esum =0;
