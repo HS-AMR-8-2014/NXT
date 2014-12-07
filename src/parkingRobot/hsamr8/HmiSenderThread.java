@@ -74,9 +74,9 @@ public class HmiSenderThread extends Thread{
 
 				while (newSlots > 0) {
 
-					//TODO write comment
+					//Check parking slot status for each new parking slot. Only transmit parking slots with "GOOD" status
 					ParkingSlot newSlot = hmi.navigation.getParkingSlots()[hmi.noOfParkingSlots - newSlots];
-					if(newSlot.getStatus() != ParkingSlotStatus.DUMMY)
+					if(newSlot.getStatus() == ParkingSlotStatus.GOOD)
 					{
 					hmi.dataOut.writeInt(Command.OUT_PARKSLOT.ordinal());
 					hmi.dataOut.writeInt(newSlot.getStatus().ordinal());
