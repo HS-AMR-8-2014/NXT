@@ -84,10 +84,10 @@ public class ControlRST implements IControl {
 	
 	
 	double radius = 0;   //für methode drive(V;W-Control)
-	double wheelDiameter = 5.6/100;  //in m
-	double trackWidth = 14/100;   //in m
-	double distancePerTurn = Math.PI*wheelDiameter; //in m
-	double distancePerDegree = distancePerTurn/360; //in m
+	double wheelDiameter = 5.6;  //in cm
+	double trackWidth = 14;   //in cm
+	double distancePerTurn = Math.PI*wheelDiameter; //in cm
+	double distancePerDegree = distancePerTurn/360; //in cm
 	double rightSpeed = 0;
 	double leftSpeed = 0;
 	double dleft = 0;
@@ -98,11 +98,12 @@ public class ControlRST implements IControl {
 	double drightalt =0;
 	double yleft =0;
 	double yright =0;
-	double kp1 =0;
-	double ki1 =0;
-	double kd1 =0;
-	double motorkonstRight=0.004825;
-	double motorkonstLeft=0.0044;
+	double KP1 =0.2;    //für v-w-control
+	double KI1 =0.016;//für v-w-control
+	double KD1 =0.0001;//für v-w-control
+	double MOTORKONSTRIGHT=2.5806452+0.087;//für Power/speed-verhältnis
+	double MOTORKONSTLEFT=2.272727272+0.15;//für Power/Speed-Verhältnis
+
 	
 	
 	
@@ -272,6 +273,19 @@ public class ControlRST implements IControl {
 	
     private void exec_SETPOSE_ALGO(){
     	//Aufgabe 3.3
+    	double currentx=currentPosition.getX();
+    	double currenty=currentPosition.getY();
+    	double currentphi=currentPosition.getHeading();
+    	
+    	double destx=destination.getX();
+    	double desty=destination.getY();
+    	double destphi=destination.getHeading();
+    	
+    	
+    	
+    	
+    	
+    	
 	}
 	
 	/**
@@ -342,7 +356,6 @@ public class ControlRST implements IControl {
 		else if (this.lineSensorLeft == 0 && this.lineSensorRight == 0) { 
 			
 			//wenn beide Sensoren auf weiß sind, geradeaus fahren
-			//fehleranfällig bei verlassen der führungslinie!!!!!!!! TESTEN!!!!
 			leftMotor.setPower(highPower);
 			rightMotor.setPower(highPower);
 		}
@@ -353,26 +366,24 @@ public class ControlRST implements IControl {
 	private void exec_LINECTRL_ALGO_PID() {  
 		leftMotor.forward();
 		rightMotor.forward();
-		//int lowPower = 1;
-		//int midPower = 20; //mittlere Power eingeführt
-		//int highPower = 40; //maximale geschwindigkeiten bei den keine linienüberschreitung stattfindet
+
 		e = (this.lineSensorRight - this.lineSensorLeft);  //(double)
 		
-		if(e > 80){                       //linkskurve
+		if(e > 80){                       //Linkskurve
 			leftMotor.setPower(-20);
 			rightMotor.setPower(30);
 			esum =0;
 			ealt=0;
 			
 		}
-		else if (e < -80 ){   //-90
+		else if (e < -80 ){   //-90, Rechtskuve
 			leftMotor.setPower(30);
 			rightMotor.setPower(-20);
 			esum =0;
 			ealt=0;
 		}
-		else{  
-		//if(e < 100 && e > -100){ 	
+		else{     //Geradeausfahrt mit PIDRegler
+		
 			esum = esum + (double)(e); //integrationsanteil
 			y = kp*(double)(e) + ki*esum + kd*((double)(e) - ealt);
 			ealt = (double)(e);
@@ -386,10 +397,6 @@ public class ControlRST implements IControl {
 		
 		
 		
-
-	
-	
-	
 	
 	
 	private void stop(){
@@ -406,32 +413,10 @@ public class ControlRST implements IControl {
 	private void drive(double v, double omega){
 		//Aufgabe 3.2
 		
-		
-		/**if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben
-			radius = v/omega;
-			if(v != 0){
-				leftSpeed = v - (trackWidth/2*v/radius);
-				rightSpeed = v + (trackWidth/2*v/radius);
-			}
-			else{                            //falls v=0
-				leftSpeed = trackWidth/2*omega;
-				rightSpeed = -trackWidth/2*omega;
-			};
+
 				
-		}
-		else{                                      
-			leftSpeed = v;
-			rightSpeed = v;
-		};
-		leftMotor.setPower((int)leftSpeed);
-		rightMotor.setPower((int)rightSpeed);
-		
-		*/
-		
-				
-		//mit regelung
-		if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben
-			radius = v/omega;         //Radius in m
+		if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben, in rad/s
+			radius = v/omega;         //Radius in cm, v in cm/s
 			if(v != 0){
 				leftSpeed = v - (trackWidth*v/radius/2);
 				rightSpeed = v + (trackWidth*v/radius/2);
@@ -447,20 +432,30 @@ public class ControlRST implements IControl {
 			rightSpeed = v;
 		};
 		
+
+		
+		//PIDRegler für jedes Rad
 		dleft = leftSpeed - (encoderLeft.getEncoderMeasurement().getAngleSum()*1000*distancePerDegree/encoderLeft.getEncoderMeasurement().getDeltaT());                //Fehler des linken Rades
 		dright = rightSpeed - (encoderRight.getEncoderMeasurement().getAngleSum()*1000*distancePerDegree/encoderRight.getEncoderMeasurement().getDeltaT());			  //Fehler der rechten Rades
 		
 		dleftsum = dleftsum + dleft; //integrationsanteil
-		yleft = kp1*dleft + ki1*dleftsum + kd1*(dleft - dleftalt);
+		yleft = KP1*dleft + KI1*dleftsum + KD1*(dleft - dleftalt);
 		dleftalt = dleft;
 		
 		drightsum = drightsum + dright; //integrationsanteil
-		yright = kp1*dright + ki1*drightsum + kd1*(dright - drightalt);
+		yright = KP1*dright + KI1*drightsum + KD1*(dright - drightalt);
 		drightalt = dright;
 		
+		if(drightsum > 1000){
+			drightsum=0;
+		}
+		if(dleftsum > 1000){
+			dleftsum=0;
+		}
 		
-		leftMotor.setPower((Math.round((float)(yleft/motorkonstLeft))));
-		rightMotor.setPower((Math.round((float)(yright/motorkonstRight))));
+		
+		leftMotor.setPower((Math.round((float)((leftSpeed+yleft)*MOTORKONSTLEFT))));   //berechneter Powerwert*Reglerausgang mit Power-Speed-Verhältnis
+		rightMotor.setPower((Math.round((float)((rightSpeed+yright)*MOTORKONSTRIGHT))));
 	
 		
 	}
