@@ -141,27 +141,18 @@ public class NavigationAT implements INavigation {
 	 */
 	Pose pose = new Pose();
 	int id_aktuell = 0;
-	boolean x_fix = false;
-	boolean y_fix = true;
-	int fix_value = 0;
-	Point dummyPoint=new Point(0,0);
+
 	ParkingSlot[] list_ParkingSlot = new ParkingSlot[25];
-	ParkingSlot dummy= new ParkingSlot (0,dummyPoint,dummyPoint,ParkingSlotStatus.DUMMY);
-	
+
 	int abstand_sens_band = 20; // Abstand von Sensor zur Bande
 	int phi_kontroll = 0;
 	int akt_linie = 0;
 	int last_linie = 0;
-	Double anstieg = new Double(0);
-	boolean fixpunktverfahren = false;
-	float winkelaenderung = 0;
-	float zeitaenderung = 0;
+
 	double kritischerwegvorn = 12; // cm
 	boolean detectionecke = false;
 	double last_winkel = 0;
 	double richtung = 0;
-	double xGenau = 0;
-	double yGenau = 0;
 	int minimalabstand = 11;
 	boolean seite_ist_was = false;
 	boolean hinten_ist_was = false;
@@ -172,15 +163,15 @@ public class NavigationAT implements INavigation {
 	boolean linkskurve = false;
 	double alterwinkel = 0;
 	double abstand = 0;
+	
+	Point anfang = new Point(0, 0);
+	Point ende = new Point(0, 0);
+	int id_bekannte_luecke = 0; // Nummer der Bek. Lücke##
+	
+	
 	boolean speichern_bereit=false;
-
-	// new
-	static Line path = new Line(0, 0, 0, 0);
-	double angle3 = 0;
-	double angle2 = 0;
-	double angle1 = 0;
-	int i1 = 0;
-	int i2 = 0;
+	boolean bekannt = false;
+	
 
 	/**
 	 * thread started by the 'Navigation' class for background calculating
@@ -200,12 +191,11 @@ public class NavigationAT implements INavigation {
 		this.encoderLeft = perception.getNavigationLeftEncoder();
 		this.encoderRight = perception.getNavigationRightEncoder();
 		this.mouseodo = perception.getNavigationOdo();
-		
-		//fill paring slot list with dummy slots
-		for(int i=0; i< 25; i++)
-		{
-			list_ParkingSlot[i]=dummy;
-		}
+
+		// fill paring slot list with dummy slots
+//		for (int i = 0; i < 25; i++) {
+//			list_ParkingSlot[i] = dummy;
+//		}
 
 		navThread.setPriority(Thread.MAX_PRIORITY - 1);
 		navThread.setDaemon(true); // background thread that is not need to
@@ -290,23 +280,17 @@ public class NavigationAT implements INavigation {
 
 		this.mouseOdoMeasurement = this.mouseodo.getOdoMeasurement();
 
-		this.frontSensorDistance = perception.getFrontSensorDistance();
-		this.frontSideSensorDistance = perception.getFrontSideSensorDistance();
-		this.backSensorDistance = perception.getBackSensorDistance();
-		this.backSideSensorDistance = perception.getBackSideSensorDistance();
-		/**
-		 * AngleDifferenceMeasurement rightEncoder =
-		 * perception.getControlRightEncoder().getEncoderMeasurement(); //mit
-		 * ludwig absprechen an welcher stelle zu platzieren
-		 * AngleDifferenceMeasurement leftEncoder =
-		 * perception.getControlLeftEncoder().getEncoderMeasurement(); //mit
-		 * ludwig absprechen an welcher stelle zu platzieren
-		 */
+		
+		//alle Werte in mm übergeben -> hier Umwandlung in cm
+		this.frontSensorDistance = perception.getFrontSensorDistance()/10;
+		this.frontSideSensorDistance = perception.getFrontSideSensorDistance()/10;
+		this.backSensorDistance = perception.getBackSensorDistance()/10;
+		this.backSideSensorDistance = perception.getBackSideSensorDistance()/10;
 
 	}
 
 	/**
-	 * detektiert die Umwelt des Roboters mittels Triangulationssensoren
+	 * detects the robots environnement
 	 */
 	private void ist_irgendwo_was() {
 		if ((this.frontSensorDistance < 13) && (this.frontSensorDistance != 0)) {
@@ -329,13 +313,9 @@ public class NavigationAT implements INavigation {
 		}
 	}
 
-
-
-	// old
-	// ----------------------------------------------------------------------------------------------------------
-
-	double phi;
-
+	/**
+	 * detects the robots pose from measurements
+	 */
 	private void calculateLocation() {
 
 		vorne_ist_was = false;
@@ -375,13 +355,6 @@ public class NavigationAT implements INavigation {
 				* Math.sin(this.pose.getHeading() + 0.5 * w * deltaT);
 		double angleResult = this.pose.getHeading() + w * deltaT;
 
-		//
-		//
-		//
-		//
-		//
-		//
-		//
 		// // if ((seite_ist_was == true)
 		// // && (this.frontSideSensorDistance == this.backSideSensorDistance))
 		// {
@@ -397,29 +370,29 @@ public class NavigationAT implements INavigation {
 			rechtskurve = true;
 			linkskurve = false;
 		}
-//		if ((this.pose.getHeading() - alterwinkel > -70)
-//				&& (this.pose.getHeading() != alterwinkel)) {
-//			detectionecke = true;
-//			rechtskurve = false;
-//			linkskurve = true;
-//		}
+		// if ((this.pose.getHeading() - alterwinkel > -70)
+		// && (this.pose.getHeading() != alterwinkel)) {
+		// detectionecke = true;
+		// rechtskurve = false;
+		// linkskurve = true;
+		// }
 		//
 		// }
 		// Detektion auf der Linie anhand Abstand zur akt Linie
-//		if (detectionecke == false) {
-//			Point koordinate = new Point(0, 0);
-//			koordinate.setLocation(xResult, yResult);
-//
-//			for (int i = 0; i < 8; i++) {
-//				abstand = Math.abs(map[i].ptLineDist(koordinate));
-//				if (abstand < 5) {
-//					akt_linie = i;
-//				} else {
-//					// Nothing to do here!
-//
-//				}
-//			}
-//		}
+		// if (detectionecke == false) {
+		// Point koordinate = new Point(0, 0);
+		// koordinate.setLocation(xResult, yResult);
+		//
+		// for (int i = 0; i < 8; i++) {
+		// abstand = Math.abs(map[i].ptLineDist(koordinate));
+		// if (abstand < 5) {
+		// akt_linie = i;
+		// } else {
+		// // Nothing to do here!
+		//
+		// }
+		// }
+		// }
 
 		// Herausfinden einer Ecke anhand der Winkeländerung
 		// Wissen an welcher Ecke man sich befindet, anhand der Linie
@@ -484,7 +457,7 @@ public class NavigationAT implements INavigation {
 
 				xResult = 0;
 				yResult = 0;
-				akt_linie=0;
+				akt_linie = 0;
 				phi_kontroll = 0;
 
 				break;
@@ -496,12 +469,12 @@ public class NavigationAT implements INavigation {
 		}
 		//
 		// Wenn an Linie 7 angekommen
-		
-		// if(angleResult > 2* Math.PI) angleResult -= 2* Math.PI;
-		// if(angleResult < 0) angleResult += 2* Math.PI;
-		
-		
-		
+
+		if (angleResult > 2 * Math.PI)
+			angleResult -= 2 * Math.PI;
+		if (angleResult < 0)
+			angleResult += 2 * Math.PI;
+
 		alterwinkel = this.pose.getHeading();
 		this.pose.setLocation((float) xResult, (float) yResult);
 		this.pose.setHeading((float) angleResult);
@@ -514,16 +487,13 @@ public class NavigationAT implements INavigation {
 	 * 
 	 * @throws Exception
 	 */
+	//FIXME 
 
 	private void detectParkingSlot() throws Exception {
 		// Initialisierung
 		// double deltaT = ((double) this.angleMeasurementLeft.getDeltaT()) /
 		// 1000;
 
-		Point anfang = new Point(0, 0);
-		Point ende = new Point(0, 0);
-		boolean bekannt = false; // ist die Lücke bekannt?
-		int id_bekannte_luecke = 0; // Nummer der Bek. Lücke
 		ParkingSlotStatus slotStatus = ParkingSlotStatus.BAD; // SlotStatus am
 																// Anfang setzen
 																// auf BAD
@@ -553,127 +523,138 @@ public class NavigationAT implements INavigation {
 		// korrektur4=Math.cos(this.pose.getHeading())*this.backSideSensorDistance
 		// - Math.sin(this.pose.getHeading())*this.backSideSensorDistance;
 
-		if (this.frontSideSensorDistance > abstand_sens_band
-				&& (detectionactive == false) && this.frontSideSensorDistance!=0 && this.backSideSensorDistance!=0) {
+		// detects if a ParkingSlot is available
+		if ((this.frontSideSensorDistance > abstand_sens_band)
+				&& (this.frontSideSensorDistance != 0)
+				&& (this.backSideSensorDistance != 0)&&(detectionactive==false)) {
+			Sound.beepSequence();
+			// check if Slot is still existing
+			// deltax und deltay has to be checked by experiments
+			if (id_aktuell != 0) {
+				for (int i = 0; i < id_aktuell; i++) {
+					double deltax = this.pose.getX()
+							+ Math.sin(phi_kontroll)
+							* (this.backSideSensorDistance)
+							- list_ParkingSlot[i].getFrontBoundaryPosition()
+									.getX(); // IN
+												// CM
+					double deltay = this.pose.getY()
+							- Math.cos(phi_kontroll)
+							* (this.backSideSensorDistance)
 
-			// pruefe, ob Parkluecke schon vorhanden
-			
-			// deltax und deltay gegebenenfalls nochmal anpassen
-			if(id_aktuell!=0){
-			for (int i = 0; i < id_aktuell; i++) {
-				double deltax = this.pose.getX() + Math.sin(phi_kontroll)
-						* (this.backSideSensorDistance)
-						- list_ParkingSlot[i].getFrontBoundaryPosition().getX(); // IN
-																					// CM
-				double deltay = this.pose.getY()- Math.cos(phi_kontroll)
-						* (this.backSideSensorDistance)
-						
-						- list_ParkingSlot[i].getFrontBoundaryPosition().getY(); // IN
-																					// CM
-				if ((deltax < 5) && (deltay < 5)) {
-					bekannt = true;
-					id_bekannte_luecke = i;
-					
-					// Parklücken später direkt neu vermessen an dieser
-					// Stelle und mit alten Daten abgleichen
+							- list_ParkingSlot[i].getFrontBoundaryPosition()
+									.getY(); // IN
+												// CM
+					if ((deltax < 5) && (deltay < 5)) {
+						bekannt = true;
+						id_bekannte_luecke = i;
+//later: compare Slots and check if new measurement is necessary
+					}
 				}
 			}
-				} if(bekannt==false) {
-					anfang.setLocation(
-							this.pose.getX()
-									// + korrektur1
-									+ Math.sin(phi_kontroll)
-									* (this.backSideSensorDistance)
-									,
-							this.pose.getY()
-									// + korrektur2
-									- Math.cos(phi_kontroll)
-									* (this.backSideSensorDistance)
-									);
-					detectionactive = true;
+		//save frontBoundary
+			if (bekannt == false) {
+				anfang.setLocation(this.pose.getX()
+						// + korrektur1
+						+ Math.sin(phi_kontroll)
+						* 15, this.pose.getY()
+						// + korrektur2
+						- Math.cos(phi_kontroll)
+						* 15);
+				detectionactive = true;
+				
 
-					// Lücke vermessen und Speichern (in cm)
-				}
+				// measure the Slot and save
+			}
+		}
+		
+		//check BackBoundary!
+			//here the measurements are improved by adding them and dividing by 2
 			
-			
-			
-			if (this.backSideSensorDistance < abstand_sens_band
-					&& detectionactive == true) {
+			if ( (this.frontSideSensorDistance <= abstand_sens_band)
+					&& detectionactive == true) { 
+				
+				Sound.beep();
+				
 				ende.setLocation(
 						this.pose.getX()
 								// + korrektur1
-								+ Math.sin(phi)
-								* (this.frontSideSensorDistance + this.backSideSensorDistance)
-								/ 2,
+								+ Math.sin(phi_kontroll)
+								* 15
+								,
 						this.pose.getY()
 								// + korrektur2
-								- Math.cos(phi)
-								* (this.frontSideSensorDistance + this.backSideSensorDistance)
-								/ 2);
-				detectionactive = false;
-				speichern_bereit=true;
+								- Math.cos(phi_kontroll)
+								* 15
+								);
+				//this.frontSideSensorDistance an stelle von 15!! damit abhängig von Sensor Lücke gezeihnet wird
+				speichern_bereit = true;
 			}
-				
 
-				// Vergleich mit bekannter Lücke für evtl. Neuvermessung
-				// if (bekannt=true){
-				// distancefront=list_ParkingSlot[id_bekannte_luecke].getFrontBoundaryPosition().distance(anfang);
-				// distanceback=
-				// list_ParkingSlot[id_bekannte_luecke].getBackBoundaryPosition().distance(ende);
-				//
-				// distancefront = Math.round(distancefront*1000)/10000.0;
-				// distanceback= Math.round(distanceback*1000)/10000.0;
+			// Vergleich mit bekannter Lücke für evtl. Neuvermessung
+			// if (bekannt=true){
+			// distancefront=list_ParkingSlot[id_bekannte_luecke].getFrontBoundaryPosition().distance(anfang);
+			// distanceback=
+			// list_ParkingSlot[id_bekannte_luecke].getBackBoundaryPosition().distance(ende);
+			//
+			// distancefront = Math.round(distancefront*1000)/10000.0;
+			// distanceback= Math.round(distanceback*1000)/10000.0;
 
-				// if (distancefront<1 && distanceback<1){
-				// // so lassen
-				// }else{
-				// neu einspeichern
-				// }
-				// }
-if(speichern_bereit==true){
+			// if (distancefront<1 && distanceback<1){
+			// // so lassen
+			// }else{
+			// neu einspeichern
+			// }
+			// }
+			if (speichern_bereit == true) {
 				// Bewertung
 				groesse = Math.abs(anfang.distance(ende));
 				// TODO Werte aufnehmen
 				if (groesse < 28) {
-					// Status ZU KLEIN BAD
+					// too small for robot -> switch state to BAD
 					slotStatus = ParkingSlotStatus.BAD;
 				} else if ((groesse < 30) && (groesse > 28.1)) {
 					// Status auf ungeau -> neu zu vermessen setzen ->
 					// kritischer Wert
 					slotStatus = ParkingSlotStatus.RESCAN;
 				} else {
-					// Status auf GUT setzen
+					// switch state to GOOD
 					slotStatus = ParkingSlotStatus.GOOD;
 
 				}
-				
+
 				if (id_aktuell < 25) {
-					Sound.beep();
+					Sound.beepSequenceUp();
+					
 					list_ParkingSlot[id_aktuell] = new ParkingSlot(id_aktuell,
 							anfang, ende, slotStatus);
 					LCD.drawString("new Slot " // Ausgabe auf LCD
-							+ id_aktuell, 0, 5);
+							, 0, 5);
 					id_aktuell++;
+					speichern_bereit=false;
+					detectionactive=false;
+					bekannt=false;
 				} else {
 					throw new Exception("No space");
 				}
-	bekannt=false;		
+			
+			} else {
+				// NICHTS machen wenn keine LŸcke detektiert
+			}
+			return;
+		}
 
-		} else {
-			// NICHTS machen wenn keine Lücke detektiert
-		} }
 
-		return;
-	}
 
 	/**
 	 * 
 	 * @param i
-	 *            ID der gewünschten Parklücke
-	 * @return ParkingSlot aus dem ARRAY mit der ID für die anderen Module
+	 *            ID of the certain SLOT
+	 * @return ParkingSlot from the ARRAY with ID for HMI
 	 */
 	public ParkingSlot getSlotById(int i) {
 		return list_ParkingSlot[i];
 	}
+//	return;
 
 }
