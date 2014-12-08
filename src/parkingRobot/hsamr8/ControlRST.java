@@ -83,26 +83,16 @@ public class ControlRST implements IControl {
 	double y = 0;
 	
 	
-	double radius = 0;   //für methode drive(V;W-Control)
+
 	double wheelDiameter = 5.6;  //in cm
 	double trackWidth = 14;   //in cm
 	double distancePerTurn = Math.PI*wheelDiameter; //in cm
 	double distancePerDegree = distancePerTurn/360; //in cm
-	double rightSpeed = 0;
-	double leftSpeed = 0;
-	double dleft = 0;
-	double dright = 0;
+
 	double dleftsum =0;
 	double drightsum =0;
 	double dleftalt =0;
 	double drightalt =0;
-	double yleft =0;
-	double yright =0;
-	double KP1 =0.2;    //für v-w-control
-	double KI1 =0.016;//für v-w-control
-	double KD1 =0.0001;//für v-w-control
-	double MOTORKONSTRIGHT=2.5806452+0.087;//für Power/speed-verhältnis
-	double MOTORKONSTLEFT=2.272727272+0.15;//für Power/Speed-Verhältnis
 
 	
 	
@@ -412,7 +402,19 @@ public class ControlRST implements IControl {
      */
 	private void drive(double v, double omega){
 		//Aufgabe 3.2
-		
+		double radius = 0;   //für methode drive(V;W-Control)
+		double rightSpeed = 0;
+		double leftSpeed = 0;
+		double dleft = 0;
+		double dright = 0;
+		double yleft =0;
+		double yright =0;
+		double KP1 =0.2;    //für v-w-control
+		double KI1 =0.016;//für v-w-control
+		double KD1 =0.0001;//für v-w-control
+		double MOTORKONSTRIGHT=2.5806452+0.087;//für Power/speed-verhältnis
+		double MOTORKONSTLEFT=2.272727272+0.15;//für Power/Speed-Verhältnis
+
 
 				
 		if( omega != 0){                   //wenn Winkelgeschwindigkeit gegeben, in rad/s
@@ -452,7 +454,6 @@ public class ControlRST implements IControl {
 		if(dleftsum > 1000){
 			dleftsum=0;
 		}
-		
 		
 		leftMotor.setPower((Math.round((float)((leftSpeed+yleft)*MOTORKONSTLEFT))));   //berechneter Powerwert*Reglerausgang mit Power-Speed-Verhältnis
 		rightMotor.setPower((Math.round((float)((rightSpeed+yright)*MOTORKONSTRIGHT))));
