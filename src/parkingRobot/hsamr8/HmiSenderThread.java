@@ -6,6 +6,7 @@ import parkingRobot.INavigation.ParkingSlot;
 import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
 import parkingRobot.hsamr8.GuidanceAT;
 import parkingRobot.hsamr8.HmiPLT.Command;
+import lejos.geom.Point;
 import lejos.nxt.comm.RConsole;
 import lejos.robotics.navigation.Pose;
 
@@ -19,6 +20,7 @@ import lejos.robotics.navigation.Pose;
 public class HmiSenderThread extends Thread{
 
 	HmiPLT hmi;
+	ParkingSlot slotWithGoodStatus;
 
 	/**
 	 * The HmiThread constructor gets the hmi object
@@ -26,6 +28,7 @@ public class HmiSenderThread extends Thread{
 	 */
 	public HmiSenderThread(HmiPLT hmi) {
 		this.hmi = hmi;
+		slotWithGoodStatus = new ParkingSlot(0, new Point(0,0), new Point(0,0), ParkingSlotStatus.GOOD);
 	}
 
 	@Override
@@ -68,24 +71,42 @@ public class HmiSenderThread extends Thread{
 			{
 				// write new parking slot - these are aperiodic information, thus should be sent as early as possible, 
 				// but less important than status updates.
-				int newSlots = hmi.navigation.getParkingSlots().length - hmi.noOfParkingSlots;
+				//Iterate over complete array to determine number of parking slots that are not null
+				
+				int i = hmi.noOfParkingSlotsInList;
+				while(i < hmi.navigation.getParkingSlots().length)
+				{
+					if(hmi.navigation.getParkingSlots()[i] != null)
+					{
+						i++;
+					}
+					else
+					{
+						hmi.noOfParkingSlotsInList = i;
+						i = hmi.navigation.getParkingSlots().length;
+					}
+				}
+				int newSlots = hmi.noOfParkingSlotsInList - hmi.noOfParkingSlots;
 
 				hmi.noOfParkingSlots += newSlots; // Record new slots
 
 				while (newSlots > 0) {
 
-					//Check parking slot status for each new parking slot. Only transmit parking slots with "GOOD" status
 					ParkingSlot newSlot = hmi.navigation.getParkingSlots()[hmi.noOfParkingSlots - newSlots];
-					if(newSlot.getStatus() == ParkingSlotStatus.GOOD)
+					//Check if parking slot is null
+					if(newSlot != null)
 					{
-					hmi.dataOut.writeInt(Command.OUT_PARKSLOT.ordinal());
-					hmi.dataOut.writeInt(newSlot.getStatus().ordinal());
-					hmi.dataOut.writeInt(newSlot.getID());
-					hmi.dataOut.writeFloat(newSlot.getFrontBoundaryPosition().x);
-					hmi.dataOut.writeFloat(newSlot.getFrontBoundaryPosition().y);
-					hmi.dataOut.writeFloat(newSlot.getBackBoundaryPosition().x);
-					hmi.dataOut.writeFloat(newSlot.getBackBoundaryPosition().y);
-					hmi.dataOut.flush();
+//						if(newSlot.getStatus() == slotWithGoodStatus.getStatus())
+//						{
+							hmi.dataOut.writeInt(Command.OUT_PARKSLOT.ordinal());
+							hmi.dataOut.writeInt(newSlot.getStatus().ordinal());
+							hmi.dataOut.writeInt(newSlot.getID());
+							hmi.dataOut.writeFloat(newSlot.getFrontBoundaryPosition().x);
+							hmi.dataOut.writeFloat(newSlot.getFrontBoundaryPosition().y);
+							hmi.dataOut.writeFloat(newSlot.getBackBoundaryPosition().x);
+							hmi.dataOut.writeFloat(newSlot.getBackBoundaryPosition().y);
+							hmi.dataOut.flush();
+//						}
 					}
 					newSlots--;
 				}

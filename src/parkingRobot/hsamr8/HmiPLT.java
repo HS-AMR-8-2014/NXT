@@ -35,6 +35,7 @@ public class HmiPLT implements INxtHmi{
 	HmiSenderThread hmiSenderThread = new HmiSenderThread(this);
 	
 	protected int selectedParkingSlot;
+	int noOfParkingSlotsInList = 0;
 	int noOfParkingSlots = 0;
 	protected Mode mode;
 	private BTConnection connection;
