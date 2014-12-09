@@ -142,11 +142,11 @@ public class NavigationAT implements INavigation {
 	Pose pose = new Pose();
 	int id_aktuell = 0;
 
-	ParkingSlot[] list_ParkingSlot = new ParkingSlot[25];
+	ParkingSlot[] list_ParkingSlot = new ParkingSlot[25]; //create array to save ParkingSlots and send them to HMI
 
-	int abstand_sens_band = 20; // Abstand von Sensor zur Bande
-	int phi_kontroll = 0;
-	int akt_linie = 0;
+	int abstand_sens_band = 20; // distance from sensor to wall
+	int phi_kontroll = 0; // a (2n)*pi/2 angle that is the angle of a line
+	int akt_linie = 0; // number of actual line
 	int last_linie = 0;
 
 	double kritischerwegvorn = 12; // cm
@@ -158,7 +158,7 @@ public class NavigationAT implements INavigation {
 	boolean hinten_ist_was = false;
 	boolean vorne_ist_was = false;
 	boolean detectionactive = false;
-	int abstandtriang = 4;
+	int abstandtriang = 4; // distance between the sensors at side
 	boolean rechtskurve = false;
 	boolean linkskurve = false;
 	double alterwinkel = 0;
@@ -170,7 +170,7 @@ public class NavigationAT implements INavigation {
 	
 	
 	boolean speichern_bereit=false;
-	boolean bekannt = false;
+	boolean bekannt = false; // gives information, if a slot is known or not
 	
 
 	/**
@@ -193,7 +193,7 @@ public class NavigationAT implements INavigation {
 		this.mouseodo = perception.getNavigationOdo();
 
 		// fill paring slot list with dummy slots
-//		for (int i = 0; i < 25; i++) {
+//		for (int i = 0; i < 25; i++) {		//create some dummy slots for HMI to avoid NullPointException
 //			list_ParkingSlot[i] = dummy;
 //		}
 
@@ -281,7 +281,7 @@ public class NavigationAT implements INavigation {
 		this.mouseOdoMeasurement = this.mouseodo.getOdoMeasurement();
 
 		
-		//alle Werte in mm übergeben -> hier Umwandlung in cm
+		//values given by PERCEPTION in mm -> here: switch them to cm
 		this.frontSensorDistance = perception.getFrontSensorDistance()/10;
 		this.frontSideSensorDistance = perception.getFrontSideSensorDistance()/10;
 		this.backSensorDistance = perception.getBackSensorDistance()/10;
@@ -290,7 +290,7 @@ public class NavigationAT implements INavigation {
 	}
 
 	/**
-	 * detects the robots environnement
+	 * detects the robots environnement with the distancesensors
 	 */
 	private void ist_irgendwo_was() {
 		if ((this.frontSensorDistance < 13) && (this.frontSensorDistance != 0)) {
@@ -320,7 +320,7 @@ public class NavigationAT implements INavigation {
 
 		vorne_ist_was = false;
 		seite_ist_was = false;
-		hinten_ist_was = false;
+		hinten_ist_was = false; //initialise environnement
 		//
 
 		// Umgebung des Roboters detektieren mittels Triangulationssensoren
@@ -364,7 +364,7 @@ public class NavigationAT implements INavigation {
 		// // }
 		//
 		//
-		// Anhand des Winkels detektieren ob Kurve vorliegt
+		// with the actual change of Heading a corner can be detected
 		if (this.pose.getHeading() - alterwinkel > +70) {
 			detectionecke = true;
 			rechtskurve = true;
@@ -394,8 +394,7 @@ public class NavigationAT implements INavigation {
 		// }
 		// }
 
-		// Herausfinden einer Ecke anhand der Winkeländerung
-		// Wissen an welcher Ecke man sich befindet, anhand der Linie
+		// know on which line the roboter is -> when a corner was detected -> line switch and known points are set as actual pose
 		if (detectionecke == true) {
 
 			switch (akt_linie) {
@@ -468,7 +467,7 @@ public class NavigationAT implements INavigation {
 			}
 		}
 		//
-		// Wenn an Linie 7 angekommen
+		// When he arrived at Line No 7 -> start at 0!
 
 		if (angleResult > 2 * Math.PI)
 			angleResult -= 2 * Math.PI;
@@ -488,16 +487,14 @@ public class NavigationAT implements INavigation {
 	 * @throws Exception
 	 */
 	//FIXME 
-
+	// Exception is possible -> when array is full and no more ParkingSlots can be detected!
 	private void detectParkingSlot() throws Exception {
-		// Initialisierung
+		// initialise
 		// double deltaT = ((double) this.angleMeasurementLeft.getDeltaT()) /
 		// 1000;
 
-		ParkingSlotStatus slotStatus = ParkingSlotStatus.BAD; // SlotStatus am
-																// Anfang setzen
-																// auf BAD
-		double groesse = 0; // Größe der Lücke in cm
+		ParkingSlotStatus slotStatus = ParkingSlotStatus.BAD; // first, set SlotStatus to BAD
+		double groesse = 0; // Size of the Slot in cm
 		// später 2-fache Messung und Mittelung implementieren
 
 		// double x_abst_backsidesens = 5; // Abstand der Sensoren vom Punkt der
@@ -527,7 +524,7 @@ public class NavigationAT implements INavigation {
 		if ((this.frontSideSensorDistance > abstand_sens_band)
 				&& (this.frontSideSensorDistance != 0)
 				&& (this.backSideSensorDistance != 0)&&(detectionactive==false)) {
-			Sound.beepSequence();
+			
 			// check if Slot is still existing
 			// deltax und deltay has to be checked by experiments
 			if (id_aktuell != 0) {
@@ -574,7 +571,7 @@ public class NavigationAT implements INavigation {
 			if ( (this.frontSideSensorDistance <= abstand_sens_band)
 					&& detectionactive == true) { 
 				
-				Sound.beep();
+				
 				
 				ende.setLocation(
 						this.pose.getX()
@@ -591,7 +588,7 @@ public class NavigationAT implements INavigation {
 				speichern_bereit = true;
 			}
 
-			// Vergleich mit bekannter Lücke für evtl. Neuvermessung
+			// compare with known slot -> maybe a new measurement is necessary
 			// if (bekannt=true){
 			// distancefront=list_ParkingSlot[id_bekannte_luecke].getFrontBoundaryPosition().distance(anfang);
 			// distanceback=
@@ -607,15 +604,14 @@ public class NavigationAT implements INavigation {
 			// }
 			// }
 			if (speichern_bereit == true) {
-				// Bewertung
+				// judge the slot
 				groesse = Math.abs(anfang.distance(ende));
 				// TODO Werte aufnehmen
 				if (groesse < 28) {
 					// too small for robot -> switch state to BAD
 					slotStatus = ParkingSlotStatus.BAD;
 				} else if ((groesse < 30) && (groesse > 28.1)) {
-					// Status auf ungeau -> neu zu vermessen setzen ->
-					// kritischer Wert
+					// switch state to RESCAN because it is in a critical intervall
 					slotStatus = ParkingSlotStatus.RESCAN;
 				} else {
 					// switch state to GOOD
@@ -624,18 +620,18 @@ public class NavigationAT implements INavigation {
 				}
 
 				if (id_aktuell < 25) {
-					Sound.beepSequenceUp();
+					
 					
 					list_ParkingSlot[id_aktuell] = new ParkingSlot(id_aktuell,
 							anfang, ende, slotStatus);
-					LCD.drawString("new Slot " // Ausgabe auf LCD
-							, 0, 5);
+				//	LCD.drawString("new Slot " // write new SLOT on LCD
+					//		, 0, 5);
 					id_aktuell++;
 					speichern_bereit=false;
 					detectionactive=false;
 					bekannt=false;
 				} else {
-					throw new Exception("No space");
+					throw new Exception("No space"); // Exception thrown if array is full
 				}
 			
 			} else {
