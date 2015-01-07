@@ -5,6 +5,7 @@ import lejos.robotics.navigation.Pose;
 import parkingRobot.IControl;
 import parkingRobot.IPerception;
 import parkingRobot.IPerception.*;
+import lejos.geom.Point;
 import lejos.nxt.NXTMotor;
 import parkingRobot.INavigation;
 
@@ -96,7 +97,16 @@ public class ControlRST implements IControl {
 
 	
 	
-	
+	float olddestx=0;
+	float olddesty=0;
+	float olddestphi=0;
+	float xvect;
+	Point idealpose=null;
+    float yvect;
+	float starttime=0;
+	float startx=0;
+	float starty=0;
+	float length=0;
 	/**
 	 * provides the reference transfer so that the class knows its corresponding navigation object (to obtain the current 
 	 * position of the car from) and starts the control thread.
@@ -262,16 +272,62 @@ public class ControlRST implements IControl {
 		}
 	
     private void exec_SETPOSE_ALGO(){
-    	//Aufgabe 3.3
-    	double currentx=currentPosition.getX();
-    	double currenty=currentPosition.getY();
-    	double currentphi=currentPosition.getHeading();
-    	
-    	double destx=destination.getX();
-    	double desty=destination.getY();
-    	double destphi=destination.getHeading();
     	
     	
+    	 //Aufgabe 3.3
+    	 
+    	//float currentx=currentPosition.getX();
+    	//float currenty=currentPosition.getY();
+    	//float currentphi=currentPosition.getHeading();
+    	
+    	//float newdestx=destination.getX();
+    	//float newdesty=destination.getY();
+    	//float newdestphi=destination.getHeading();
+
+    	float distx1=0;
+    	float idealposex;
+    	float idealposey;
+    	float t;  //Parameter für Streckenfortschritt
+    	float w;   //Winkelgeschwindigkeit
+    	//float currentidealposex=0;
+    	//float currentidealposey=0;
+    	
+    	
+    	if((destination.getX()!=olddestx) ||(destination.getX()!= olddesty)){     //Neue Startposition
+    		starttime=0;// AUSFÜLLEN   Startzeit
+    		startPosition=currentPosition;
+    		//startx=currentPosition.getX();
+    		//starty=currentPosition.getY();
+    		xvect=destination.getX()-currentPosition.getX();
+    		yvect=destination.getY()-currentPosition.getY();
+    		length=(float) (Math.hypot(xvect, yvect));   //Länge der Wegstrecke
+    		
+    				
+    				}
+    	
+    if(currentPosition.relativeBearing(destination.getLocation())<(-5)){
+    	
+    	drive(0,0.5);   //drehen mit  ca 30°/sec
+    	}
+    else if(currentPosition.relativeBearing(destination.getLocation())<(5)){
+    	
+    	drive(0,-0.5);
+    	}
+    else{
+    	//Ausrichtung erreicht
+    	t=20*(10)/length;  //20standartspeed 10NOCH ERSETZEN 
+    	idealposex=startPosition.getX()+(t*xvect);
+    	idealposey=startPosition.getY()+(t*yvect);
+    	idealpose.setLocation(idealposex, idealposey);  //muss noch Winkel in Poseobjekt geschrieben werden?!!!???!!!!!!
+    	distx1=currentPosition.distanceTo(idealpose);   //Abstand zur ideallinie
+    	
+    	
+    
+    	}
+    
+    	//currentidealposex=;
+    	//currentidealposey=;
+    	//idealpose.setLocation(currentidealposex, currentidealposey);
     	
     	
     	
