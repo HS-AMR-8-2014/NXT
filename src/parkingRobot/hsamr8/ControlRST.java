@@ -294,7 +294,7 @@ public class ControlRST implements IControl {
     	
     	
     	if((destination.getX()!=olddestx) ||(destination.getX()!= olddesty)){     //Neue Startposition
-    		starttime=0;// AUSFÜLLEN   Startzeit
+    		starttime=System.currentTimeMillis();//    Startzeit
     		startPosition=currentPosition;
     		//startx=currentPosition.getX();
     		//starty=currentPosition.getY();
@@ -315,7 +315,7 @@ public class ControlRST implements IControl {
     	}
     else{
     	//Ausrichtung erreicht
-    	t=20*(10)/length;  //20standartspeed 10NOCH ERSETZEN 
+    	t=20*(System.currentTimeMillis()-starttime)/length;  //20standartspeed
     	idealposex=startPosition.getX()+(t*xvect);
     	idealposey=startPosition.getY()+(t*yvect);
     	idealpose.setLocation(idealposex, idealposey);  //muss noch Winkel in Poseobjekt geschrieben werden?!!!???!!!!!!
