@@ -410,6 +410,7 @@ public class ControlRST implements IControl {
 	
 	//für 3.1.3 methode mit PID-Regler
 	private void exec_LINECTRL_ALGO_PID() {  
+		int speedconst = 0;
 		leftMotor.forward();
 		rightMotor.forward();
 
@@ -433,7 +434,9 @@ public class ControlRST implements IControl {
 			esum = esum + (double)(e); //integrationsanteil
 			y = kp*(double)(e) + ki*esum + kd*((double)(e) - ealt);
 			ealt = (double)(e);
-		
+			
+			//if(currentPosition.getX())
+			
 			rightMotor.setPower(38+(int)(y));
 			leftMotor.setPower(38-(int)(y));
 		
