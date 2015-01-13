@@ -108,7 +108,7 @@ public class ControlRST implements IControl {
 	Point idealpose=null;
 	float olddistx1=0;
     float yvect;
-	float starttime=0;
+	double starttime=0;
 	float oldtime=0;
 	float startx=0;
 	float starty=0;
@@ -123,6 +123,7 @@ public class ControlRST implements IControl {
 	double b1=0;
 	double b2=0;
 	double b3=0;
+	double currenttime=0;
 	/**
 	 * provides the reference transfer so that the class knows its corresponding navigation object (to obtain the current 
 	 * position of the car from) and starts the control thread.
@@ -182,8 +183,6 @@ public class ControlRST implements IControl {
 		this.destination.setLocation((float) x, (float) y);
 	}
 	
-
-	
 	/**
 	 * sets current pose
 	 * @see parkingRobot.IControl#setPose(Pose currentPosition)
@@ -193,7 +192,6 @@ public class ControlRST implements IControl {
 		this.currentPosition = currentPosition;
 	}
 	
-
 	/**
 	 * set control mode
 	 */
@@ -204,6 +202,7 @@ public class ControlRST implements IControl {
 	public ControlMode getCtrlMode(){
 		return currentCTRLMODE;
 	}
+	
 	/**
 	 * set start time
 	 */
@@ -238,6 +237,7 @@ public class ControlRST implements IControl {
 
 	}
 	
+	
 	// Private methods
 	
 	/**
@@ -245,9 +245,12 @@ public class ControlRST implements IControl {
 	 */
 	private void update_VWCTRL_Parameter(){
 		setPose(navigation.getPose());
-		this.encoderLeft  = perception.getControlLeftEncoder();
-		this.encoderRight = perception.getControlRightEncoder();
+//		this.encoderLeft  = perception.getControlLeftEncoder();
+//		this.encoderRight = perception.getControlRightEncoder();
+		left_encoder=encoderLeft.getEncoderMeasurement();
+		right_encoder=encoderRight.getEncoderMeasurement();
 	}
+	
 	
 	/**
 	 * update parameters during SETPOSE Control Mode
@@ -256,17 +259,20 @@ public class ControlRST implements IControl {
 		setPose(navigation.getPose());
 	}
 	
+	
 	/**
 	 * update parameters during PARKING Control Mode
 	 */
 	private void update_PARKCTRL_Parameter(){
 		//Aufgabe 3.4
 		setPose(navigation.getPose());
-		left_encoder=encoderLeft.getEncoderMeasurement();
-		right_encoder=encoderRight.getEncoderMeasurement();
-		
+		currenttime=(double)System.currentTimeMillis()/1000;
+//		left_encoder=encoderLeft.getEncoderMeasurement();
+//		right_encoder=encoderRight.getEncoderMeasurement();
+//		
 	}
 
+	
 	/**
 	 * update parameters during LINE Control Mode
 	 */
@@ -274,9 +280,8 @@ public class ControlRST implements IControl {
 		this.lineSensorRight		= perception.getRightLineSensor();
 		this.lineSensorLeft  		= perception.getLeftLineSensor();		
 	}*/
-	
+
 	//für 3.1.3 liniensensordaten von 0 bis 100
-	
     private void update_LINECTRL_Parameter(){
 		this.lineSensorRight		= perception.getRightLineSensorValue();
 		this.lineSensorLeft  		= perception.getLeftLineSensorValue();		
@@ -291,6 +296,7 @@ public class ControlRST implements IControl {
 		this.drive(this.velocity, this.angularVelocity); 
 		}
 	
+    
     private void exec_SETPOSE_ALGO(){
     	
     	
@@ -324,9 +330,9 @@ public class ControlRST implements IControl {
     		startPosition.setLocation(currentPosition.getX(), currentPosition.getY());
     		//startx=currentPosition.getX();
     		//starty=currentPosition.getY();
-    		xvect=destination.getX()-currentPosition.getX();
-    		yvect=destination.getY()-currentPosition.getY();
-    		length=(float) Math.sqrt(xvect*xvect+yvect*yvect);   //Länge der Wegstrecke
+    		xvect=(destination.getX()-currentPosition.getX())*100;   //in cm
+    		yvect=(destination.getY()-currentPosition.getY())*100;   //in cm
+    		length=(float) Math.sqrt(xvect*xvect+yvect*yvect);   //Länge der Wegstrecke in cm
     		
     				
     				}
@@ -343,12 +349,12 @@ public class ControlRST implements IControl {
   
     else{
     	//Ausrichtung erreicht
-    	t=20*((float)System.currentTimeMillis()/1000-starttime)/length;  //20standartspeed
-    	idealposex=startPosition.getX()+(t*xvect);
-    	idealposey=startPosition.getY()+(t*yvect);
+    	t=(float)(20*(System.currentTimeMillis()/1000-starttime)/length);  //20standartspeed
+    	idealposex=startPosition.getX()*100+(t*xvect);  //in cm
+    	idealposey=startPosition.getY()*100+(t*yvect); //in cm
     	
-    	idealpose.setLocation(idealposex, idealposey);  //muss noch Winkel in Poseobjekt geschrieben werden?!!!???!!!!!!
-    	distx1=currentPosition.distanceTo(idealpose);   //Abstand zur ideallinie
+    	idealpose.setLocation(idealposex/100, idealposey/100);  //muss noch Winkel in Poseobjekt geschrieben werden?!!!???!!!!!!
+    	distx1=currentPosition.distanceTo(idealpose)*100;   //Abstand zur ideallinie in cm
     	
     	w=ki*distx1+kd*((distx1-olddistx1))/((System.currentTimeMillis()/1000-oldtime));
     			
@@ -365,19 +371,20 @@ public class ControlRST implements IControl {
     	//idealpose.setLocation(currentidealposex, currentidealposey);
     	
     	
-    	olddestx=destination.getX();
-    	olddesty=destination.getY();
+    	olddestx=destination.getX()/100; //in cm
+    	olddesty=destination.getY()/100;  //in cm
     	
 	}
 	
+    
 	/**
 	 * PARKING along the generated path
 	 */
 	private void exec_PARKCTRL_ALGO(){
 		//Aufgabe 3.4
-		double T=10; //dauer der einparkzeit
-		double vstart=2; //0.1
-		double vend=2;   //0.1
+		double T=5; //dauer der einparkzeit
+		double vstart=0.1; 
+		double vend=0.1;   
 		double thetai=0;
 		double thetaf=0;
 		double t=0;
@@ -392,18 +399,19 @@ public class ControlRST implements IControl {
 		double v=0;
 		double w=0;
 		
-		if((destination.getX()!=olddestx) ||(destination.getY()!= olddesty)){     //Neue Startposition ->koeffizientenberechnung
-    		starttime=System.currentTimeMillis()/1000;//    Startzeit
-    		thetai=currentPosition.getHeading();
-    		a0 = currentPosition.getX();
+		if((destination.getX()!=olddestx) ||(destination.getY()!= olddesty)){     //Neue Startposition ->koeffizientenberechnung alles in cm und s
+    		starttime=currenttime;//    Startzeit in s
+    		thetai=currentPosition.getHeading()*180/Math.PI;  //in °
+    		thetaf=destination.getHeading()*180/Math.PI;  //in °
+    		a0 = currentPosition.getX()*100;
     		a1 = vstart*Math.cos(thetai);
-    		a2 = 3*(destination.getX()-currentPosition.getX()) - 2*vstart*Math.cos(thetai) - vend*Math.cos(destination.getHeading());
-    		a3 = 2*(currentPosition.getX()-destination.getX()) + vstart*Math.cos(thetai) + vend*Math.cos(destination.getHeading());
+    		a2 = 3*(destination.getX()-currentPosition.getX())*100 - 2*vstart*Math.cos(thetai) - vend*Math.cos(destination.getHeading());
+    		a3 = 2*(currentPosition.getX()-destination.getX())*100 + vstart*Math.cos(thetai) + vend*Math.cos(destination.getHeading());
 
-    		b0 = currentPosition.getY();
+    		b0 = currentPosition.getY()*100;
     		b1 = vstart*Math.sin(thetai);
-    		b2 = 3*(destination.getY()-currentPosition.getY()) - 2*vstart*Math.sin(thetai) - vend*Math.sin(destination.getHeading());
-    		b3 = 2*(currentPosition.getY()-destination.getY()) + vstart*Math.sin(thetai) + vend*Math.sin(destination.getHeading());
+    		b2 = 3*(destination.getY()-currentPosition.getY())*100 - 2*vstart*Math.sin(thetai) - vend*Math.sin(destination.getHeading());
+    		b3 = 2*(currentPosition.getY()-destination.getY())*100 + vstart*Math.sin(thetai) + vend*Math.sin(destination.getHeading());
 		}
 		
 		
@@ -427,21 +435,22 @@ public class ControlRST implements IControl {
 		olddestx=destination.getX();
 		olddesty=destination.getY();
 		v = dots*(Math.sqrt(dx1*dx1 + dx2*dx2)); // Geschwindigkeit
-		w = dots*(ddx2*dx1 - dx2*ddx1)/(dx1*dx1 + dx2*dx2);
+		w = dots*(ddx2*dx1 - dx2*ddx1)/(dx1*dx1 + dx2*dx2)*Math.PI/180;
 		drive(v,w);
 	}
+	
 	
     private void exec_INACTIVE(){
     	this.stop();
 	}
 	
+    
 	/**
 	 * DRIVING along black line
 	 * Minimalbeispiel
 	 * Linienverfolgung fuer gegebene Werte 0,1,2
 	 * white = 0, black = 2, grey = 1
 	 */
-    
 	private void exec_LINECTRL_ALGO(){
 		leftMotor.forward();
 		rightMotor.forward();
@@ -535,14 +544,12 @@ public class ControlRST implements IControl {
 	}
 		
 		
-		
-	
-	
 	private void stop(){
 		this.leftMotor.stop();
 		this.rightMotor.stop();
 	}
 		
+	
     /**
      * calculates the left and right angle speed of the both motors with given velocity 
      * and angle velocity of the robot
