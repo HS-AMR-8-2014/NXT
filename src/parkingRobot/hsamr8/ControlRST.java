@@ -104,10 +104,10 @@ public class ControlRST implements IControl {
 	float olddestx=0;
 	float olddesty=0;
 	float olddestphi=0;
-	float xvect;
+	float xvect=0;;
 	Point idealpose=null;
 	float olddistx1=0;
-    float yvect;
+    float yvect=0;
 	double starttime=0;
 	float oldtime=0;
 	float startx=0;
@@ -267,9 +267,9 @@ public class ControlRST implements IControl {
 		//Aufgabe 3.4
 		setPose(navigation.getPose());
 		currenttime=(double)System.currentTimeMillis()/1000;
-//		left_encoder=encoderLeft.getEncoderMeasurement();
-//		right_encoder=encoderRight.getEncoderMeasurement();
-//		
+		left_encoder=encoderLeft.getEncoderMeasurement();
+		right_encoder=encoderRight.getEncoderMeasurement();
+		
 	}
 
 	
@@ -418,7 +418,7 @@ public class ControlRST implements IControl {
 
 		
 		//t = linspace(0,T,500);
-		t=(System.currentTimeMillis()/1000)-starttime;
+		t=(currenttime)-starttime;
 		
 		s = (t*t)/(T*T)*(3-2*t/T);
 		dots = 6*t/(T*T)*(1 - t/T);
