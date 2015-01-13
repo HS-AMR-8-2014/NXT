@@ -49,6 +49,10 @@ public class ControlRST implements IControl {
 	NXTMotor leftMotor = null;
 	NXTMotor rightMotor = null;
 	
+	
+	IPerception.AngleDifferenceMeasurement left_encoder;
+	IPerception.AngleDifferenceMeasurement right_encoder;
+	
 	IPerception perception = null;
 	INavigation navigation = null;
 	ControlThread ctrlThread = null;	
@@ -102,11 +106,23 @@ public class ControlRST implements IControl {
 	float olddestphi=0;
 	float xvect;
 	Point idealpose=null;
+	float olddistx1=0;
     float yvect;
 	float starttime=0;
+	float oldtime=0;
 	float startx=0;
 	float starty=0;
 	float length=0;
+	
+	//Trajektorie-einparken
+	double a0=0;
+	double a1=0;
+	double a2=0;
+	double a3=0;
+	double b0=0;
+	double b1=0;
+	double b2=0;
+	double b3=0;
 	/**
 	 * provides the reference transfer so that the class knows its corresponding navigation object (to obtain the current 
 	 * position of the car from) and starts the control thread.
@@ -245,6 +261,10 @@ public class ControlRST implements IControl {
 	 */
 	private void update_PARKCTRL_Parameter(){
 		//Aufgabe 3.4
+		setPose(navigation.getPose());
+		left_encoder=encoderLeft.getEncoderMeasurement();
+		right_encoder=encoderRight.getEncoderMeasurement();
+		
 	}
 
 	/**
@@ -283,27 +303,34 @@ public class ControlRST implements IControl {
     	//float newdestx=destination.getX();
     	//float newdesty=destination.getY();
     	//float newdestphi=destination.getHeading();
-
+    	
+    	
+    	
     	float distx1=0;
-    	float idealposex;
-    	float idealposey;
-    	float t;  //Parameter für Streckenfortschritt
-    	float w;   //Winkelgeschwindigkeit
+    	float idealposex=0;
+    	float idealposey=0;
+    	float t=0;  //Parameter für Streckenfortschritt
+    	double w=0;   //Winkelgeschwindigkeit
     	//float currentidealposex=0;
     	//float currentidealposey=0;
+    	double kp=1;
+    	double kd=0.1;
     	
     	
-    	if((destination.getX()!=olddestx) ||(destination.getX()!= olddesty)){     //Neue Startposition
-    		starttime=System.currentTimeMillis();//    Startzeit
-    		startPosition=currentPosition;
+    	
+    	if((destination.getX()!=olddestx) ||(destination.getY()!= olddesty)){     //Neue Startposition
+    		starttime=System.currentTimeMillis()/1000;//    Startzeit
+    		startPosition.setHeading(currentPosition.getHeading());
+    		startPosition.setLocation(currentPosition.getX(), currentPosition.getY());
     		//startx=currentPosition.getX();
     		//starty=currentPosition.getY();
     		xvect=destination.getX()-currentPosition.getX();
     		yvect=destination.getY()-currentPosition.getY();
-    		length=(float) (Math.hypot(xvect, yvect));   //Länge der Wegstrecke
+    		length=(float) Math.sqrt(xvect*xvect+yvect*yvect);   //Länge der Wegstrecke
     		
     				
     				}
+    
     	
     if(currentPosition.relativeBearing(destination.getLocation())<(-5)){
     	
@@ -313,24 +340,33 @@ public class ControlRST implements IControl {
     	
     	drive(0,-0.5);
     	}
+  
     else{
     	//Ausrichtung erreicht
-    	t=20*(System.currentTimeMillis()-starttime)/length;  //20standartspeed
+    	t=20*((float)System.currentTimeMillis()/1000-starttime)/length;  //20standartspeed
     	idealposex=startPosition.getX()+(t*xvect);
     	idealposey=startPosition.getY()+(t*yvect);
+    	
     	idealpose.setLocation(idealposex, idealposey);  //muss noch Winkel in Poseobjekt geschrieben werden?!!!???!!!!!!
     	distx1=currentPosition.distanceTo(idealpose);   //Abstand zur ideallinie
     	
+    	w=ki*distx1+kd*((distx1-olddistx1))/((System.currentTimeMillis()/1000-oldtime));
+    			
+    	olddistx1=distx1;
+    	oldtime=System.currentTimeMillis()/1000;
     	
-    
+    	drive(20,w);
     	}
+    	
+    		
     
     	//currentidealposex=;
     	//currentidealposey=;
     	//idealpose.setLocation(currentidealposex, currentidealposey);
     	
     	
-    	
+    	olddestx=destination.getX();
+    	olddesty=destination.getY();
     	
 	}
 	
@@ -339,6 +375,60 @@ public class ControlRST implements IControl {
 	 */
 	private void exec_PARKCTRL_ALGO(){
 		//Aufgabe 3.4
+		double T=10; //dauer der einparkzeit
+		double vstart=2; //0.1
+		double vend=2;   //0.1
+		double thetai=0;
+		double thetaf=0;
+		double t=0;
+		double dots=0;
+		double s=0;
+		double x1=0;
+		double dx1=0;
+		double ddx1=0;
+		double x2=0;
+		double dx2=0;
+		double ddx2=0;
+		double v=0;
+		double w=0;
+		
+		if((destination.getX()!=olddestx) ||(destination.getY()!= olddesty)){     //Neue Startposition ->koeffizientenberechnung
+    		starttime=System.currentTimeMillis()/1000;//    Startzeit
+    		thetai=currentPosition.getHeading();
+    		a0 = currentPosition.getX();
+    		a1 = vstart*Math.cos(thetai);
+    		a2 = 3*(destination.getX()-currentPosition.getX()) - 2*vstart*Math.cos(thetai) - vend*Math.cos(destination.getHeading());
+    		a3 = 2*(currentPosition.getX()-destination.getX()) + vstart*Math.cos(thetai) + vend*Math.cos(destination.getHeading());
+
+    		b0 = currentPosition.getY();
+    		b1 = vstart*Math.sin(thetai);
+    		b2 = 3*(destination.getY()-currentPosition.getY()) - 2*vstart*Math.sin(thetai) - vend*Math.sin(destination.getHeading());
+    		b3 = 2*(currentPosition.getY()-destination.getY()) + vstart*Math.sin(thetai) + vend*Math.sin(destination.getHeading());
+		}
+		
+		
+
+		
+		//t = linspace(0,T,500);
+		t=(System.currentTimeMillis()/1000)-starttime;
+		
+		s = (t*t)/(T*T)*(3-2*t/T);
+		dots = 6*t/(T*T)*(1 - t/T);
+
+		
+		x1 = a0 + a1*s + a2*s*s + a3*s*s*s;
+		dx1 = a1 + 2*a2*s + 3*a3*s*s;
+		ddx1 = 2*a2 + 6*a3*s;
+		x2 = b0 + b1*s + b2*s*s + b3*s*s*s;
+		dx2 = b1 + 2*b2*s + 3*b3*s*s;
+		ddx2 = 2*b2 + 6*b3*s;
+		
+
+		olddestx=destination.getX();
+		olddesty=destination.getY();
+		v = dots*(Math.sqrt(dx1*dx1 + dx2*dx2)); // Geschwindigkeit
+		w = dots*(ddx2*dx1 - dx2*ddx1)/(dx1*dx1 + dx2*dx2);
+		drive(v,w);
 	}
 	
     private void exec_INACTIVE(){
@@ -493,11 +583,28 @@ public class ControlRST implements IControl {
 			rightSpeed = v;
 		};
 		
-
+		double left_length=left_encoder.getAngleSum()*1000*distancePerDegree;
+		double right_length=right_encoder.getAngleSum()*1000*distancePerDegree;
+		double left_deltat=left_encoder.getDeltaT();
+		double right_deltat=right_encoder.getDeltaT();
+		double left_rspeed=0;
+		double right_rspeed=0;
+		if(left_deltat==0){
+			left_rspeed=0;
+		}
+		else{
+			left_rspeed=left_length/left_deltat;
+		}
+		if(right_deltat==0){
+			right_rspeed=0;
+		}
+		else{
+			right_rspeed=right_length/right_deltat;
+		}
 		
 		//PIDRegler für jedes Rad
-		dleft = leftSpeed - (encoderLeft.getEncoderMeasurement().getAngleSum()*1000*distancePerDegree/encoderLeft.getEncoderMeasurement().getDeltaT());                //Fehler des linken Rades
-		dright = rightSpeed - (encoderRight.getEncoderMeasurement().getAngleSum()*1000*distancePerDegree/encoderRight.getEncoderMeasurement().getDeltaT());			  //Fehler der rechten Rades
+		dleft = leftSpeed - (left_rspeed);                //Fehler des linken Rades
+		dright = rightSpeed - (right_rspeed);			  //Fehler der rechten Rades
 		
 		dleftsum = dleftsum + dleft; //integrationsanteil
 		yleft = KP1*dleft + KI1*dleftsum + KD1*(dleft - dleftalt);
@@ -514,6 +621,8 @@ public class ControlRST implements IControl {
 			dleftsum=0;
 		}
 		
+		leftMotor.forward();
+		rightMotor.forward();
 		leftMotor.setPower((Math.round((float)((leftSpeed+yleft)*MOTORKONSTLEFT))));   //berechneter Powerwert*Reglerausgang mit Power-Speed-Verhältnis
 		rightMotor.setPower((Math.round((float)((rightSpeed+yright)*MOTORKONSTRIGHT))));
 	
