@@ -7,6 +7,7 @@ import parkingRobot.IPerception;
 import parkingRobot.IPerception.*;
 import lejos.geom.Point;
 import lejos.nxt.NXTMotor;
+import lejos.nxt.Sound;
 import parkingRobot.INavigation;
 
 /**
@@ -104,10 +105,10 @@ public class ControlRST implements IControl {
 	float olddestx=0;
 	float olddesty=0;
 	float olddestphi=0;
-	float xvect=0;;
+	float xvect;
 	Point idealpose=null;
 	float olddistx1=0;
-    float yvect=0;
+    float yvect;
 	double starttime=0;
 	float oldtime=0;
 	float startx=0;
@@ -382,11 +383,11 @@ public class ControlRST implements IControl {
 	 */
 	private void exec_PARKCTRL_ALGO(){
 		//Aufgabe 3.4
-		double T=5; //dauer der einparkzeit
-		double vstart=0.1; 
-		double vend=0.1;   
-		double thetai=0;
-		double thetaf=0;
+		double T=8; //dauer der einparkzeit in s 
+		double vstart=0.7; 
+		double vend=0.5;   
+		double theta_i=0;
+		double theta_f=0;
 		double t=0;
 		double dots=0;
 		double s=0;
@@ -399,29 +400,52 @@ public class ControlRST implements IControl {
 		double v=0;
 		double w=0;
 		
+	//	X;
+		
 		if((destination.getX()!=olddestx) ||(destination.getY()!= olddesty)){     //Neue Startposition ->koeffizientenberechnung alles in cm und s
-    		starttime=currenttime;//    Startzeit in s
-    		thetai=currentPosition.getHeading()*180/Math.PI;  //in °
-    		thetaf=destination.getHeading()*180/Math.PI;  //in °
-    		a0 = currentPosition.getX()*100;
-    		a1 = vstart*Math.cos(thetai);
-    		a2 = 3*(destination.getX()-currentPosition.getX())*100 - 2*vstart*Math.cos(thetai) - vend*Math.cos(destination.getHeading());
-    		a3 = 2*(currentPosition.getX()-destination.getX())*100 + vstart*Math.cos(thetai) + vend*Math.cos(destination.getHeading());
+//    		Sound.beep();
+			starttime=currenttime;//    Startzeit in s
+			theta_i=currentPosition.getHeading();  //in °
+    		theta_f=destination.getHeading();  //in °			
+//			theta_i=currentPosition.getHeading()*180/Math.PI;  //in °
+//    		theta_f=destination.getHeading()*180/Math.PI;  //in °
+    		a0 = currentPosition.getX()*1;
+    		a1 = vstart*Math.cos(theta_i);
+    		a2 = 3*(destination.getX()-currentPosition.getX())*1 - vend*Math.cos(destination.getHeading());
+    		a3 = 2*(currentPosition.getX()-destination.getX())*1 + vend*Math.cos(destination.getHeading());
+//    		a2 = 3*(destination.getX()-currentPosition.getX())*1 - 2*a1 - vend*Math.cos(destination.getHeading());
+//    		a3 = 2*(currentPosition.getX()-destination.getX())*1 + a1 + vend*Math.cos(destination.getHeading());
 
-    		b0 = currentPosition.getY()*100;
-    		b1 = vstart*Math.sin(thetai);
-    		b2 = 3*(destination.getY()-currentPosition.getY())*100 - 2*vstart*Math.sin(thetai) - vend*Math.sin(destination.getHeading());
-    		b3 = 2*(currentPosition.getY()-destination.getY())*100 + vstart*Math.sin(thetai) + vend*Math.sin(destination.getHeading());
+
+    		b0 = currentPosition.getY()*1;
+    		b1 = vstart*Math.sin(theta_i);
+    		b2 = 3*(destination.getY()-currentPosition.getY())*1 - vend*Math.sin(destination.getHeading());
+    		b3 = 2*(currentPosition.getY()-destination.getY())*1 + vend*Math.sin(destination.getHeading());
+//    		b2 = 3*(destination.getY()-currentPosition.getY())*1 - 2*b1 - vend*Math.sin(destination.getHeading());
+//    		b3 = 2*(currentPosition.getY()-destination.getY())*1 + b1 + vend*Math.sin(destination.getHeading());
+		
+    		olddestx=destination.getX();
+    		olddesty=destination.getY();
 		}
 		
-		
+//		a0=a0*1;
+//		a1=a1*1;
+//		a2=a2*1;
+//		a3=a3*1;
+//		b0=b0*1;
+//		b1=b1*1;
+//		b2=b2*1;
+//		b3=b3*1;
+
 
 		
 		//t = linspace(0,T,500);
-		t=(currenttime)-starttime;
+		t=(System.currentTimeMillis()/1000)-starttime;
 		
 		s = (t*t)/(T*T)*(3-2*t/T);
-		dots = 6*t/(T*T)*(1 - t/T);
+//		s = (t*t)/(T*T)*(3-2*t/T);
+		dots = -6*t/(T*T)*(1 - t/T);
+//		dots = 6*t/(T*T)*(1 - t/T);
 
 		
 		x1 = a0 + a1*s + a2*s*s + a3*s*s*s;
@@ -432,11 +456,34 @@ public class ControlRST implements IControl {
 		ddx2 = 2*b2 + 6*b3*s;
 		
 
-		olddestx=destination.getX();
-		olddesty=destination.getY();
-		v = dots*(Math.sqrt(dx1*dx1 + dx2*dx2)); // Geschwindigkeit
-		w = dots*(ddx2*dx1 - dx2*ddx1)/(dx1*dx1 + dx2*dx2)*Math.PI/180;
+//		olddestx=destination.getX();
+//		olddesty=destination.getY();
+		if (t<T){
+		v = dots*(Math.sqrt(dx1*dx1 + dx2*dx2))*100; // Geschwindigkeit
+//		w = dots*(dx2*ddx1 - ddx2*dx1)/(dx1*dx1 + dx2*dx2);
+		w = dots*(ddx2*dx1 - dx2*ddx1)/(dx1*dx1 + dx2*dx2);
+		} 
+//		else 
+//			if 	(currentPosition.getHeading()!=theta_f){
+//				double current_heading = currentPosition.getHeading();
+//				if current_heading>270){
+//					current_heading = current_heading - Math.PI;
+//				}
+//			if (currentPosition.getHeading()-theta_f<0.05*Math.PI){
+//					w=2;
+//				} else if (currentPosition.getHeading()-theta_f>0.05*Math.PI){
+//					w=-2;
+//				} else {
+//					w=0;
+//				}
+//			v=0;
+//		} 
+	else {
+			v=0;
+			w=0;
+		}
 		drive(v,w);
+		
 	}
 	
 	
