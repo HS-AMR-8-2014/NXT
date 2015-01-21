@@ -17,8 +17,6 @@ import parkingRobot.hsamr8.ControlRST;
 import parkingRobot.hsamr8.HmiPLT;
 import parkingRobot.hsamr8.NavigationAT;
 import parkingRobot.hsamr8.PerceptionPMP;
-//import parkingRobot.IPerception.AngleDifferenceMeasurement;
-//import parkingRobot.IPerception.EncoderSensor;
 
 /**
  * Main class for 'Hauptseminar AMR' project 'autonomous parking' for students of electrical engineering
@@ -78,45 +76,80 @@ public class GuidanceAT {
 
 	
 	/**
-	 * Substates that are not supposed to be sent to the tablet, needed to realize submissions
+	 * Substates for the parallel state machine. 
+	 * Not supposed to be sent to the tablet, needed to realize submissions
 	 *
 	 */
 	private enum CurrentSubStatus {
 		/**
-	 	 * SubStates for DRIVING, needed for collision avoidance
+		 * State in which the robot follows the black line.
+		 * Collision detection and parking slot detection are active.
+		 * Allowed during DRIVING.
 		 */
-		FOLLOW_LINE,WAIT,DRIVE_BACKWARDS,FIND_BLACK_LINE,
+		FOLLOW_LINE,
 		/**
-		 * SubStates for INACTIVE
+		 * The robot has detected an object less than 10cm ahead and stops.
+		 * Allowed during DRIVING.
 		 */
-		WAITING_ON_LINE,WAITING_OFF_LINE,
+		WAIT,
 		/**
-		 * SubStates for PARK_THIS
+		 * The robot has detected an object less than 7cm ahead and evades.
+		 * Allowed during DRIVING.
 		 */
-		
+		DRIVE_BACKWARDS,
 		/**
-		 * SubStates for PARK_NOW
+		 * The robot is currently off line and finds its way back.
+		 * Allowed during DRIVING.
+		 */
+		FIND_BLACK_LINE,
+		/**
+		 * State in which the robot awaits new orders while standing still.
+		 * The location is close enough to the black line to activate line following.
+		 * Allowed during INACTIVE.
+		 */
+		WAITING_ON_LINE,
+		/**
+		 * State in which the robot awaits new orders while standing still.
+		 * The location far from the black line, line following would cause misbehaviour.
+		 * Allowed during INACTIVE.
+		 */
+		WAITING_OFF_LINE,
+		/**
+		 * The robot follows the black line and compares its location to 
+		 * Coordinates of known parking slots.
+		 * Collision detection and parking slot detection are active.
+		 * Allowed during PARK_NOW.
 		 */
 		SEARCH,		
 		/**
-	 	 * SubStates for both Parking-Modes, the Robot moves to and enters a Parking Slot
+	 	 * The robot moves towards a position, from where a parking 
+	 	 * Maneuver is supposed to start. During PARK_NOW, the robot decides
+	 	 * Whether its better to move backwards rather than forward.
+	 	 * Collision detection and parking slot detection are active.
+	 	 * Allowed during PARK_NOW and PARK_THIS.
 		 */
-		MOVE_TO_PARKING_POSITION,PARK,	
+		MOVE_TO_PARKING_POSITION,
+		/**
+		 * The pathgenerator is activated and the robots drives into a parking slot.
+		 * Collision detection and parking slot detection are active.
+		 * Allowed during allowed during PARK_NOW and PARK_THIS.
+		 */
+		PARK	
 	}
 	
 	/**
-	 * state in which the sub finite state machine is running at the moment
+	 * state in which the parallel state machine is running at the moment
 	 */
 	protected static CurrentSubStatus currentSubStatus 	= CurrentSubStatus.WAITING_ON_LINE;
 	/**
-	 * state in which the sub finite state machine was running before entering the actual state
+	 * state in which the parallel state machine was running before entering the actual state
 	 */
 	protected static CurrentSubStatus lastSubStatus		= CurrentSubStatus.WAITING_ON_LINE;
 	
 	
 	/**
-	 * converts currentSubStatus to String. Needed to show current Status on display
-	 * possibly only needed for testing
+	 * Converts currentSubStatus to String. Needed to show current Status on display.
+	 * Possibly only needed for testing
 	 * @return
 	 */
 	private static String CurrentSubStatusAsString(){
@@ -183,13 +216,13 @@ public class GuidanceAT {
 	 * @param args standard string arguments for main method
 	 * @throws Exception exception for thread management
 	 */
-	public static void main(String[] args) throws Exception {		
+	public static void main(String[] args) throws Exception {			
 		
 		//ORIGINAL STARTZUSTAENDE
 		currentStatus = CurrentStatus.INACTIVE;
 		lastStatus    = CurrentStatus.EXIT;
 				
-//	//TestStates PARK NOW + SEARCH
+//		//TestStates PARK NOW + SEARCH
 //		currentStatus = CurrentStatus.PARK_NOW;
 //		lastStatus    = CurrentStatus.PARK_NOW;
 //        currentSubStatus = CurrentSubStatus.SEARCH;
@@ -210,12 +243,13 @@ public class GuidanceAT {
 //        lastSubStatus = CurrentSubStatus.MOVE_TO_PARKING_POSITION;
 
 //		//TestStates DRIVE BACKWARDS
+//		//also used to test control functions
 //		currentStatus = CurrentStatus.DRIVING;
 //		lastStatus    = CurrentStatus.DRIVING;
 //		currentSubStatus = CurrentSubStatus.DRIVE_BACKWARDS;
-//		lastSubStatus = CurrentSubStatus.WAIT;		
+//		lastSubStatus = CurrentSubStatus.WAIT;	
 
-				
+		
 		// Generate objects
 		
 		NXTMotor leftMotor  = new NXTMotor(MotorPort.B);
@@ -239,17 +273,15 @@ public class GuidanceAT {
 					
 					main_state_transition_check(hmi);
 										
-					//Unterzustandsmaschine DRIVING
+					//parallel state machine DRIVING
 					switch ( currentSubStatus ) {
 					
 						case FOLLOW_LINE:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.FOLLOW_LINE ){
-								navigation.setParkingActive(false);
-//***************************************************								control.setCtrlMode(ControlMode.INACTIVE);
-								control.setCtrlMode(ControlMode.LINE_CTRL);
-								Sound.beepSequenceUp();
 								navigation.setDetectionState(true);
+								navigation.setParkingActive(false);
+								control.setCtrlMode(ControlMode.LINE_CTRL);
 							}
 							//State transition check
 							lastSubStatus = currentSubStatus;
@@ -267,11 +299,11 @@ public class GuidanceAT {
 						case WAIT:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.WAIT ){
-								control.setCtrlMode(ControlMode.INACTIVE);
 								navigation.setDetectionState(false);
 								navigation.setParkingActive(false);
+								control.setCtrlMode(ControlMode.INACTIVE);
 							}
-							//State transition check; orders are overwritten
+							//State transition check; orders are overwritten!
 							lastSubStatus = currentSubStatus;
 							if ((currentStatus == CurrentStatus.INACTIVE)||(currentStatus == CurrentStatus.PARK_THIS)||(currentStatus == CurrentStatus.PARK_NOW)){
 								currentStatus = CurrentStatus.DRIVING;
@@ -287,9 +319,10 @@ public class GuidanceAT {
 						case DRIVE_BACKWARDS:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.DRIVE_BACKWARDS ){
-								control.setCtrlMode(ControlMode.VW_CTRL);	
-								control.setVelocity(-15);
+								//navigation states do not change coming from WAIT
+								control.setVelocity(-10);
 								control.setAngularVelocity(0);	
+								control.setCtrlMode(ControlMode.VW_CTRL);
 							}
 							
 							//State transition check; orders are overwritten
@@ -306,10 +339,17 @@ public class GuidanceAT {
 						case FIND_BLACK_LINE:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.FIND_BLACK_LINE ){
-								control.drive_backwards(false);
-								navigation.setParkingActive(true);
-								control.setCtrlMode(ControlMode.PARK_CTRL);
+								setDestination(control);
 								navigation.setDetectionState(false);
+								navigation.setParkingActive(true);
+								control.drive_backwards(false);
+								control.setCtrlMode(ControlMode.PARK_CTRL);
+								
+//								//orders needed to test SetPose()
+//								navigation.setParkingActive(true);
+//								control.setDestination(0,0,1);
+//								control.setCtrlMode(ControlMode.SETPOSE);
+//								navigation.setDetectionState(false);
 							}					
 
 							//State transition check
@@ -317,36 +357,33 @@ public class GuidanceAT {
 							if (currentStatus == CurrentStatus.INACTIVE){
 								currentSubStatus = CurrentSubStatus.WAITING_OFF_LINE;
 							}else if ((currentStatus == CurrentStatus.PARK_NOW)||(currentStatus == CurrentStatus.PARK_THIS)){
+								//the states are allowed, but the robot has to find the line first
 								currentStatus = CurrentStatus.DRIVING;
 							}
 							
 							//check, if black line is reached
 							if(control.destination_reached()){
-								//try to find black line if trajectory failed
-								if (!destination_reached(navigation)){
-								control.setCtrlMode(ControlMode.SETPOSE);
-								setDestination(control,navigation);
-								} else{
 								currentSubStatus = CurrentSubStatus.FOLLOW_LINE;
-								}
 							}
-							
 							break;	
+							
 						default:
+							//this should never happen
 							break;
 					}
+					//end of "case DRIVING"
 					break;
 					
 				case INACTIVE:
 					//Into action
 					if ( lastStatus != CurrentStatus.INACTIVE ){
-						control.setCtrlMode(ControlMode.INACTIVE);
 						navigation.setDetectionState(false);
+						control.setCtrlMode(ControlMode.INACTIVE);
 					}
 
 					main_state_transition_check(hmi);
 					
-					//UNTERZUSTANDSMASCHINE INACTIVE				
+					//parallel state machine INACTIVE				
 					switch ( currentSubStatus ) {
 						case WAITING_ON_LINE:
 							//State transition check
@@ -359,35 +396,42 @@ public class GuidanceAT {
 								currentSubStatus = CurrentSubStatus.SEARCH;
 							}
 							break;	
+							
 						case WAITING_OFF_LINE:
 							//State transition check
 							lastSubStatus = currentSubStatus;
 							if (currentStatus == CurrentStatus.DRIVING){
 								currentSubStatus = CurrentSubStatus.FIND_BLACK_LINE;
 							}else if ((currentStatus == CurrentStatus.PARK_THIS)||(currentStatus == CurrentStatus.PARK_NOW)){
-								//overwrite hmi
+								//since this state is also activated after a successful parking maneuver,
+								//the states where the machine came from are overwritten to suppress
+								//instant leaving of parking slot
 								currentStatus = CurrentStatus.INACTIVE;			
 							}
-							break;	
+							break;
+							
 						default:
+							//this should never happen
 							break;
 						}
+					//end of "case INACTIVE"
 					break;
 					
 				case PARK_THIS:
 					
 					main_state_transition_check(hmi);
 					
-					//UNTERZUSTANDSMASCHINE PARK_THIS					
+					//parallel state machine PARK_THIS					
 					switch ( currentSubStatus ) {	
 						case MOVE_TO_PARKING_POSITION:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.MOVE_TO_PARKING_POSITION ){																		
+								//in PARK_THIS, hmi sends the ID of the destined parking slot
 								destination = navigation.getParkingSlots()[hmi.getSelectedParkingSlot()];
-								setDestination(control, navigation);
-								navigation.setParkingActive(false);
-								control.setCtrlMode(ControlMode.LINE_CTRL);
 								navigation.setDetectionState(true);
+								navigation.setParkingActive(false);
+								setDestination(control);
+								control.setCtrlMode(ControlMode.LINE_CTRL);
 							}
 
 							//State transition check
@@ -406,16 +450,16 @@ public class GuidanceAT {
 							if(destination_reached(navigation)){
 								currentSubStatus = CurrentSubStatus.PARK;
 							}
-						
 							break;	
+							
 						case PARK:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.PARK ){
-								setDestination(control, navigation);
-								control.drive_backwards(true);
-								navigation.setParkingActive(true);
-								control.setCtrlMode(ControlMode.PARK_CTRL);
+								setDestination(control);
 								navigation.setDetectionState(false);
+								navigation.setParkingActive(true);
+								control.drive_backwards(true);
+								control.setCtrlMode(ControlMode.PARK_CTRL);
 							}
 					
 							//check, if parking slot is reached
@@ -432,24 +476,27 @@ public class GuidanceAT {
 								currentSubStatus = CurrentSubStatus.WAITING_OFF_LINE;
 							}
 							
-							break;	
+							break;
+							
 						default:
+							//this should never happen
 							break;
 						}
+					//end of "case PARK_THIS"
 					break;
 					
 				case PARK_NOW:
 					
 					main_state_transition_check(hmi);
 					
-					//UNTERZUSTANDSMASCHINE PARK_NOW				
+					//parallel state machine PARK_NOW				
 					switch ( currentSubStatus ) {
 						case SEARCH:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.SEARCH ){
-								control.setCtrlMode(ControlMode.LINE_CTRL);
 								navigation.setDetectionState(true);
 								navigation.setParkingActive(false);
+								control.setCtrlMode(ControlMode.LINE_CTRL);
 							}	
 																					
 							//State transition check
@@ -478,17 +525,28 @@ public class GuidanceAT {
 										//test if parking slot has status 'GOOD'
 										if (parkingSlots[i].getStatus().ordinal()==0){      
 											
-											lejos.geom.Point current_checking = parkingSlots[i].getBackBoundaryPosition();
 											//calculate the parking position of this slot
+											lejos.geom.Point current_checking = parkingSlots[i].getBackBoundaryPosition();
+											float phi = 0;
+											
+											if(current_checking.getY()<0){
+												phi = 0;
+											}else if(current_checking.getX()>1.8){
+												phi = (float)Math.PI*1/2;
+											}else if(current_checking.getY()>0.5){
+												phi = (float)Math.PI;
+											}else if(current_checking.getX()<0){
+												phi = (float)Math.PI*3/4;
+											}
 											double distance_slot_to_line = 0.3;
-											double current_checking_X = current_checking.getX() - distance_slot_to_line*Math.sin(navigation.getPhi());
-											double current_checking_Y = current_checking.getY() + distance_slot_to_line*Math.cos(navigation.getPhi());
+											double current_checking_X = current_checking.getX() - distance_slot_to_line*Math.sin(phi);
+											double current_checking_Y = current_checking.getY() + distance_slot_to_line*Math.cos(phi);
 											
 											double deltaX = Math.abs(current_checking_X-currentPose.getX());
 											double deltaY = Math.abs(current_checking_Y-currentPose.getY());
-											double tollerance = 0.1;
 											
 											//test if robot is close to parking slot
+											double tollerance = 0.15;
 											if((deltaX<tollerance)&&(deltaY<tollerance)){
 												destination = navigation.getParkingSlots()[i];
 												currentSubStatus = CurrentSubStatus.MOVE_TO_PARKING_POSITION;
@@ -500,13 +558,49 @@ public class GuidanceAT {
 								}
 							}		
 							break;
+							
 						case MOVE_TO_PARKING_POSITION:
 							//Into action							
 							if ( lastSubStatus != CurrentSubStatus.MOVE_TO_PARKING_POSITION ){																		
-								setDestination(control, navigation);
-								control.setCtrlMode(ControlMode.LINE_CTRL);
-								navigation.setDetectionState(true);
-								navigation.setParkingActive(false);
+								setDestination(control);								
+								
+								//catch the case, that the detected parking slot is close, but behind the robot
+								boolean forward = true;
+								switch (navigation.getLine()){
+									case 0:
+										if (destination_pose.getX()-navigation.getPose().getX()<0)
+										{forward = false;}
+										break;
+									case 1:
+										if (destination_pose.getY()-navigation.getPose().getY()<0)
+										{forward = false;}
+										break;
+									case 2:
+										//this is the case, if the robot just detected a parking slot on next to line 1
+										//but already passed the corner at (x|y)=(180|60)
+										if (destination_pose.getX()-navigation.getPose().getX()>0)
+										{forward = false;}
+										break;
+									case 4:
+										if (destination_pose.getX()-navigation.getPose().getX()>0)
+										{forward = false;}
+										break;
+									default:
+										//this should not happen
+										break;
+								}
+								
+								//decision whether to move forward or backwards
+								if(forward) {
+									navigation.setDetectionState(true);
+									navigation.setParkingActive(false);
+									control.setCtrlMode(ControlMode.LINE_CTRL);
+								}else{
+									navigation.setDetectionState(false);
+									navigation.setParkingActive(true);
+									control.setPose(destination_pose);
+									control.setCtrlMode(ControlMode.SETPOSE);
+								}
 							}
 				
 							//State transition check
@@ -528,21 +622,23 @@ public class GuidanceAT {
 								currentSubStatus = CurrentSubStatus.PARK;
 							}
 							break;	
+							
 						case PARK:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.PARK ){
 								
-//								//Ziel fuer Testzwecke fix setzen
+//								//set fixed destination, for testing only
+//								//needs DUMMY parking slots in Navigation
 //								destination = navigation.getParkingSlots()[0];
 								
-								setDestination(control, navigation);
-								control.drive_backwards(true);
+								setDestination(control);
+								navigation.setDetectionState(false);
 								navigation.setParkingActive(true);
+								control.drive_backwards(true);
 								control.setCtrlMode(ControlMode.PARK_CTRL);
-								navigation.setDetectionState(false);							
 							}
 							
-							//check, if parking slot is reached
+							//check if parking slot is reached
 							if(control.destination_reached()){
 								currentStatus = CurrentStatus.INACTIVE;
 								Sound.beepSequenceUp();
@@ -556,16 +652,22 @@ public class GuidanceAT {
 								currentSubStatus = CurrentSubStatus.WAITING_OFF_LINE;
 							}
 							break;	
+							
 						default:
+							//this should never happen
 							break;
-						}					
+						}
+					//end of "case PARK_NOW"
 					break;
+					
 				case EXIT:
 					hmi.disconnect();
 					System.exit(0);
 					break;
-			default:
-				break;
+					
+				default:
+					//this should never happen
+					break;
         	}
         	
         	Thread.sleep(100);        	
@@ -574,15 +676,16 @@ public class GuidanceAT {
 	
 	
 	/**
-	 * State transition check. Checks hmi-orders and NXT-Buttons, used in every state except EXIT
-	 * 
-	 * 
+	 * State transition check. The current state of the machine is 
+	 * changed according to incoming orders from hmi or NXT-Buttons,
+	 *  used in every state except EXIT.
 	 */
 	
 	private static void main_state_transition_check(INxtHmi hmi)throws Exception{
-		//State transition check
 		lastStatus = currentStatus;
 		if ( Button.ENTER.isDown() ){
+			//if the robot waited before, it should move now
+			//if it moved, it's supposed to stop
 			switch (currentStatus){
 				case INACTIVE:
 					currentStatus = CurrentStatus.DRIVING;
@@ -620,9 +723,12 @@ public class GuidanceAT {
 	}
 	
 	/**
-	 * plots the actual pose on the robots display
+	 * Plots information on the robots display.
+	 * Mainly used for testing and finding logical errors.
 	 * 
 	 * @param navigation reference to the navigation class for getting pose information
+	 * @param perception reference to the perception class for getting sensor information
+	 * @param control reference to the control class for getting information
 	 */
 	protected static void showData(INavigation navigation, IPerception perception,IControl control)throws Exception{
 		LCD.clear();	
@@ -633,8 +739,13 @@ public class GuidanceAT {
 		LCD.drawString("X_dest: " + (destination_pose.getX()*100), 0, 4);
 		LCD.drawString("Y_dest: " + (destination_pose.getY()*100), 0, 5);
 		LCD.drawString("PHI_dest: " + (destination_pose.getHeading()/Math.PI*180), 0, 6);
-//		LCD.drawString("sensor " + perception.getRightLineSensorValue(), 0, 7);
-		
+		LCD.drawString("sensor " + perception.getRightLineSensorValue(), 0, 7);
+//		if (navigation.getParkingSlots()[2]!=null){
+//		LCD.drawString("X Front " + navigation.getParkingSlots()[2].getFrontBoundaryPosition().getX(),0,4);
+//		LCD.drawString("Y Front " + navigation.getParkingSlots()[2].getFrontBoundaryPosition().getY(),0,5);
+//		LCD.drawString("X Back " + navigation.getParkingSlots()[2].getBackBoundaryPosition().getX(),0,6);
+//		LCD.drawString("Y Back " + navigation.getParkingSlots()[2].getBackBoundaryPosition().getY(),0,7);
+//		}
 //		perception.showSensorData();
 		
 //    	if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
@@ -647,22 +758,16 @@ public class GuidanceAT {
 		Thread.sleep(20);
 	}
 	
-
-	/**
-	 * destination to be driven to
-	 */
-	//dummy-Werte fuers Testen in Navigation eingespeist!
-	//bei Initialzustaenden wird ParkingSlot geladen!
+	//destination to be driven to. Not necessarily the same position.
 	private static ParkingSlot destination = null;
 	private static Pose destination_pose = new Pose();
 	
 /**
- * 	
- * @param control
- * @param navigation
+ * 	sets destination_pose dependent on current sub state and destination (ParkingSlot)
+ * @param control reference to the control class for setting calculated destination
  * @throws Exception
  */
-		private static void setDestination(IControl control, INavigation navigation)throws Exception{
+		private static void setDestination(IControl control)throws Exception{
 			//coordinates of parking slot
 			double back_X = destination.getBackBoundaryPosition().getX();
 			double back_Y = destination.getBackBoundaryPosition().getY();
@@ -673,41 +778,33 @@ public class GuidanceAT {
 			double middle_Y = (back_Y+front_Y)/2;
 			float phi = 0;
 			
-//			float phi = (float)navigation.getPhi();
-			
-//			switch(navigation.getLine()){
-//			case 1: phi = Math.PI/2;
-//					break;
-//			case 4: phi = Math.PI;
-//					break;
-//			}
-			
 			if(middle_Y<0){
 				phi = 0;
-//********************************************************************************Nav-Werte in cm oder mm? <-HIER MM
 			}else if(middle_X>1.8){
 				phi = (float)Math.PI*1/2;
-			}else if(middle_Y>0.6){
+			}else if(middle_Y>0.5){
 				phi = (float)Math.PI;
 			}else if(middle_X<0){
 				phi = (float)Math.PI*3/4;
 			}
-			
 			//coordinates on black line, which are supposed to be driven to before parking
 			double distance_slot_to_line = 0.3;
 			double distance_to_go = 0.2;
 			double line_X = middle_X + distance_to_go*Math.cos(phi) - distance_slot_to_line*Math.sin(phi);
 			double line_Y = middle_Y + distance_slot_to_line*Math.cos(phi) + distance_to_go*Math.sin(phi);
-			//vermeide Einparken mit schiefem Startwinkel an zweiter Ecke
+			
+			//avoid parking maneuver while in the middle of the second corner
 			if (line_Y>0.55){
 				line_Y = line_Y-0.03;
 			}
 			destination_pose.setHeading(phi);
 			
-			if(currentSubStatus == CurrentSubStatus.MOVE_TO_PARKING_POSITION){
+			//control is only told the the destination if a parking maneuver is supposed to start
+			//this triggers the calculation of the trajectory
+			if((currentSubStatus == CurrentSubStatus.MOVE_TO_PARKING_POSITION)||(currentSubStatus == CurrentSubStatus.FIND_BLACK_LINE)){
 				destination_pose.setLocation((float)line_X, (float)line_Y);
 			}
-			if((currentSubStatus == CurrentSubStatus.PARK)||(currentSubStatus == CurrentSubStatus.FIND_BLACK_LINE)){
+			if(currentSubStatus == CurrentSubStatus.PARK){
 				destination_pose.setLocation((float)middle_X, (float)middle_Y);
 				control.setDestination(phi, middle_X, middle_Y);
 			} else {
@@ -716,14 +813,21 @@ public class GuidanceAT {
 			}
 		}
 		
+		/**
+		 * compares current position with destined position and returns true if close to destination
+		 * @param navigation reference to the navigation class for getting pose information
+		 * @return true if destined coordinates are reached
+		 * @throws Exception
+		 */
 		private static boolean destination_reached(INavigation navigation)throws Exception{
 			boolean destination_reached = false;
 			Pose current_position = navigation.getPose();
 			float current_X = current_position.getX();
 			float current_Y = current_position.getY();
 			double tollerance = 0.04;
+			//compare current position with destined position
 			if((Math.abs(current_X-destination_pose.getX())<tollerance)&&(Math.abs(current_Y-destination_pose.getY())<tollerance)){
-				Sound.beepSequenceUp();;
+				Sound.beep();
 				destination_reached = true;
 			}
 			return destination_reached;
@@ -731,8 +835,8 @@ public class GuidanceAT {
 	
 		/**
 		 * method to detect objects, which are less than 10cm ahead. 
-		 * If so, the currentState and currentSubState are updated, the robot stops moving
-		 * @param perception
+		 * If so, the currentState and currentSubState are overwritten, the robot stops moving
+		 * @param perception reference to the perception class for getting sensor information
 		 * @return returns true, if an object is detected less than 10cm ahead
 		 */
 		private static boolean collision_detection(IPerception perception){
