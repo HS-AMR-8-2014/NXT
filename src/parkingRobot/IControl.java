@@ -18,12 +18,12 @@ public interface IControl {
 	public enum ControlMode {
 		
 		/**
-		 * folgt schwarzer Linie
+		 * follow black line
 		 */
 		LINE_CTRL,
 		
 		/**
-		 * einparken
+		 * park
 		 */
 		PARK_CTRL,
 		
@@ -33,12 +33,12 @@ public interface IControl {
 		VW_CTRL,
 		
 		/**
-		 * eine Zielpsoe anfahren
+		 * drive to a given destination
 		 */
 		SETPOSE,
 		
 		/**
-		 * NXT in Ruhe versetzen
+		 * NXT standby
 		 */
 		INACTIVE
 	}
@@ -108,5 +108,22 @@ public interface IControl {
 	 */
 	public void exec_CTRL_ALGO();
 
+	/**
+	 * method for Park_CTRL, sets a variable true, if currentPosition=destination
+	 */
+	public boolean destination_reached();
+
+	/**
+	 * used to set the state of driving backwards
+	 */
+	public void drive_backwards(boolean isOn);
+	/**
+	 * test method to get the current velocity of the right wheel
+	 */
+	public double get_rvelocity();
+	/**
+	 * test method to get the current velocity of the left wheel
+	 */
+	public double get_lvelocity();
 }
 
