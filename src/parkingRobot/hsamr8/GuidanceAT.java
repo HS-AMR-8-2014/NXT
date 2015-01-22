@@ -78,7 +78,6 @@ public class GuidanceAT {
 	/**
 	 * Substates for the parallel state machine. 
 	 * Not supposed to be sent to the tablet, needed to realize submissions
-	 *
 	 */
 	private enum CurrentSubStatus {
 		/**
@@ -150,7 +149,7 @@ public class GuidanceAT {
 	/**
 	 * Converts currentSubStatus to String. Needed to show current Status on display.
 	 * Possibly only needed for testing
-	 * @return
+	 * @return currentSubStatus as String
 	 */
 	private static String CurrentSubStatusAsString(){
 		String currentSubStatusString = null;
@@ -236,7 +235,7 @@ public class GuidanceAT {
 //        lastSubStatus = CurrentSubStatus.SEARCH;
 
 //		//TestStates PARK NOW + PARK
-//		//also good for testing trajectory
+//		//usable for testing trajectory without tablet
 //		currentStatus = CurrentStatus.PARK_NOW;
 //		lastStatus    = CurrentStatus.PARK_NOW;
 //        currentSubStatus = CurrentSubStatus.PARK;
@@ -302,6 +301,7 @@ public class GuidanceAT {
 								navigation.setDetectionState(false);
 								navigation.setParkingActive(false);
 								control.setCtrlMode(ControlMode.INACTIVE);
+								Thread.sleep(200);
 							}
 							//State transition check; orders are overwritten!
 							lastSubStatus = currentSubStatus;
@@ -320,7 +320,7 @@ public class GuidanceAT {
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.DRIVE_BACKWARDS ){
 								//navigation states do not change coming from WAIT
-								control.setVelocity(-10);
+								control.setVelocity(-5);
 								control.setAngularVelocity(0);	
 								control.setCtrlMode(ControlMode.VW_CTRL);
 							}
@@ -385,6 +385,7 @@ public class GuidanceAT {
 					
 					//parallel state machine INACTIVE				
 					switch ( currentSubStatus ) {
+					
 						case WAITING_ON_LINE:
 							//State transition check
 							lastSubStatus = currentSubStatus;
@@ -423,6 +424,7 @@ public class GuidanceAT {
 					
 					//parallel state machine PARK_THIS					
 					switch ( currentSubStatus ) {	
+					
 						case MOVE_TO_PARKING_POSITION:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.MOVE_TO_PARKING_POSITION ){																		
@@ -491,6 +493,7 @@ public class GuidanceAT {
 					
 					//parallel state machine PARK_NOW				
 					switch ( currentSubStatus ) {
+					
 						case SEARCH:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.SEARCH ){
@@ -598,8 +601,18 @@ public class GuidanceAT {
 								}else{
 									navigation.setDetectionState(false);
 									navigation.setParkingActive(true);
-									control.setPose(destination_pose);
-									control.setCtrlMode(ControlMode.SETPOSE);
+									if (navigation.getLine()==2){
+										//this catches the case, that the robot already passed the 
+										//second corner and driving backwards wouldn't lead to a good result
+										control.setDestination(destination_pose.getHeading(),destination_pose.getX(),destination_pose.getY());
+										control.setCtrlMode(ControlMode.SETPOSE);
+									} else {
+										control.setCtrlMode(ControlMode.INACTIVE);
+										Thread.sleep (200);
+										control.setVelocity(-5);
+										control.setAngularVelocity(0);
+										control.setCtrlMode(ControlMode.VW_CTRL);
+									}
 								}
 							}
 				
@@ -680,7 +693,6 @@ public class GuidanceAT {
 	 * changed according to incoming orders from hmi or NXT-Buttons,
 	 *  used in every state except EXIT.
 	 */
-	
 	private static void main_state_transition_check(INxtHmi hmi)throws Exception{
 		lastStatus = currentStatus;
 		if ( Button.ENTER.isDown() ){
@@ -712,7 +724,6 @@ public class GuidanceAT {
 		Thread.sleep(30);
 	}
 	
-	
 	/**
 	 * returns the actual state of the main finite state machine as defined by the requirements
 	 * 
@@ -740,12 +751,13 @@ public class GuidanceAT {
 		LCD.drawString("Y_dest: " + (destination_pose.getY()*100), 0, 5);
 		LCD.drawString("PHI_dest: " + (destination_pose.getHeading()/Math.PI*180), 0, 6);
 		LCD.drawString("sensor " + perception.getRightLineSensorValue(), 0, 7);
-//		if (navigation.getParkingSlots()[2]!=null){
-//		LCD.drawString("X Front " + navigation.getParkingSlots()[2].getFrontBoundaryPosition().getX(),0,4);
-//		LCD.drawString("Y Front " + navigation.getParkingSlots()[2].getFrontBoundaryPosition().getY(),0,5);
-//		LCD.drawString("X Back " + navigation.getParkingSlots()[2].getBackBoundaryPosition().getX(),0,6);
-//		LCD.drawString("Y Back " + navigation.getParkingSlots()[2].getBackBoundaryPosition().getY(),0,7);
+//		if (navigation.getParkingSlots()[3]!=null){
+//		LCD.drawString("X Front " + navigation.getParkingSlots()[3].getFrontBoundaryPosition().getX(),0,4);
+//		LCD.drawString("Y Front " + navigation.getParkingSlots()[3].getFrontBoundaryPosition().getY(),0,5);
+//		LCD.drawString("X Back " + navigation.getParkingSlots()[3].getBackBoundaryPosition().getX(),0,6);
+//		LCD.drawString("Y Back " + navigation.getParkingSlots()[3].getBackBoundaryPosition().getY(),0,7);
 //		}
+		
 //		perception.showSensorData();
 		
 //    	if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
@@ -758,8 +770,13 @@ public class GuidanceAT {
 		Thread.sleep(20);
 	}
 	
-	//destination to be driven to. Not necessarily the same position.
+	/**
+	 *ParkingSlot to be driven to. Not necessarily the same position as destination_pose.
+	 */
 	private static ParkingSlot destination = null;
+	/**
+	 *destination to be driven to. Not necessarily the same position as destination (ParkingSlot).
+	 */
 	private static Pose destination_pose = new Pose();
 	
 /**
@@ -780,12 +797,10 @@ public class GuidanceAT {
 			
 			if(middle_Y<0){
 				phi = 0;
-			}else if(middle_X>1.8){
+			} else if(middle_X>1.8){
 				phi = (float)Math.PI*1/2;
-			}else if(middle_Y>0.5){
+			}else {
 				phi = (float)Math.PI;
-			}else if(middle_X<0){
-				phi = (float)Math.PI*3/4;
 			}
 			//coordinates on black line, which are supposed to be driven to before parking
 			double distance_slot_to_line = 0.3;
@@ -795,7 +810,7 @@ public class GuidanceAT {
 			
 			//avoid parking maneuver while in the middle of the second corner
 			if (line_Y>0.55){
-				line_Y = line_Y-0.03;
+				line_Y = 0.5;
 			}
 			destination_pose.setHeading(phi);
 			
@@ -824,9 +839,10 @@ public class GuidanceAT {
 			Pose current_position = navigation.getPose();
 			float current_X = current_position.getX();
 			float current_Y = current_position.getY();
+			float current_phi = current_position.getHeading();
 			double tollerance = 0.04;
 			//compare current position with destined position
-			if((Math.abs(current_X-destination_pose.getX())<tollerance)&&(Math.abs(current_Y-destination_pose.getY())<tollerance)){
+			if((Math.abs(current_X-destination_pose.getX())<tollerance)&&(Math.abs(current_Y-destination_pose.getY())<tollerance)&&(Math.abs(current_phi-destination_pose.getHeading())<100*tollerance/180*Math.PI)){
 				Sound.beep();
 				destination_reached = true;
 			}
