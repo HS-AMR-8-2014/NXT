@@ -50,9 +50,7 @@ public class ControlRST implements IControl {
 	NXTMotor leftMotor = null;
 	NXTMotor rightMotor = null;
 	
-	/**
-	 * encoder objects that hold the encoder measurements
-	 */
+	
 	IPerception.AngleDifferenceMeasurement left_encoder;
 	IPerception.AngleDifferenceMeasurement right_encoder;
 	
@@ -79,10 +77,9 @@ public class ControlRST implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-    /**
-     * variables für Line-Follow
-     */
-    double esum = 0; //für linefollow
+    
+    //double PI = 3.14159265359;  //besreits definiert durch Math.PI
+    double esum = 0; //f¸r linefollow
 	double e = 0;
 	double ealt = 0;
 	double y = 0;
@@ -93,20 +90,17 @@ public class ControlRST implements IControl {
 	double trackWidth = 14;   //in cm
 	double distancePerTurn = Math.PI*wheelDiameter; //in cm
 	double distancePerDegree = distancePerTurn/360; //in cm
-	/**
-	 * variables for v/w-control
-	 */
+
 	double dleftsum =0;
 	double drightsum =0;
 	double dleftalt =0;
 	double drightalt =0;
+	//f¸r VW_CTRL
 	double left_rspeed=0;
 	double right_rspeed=0;
 
 	
-	/**
-	 * variables for Setpose
-	 */
+	
 	double olddestx=0;
 	double olddesty=0;
 	double olddestphi=0;
@@ -121,10 +115,12 @@ public class ControlRST implements IControl {
 	double endx=0;
 	double endy=0;
 	double length=0;
+	
+	//3.3 V2
 	double oldangle=0;
 	
 	/**
-	 * Variables for Park-Ctrl
+	 * Variablen f¸r Einparkvorgang
 	 */
 	double a0=0;
 	double a1=0;
@@ -162,7 +158,7 @@ public class ControlRST implements IControl {
 		
 		this.ctrlThread = new ControlThread(this);
 		
-		ctrlThread.setPriority(Thread.MAX_PRIORITY - 1); //legt 2.höhste priorität fest
+		ctrlThread.setPriority(Thread.MAX_PRIORITY - 1); //legt 2.hˆhste priorit‰t fest
 		ctrlThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		ctrlThread.start();
 	}
@@ -239,7 +235,7 @@ public class ControlRST implements IControl {
 		   					  exec_VWCTRL_ALGO_V2();
 		   					  break; 
 		  case SETPOSE      : update_SETPOSE_Parameter();
-			  				  exec_SETPOSE_ALGO_V2();
+			  				  exec_SETPOSE_ALGO_V3();
 		                      break;
 		  case PARK_CTRL	: update_PARKCTRL_Parameter();
 		  					  exec_PARKCTRL_ALGO();
@@ -255,7 +251,7 @@ public class ControlRST implements IControl {
 	
 	/**
 	 * update parameters during VW Control Mode
-	 * current Position; right, left Encoder
+	 * aktuelle Position; rechter,linker Encoder
 	 */
 	private void update_VWCTRL_Parameter(){
 		setPose(navigation.getPose());
@@ -266,7 +262,7 @@ public class ControlRST implements IControl {
 	
 	/**
 	 * update parameters during SETPOSE Control Mode
-	 * current Position; time; right, left Encoder
+	 * aktuelle Position; Zeit; rechter, linker Encoder
 	 */
 	private void update_SETPOSE_Parameter(){
 		setPose(navigation.getPose());
@@ -278,7 +274,7 @@ public class ControlRST implements IControl {
 	
 	/**
 	 * update parameters during PARKING Control Mode
-	 * current Position; time; right, left Encoder
+	 * aktuelle Position; Zeit; rechter,linker Encoder
 	 */
 	private void update_PARKCTRL_Parameter(){
 		//Aufgabe 3.4
@@ -297,9 +293,9 @@ public class ControlRST implements IControl {
 //		this.lineSensorLeft  		= perception.getLeftLineSensor();		
 //	}
 
-	//für 3.1.3 liniensensordaten von 0 bis 100
+	//f¸r 3.1.3 liniensensordaten von 0 bis 100
 	/**
-	 * Update for parameter: left, right line sensor and current position
+	 * Update f¸r Parameter: linker, rechter Liniensensor und aktuelle Position
 	 */
     private void update_LINECTRL_Parameter(){
 		this.lineSensorRight		= perception.getRightLineSensorValue();
@@ -316,24 +312,146 @@ public class ControlRST implements IControl {
 		this.drive(this.velocity, this.angularVelocity); 
 		}
     
-    
     /**
-     * execute method for reworked v/w-control
+     * Ausf¸hrmethode f¸r ¸berarbeitete Drive-Methode
      */
     private void exec_VWCTRL_ALGO_V2(){  
 		this.drive_V2(this.velocity, this.angularVelocity); 
 		}
 	
     
-    /**
-     * method to lead the robot to a destination given
-     * works with the distance to the ideal line
-     */
-    private void exec_SETPOSE_ALGO_V1(){
+    private void exec_SETPOSE_ALGO(){    	
+    	 //Aufgabe 3.3
+
+    	double distx1=0;
+    	double idealposex=0;
+    	double idealposey=0;
+    	double t=0;  //Parameter f¸r Streckenfortschritt
+    	double v=20;
+    	double w=0;   //Winkelgeschwindigkeit
+    	double kp=0.4;    //laut Matllab grˆﬂer 0.4
+//    	double kd=0.001;
+    	
+    	int direction=0;
+    	
+    	interncurrentPosition.setLocation(currentPosition.getX(), currentPosition.getY());
+    	interncurrentPosition.setHeading(currentPosition.getHeading()*180/(float)Math.PI);     //neue aktuelle Position mit Heading in ∞
+    	
+    if(interncurrentPosition.relativeBearing(destination.getLocation())<(-5)){
+    	drive(0,0.7);   //drehen mit  ca 30∞/sec
+    	}
+    else if(interncurrentPosition.relativeBearing(destination.getLocation())>(5)){
+    	drive(0,-0.7);
+    	}
+    else{                //Ausrichtung erreicht
+    	
+    	if((destination.getX()!=olddestx) ||(destination.getY()!= olddesty)){     //Neue Startposition
+    		starttime=currenttime;//    Startzeit
+//    		startPosition.setHeading(currentPosition.getHeading());
+//    		startPosition.setLocation(currentPosition.getX(), currentPosition.getY());
+    		startx=currentPosition.getX();
+    		starty=currentPosition.getY();
+    		endx=destination.getX();
+    		endy=destination.getY();
+//    		xvect=(destination.getX()-currentPosition.getX());   //in m
+//    		yvect=(destination.getY()-currentPosition.getY());   //in m
+    		xvect=endx-startx;   //in m
+    		yvect=endy-starty;   //in m
+    		length=(float) Math.sqrt(xvect*xvect+yvect*yvect);   //L‰nge der Wegstrecke in m
+        	olddestx=destination.getX(); //in m
+        	olddesty=destination.getY();  //in m		
+    		}
+    	
+        t=(0.2*(currenttime-starttime)/length);  //0.2 standartspeed
+//    	idealposex=startPosition.getX()*+(t*xvect);  //in m
+//   	idealposey=startPosition.getY()*+(t*yvect); //in m
+        idealposex=startx*+(t*xvect);  //in m
+        idealposey=endx*+(t*yvect); //in m
+    	
+//    		idealpose.setLocation(idealposex, idealposey);  //muss noch Winkel in Poseobjekt geschrieben werden?!!!???!!!!!!
+//    		distx1=currentPosition.distanceTo(idealpose);   //Abstand zur ideallinie in m
+        distx1=Math.sqrt((currentPosition.getX()-idealposex)*(currentPosition.getX()-idealposex)+(currentPosition.getY()-idealposey)*(currentPosition.getY()-idealposey));
+    	
+        //Abfrage ob distx1 positiv oder negativ
+        if(endx>startx && endy>starty){
+        	direction=1;
+        	if(currentPosition.getX()>idealposex && currentPosition.getY()<idealposey){
+        		distx1=-distx1;
+        	}
+        }
+        else if(endx<startx && endy>starty){
+        	direction=2;
+        	if(currentPosition.getX()>idealposex && currentPosition.getY()>idealposey){
+        		distx1=-distx1;
+        	}
+        }
+        else if(endx<startx && endy<starty){
+        	direction=3;
+        	if(currentPosition.getX()<idealposex && currentPosition.getY()>idealposey){
+        		distx1=-distx1;
+        	}
+        }
+        else if(endx>startx && endy<starty){
+        	direction=4;
+        	if(currentPosition.getX()<idealposex && currentPosition.getY()<idealposey){
+        		distx1=-distx1;
+        	}
+        }
+        else if(endx==startx && endy>starty){
+        	direction=5;
+        	if(currentPosition.getX()>idealposex){
+        		distx1=-distx1;
+        	}
+        }
+        else if(endx<startx && endy==starty){
+        	direction=6;
+        	if(currentPosition.getY()>idealposey){
+        		distx1=-distx1;
+        	}
+        }
+        else if(endx==startx && endy<starty){
+        	direction=7;
+        	if(currentPosition.getX()<idealposex){
+        		distx1=-distx1;
+        	}
+        }
+        else if(endx>startx && endy==starty){
+        	direction=8;
+        	Sound.buzz();
+        	if(currentPosition.getY()<idealposey){
+        		distx1=-distx1;
+        		Sound.buzz();
+        	}
+        }
+        else{
+        	direction=0;
+        	
+        }
+        
+        
+    	w=kp*(distx1+((distx1-olddistx1)/(currenttime-oldtime)))/0.2;   //formel wie im matlabskript
+    	//w=-w;    //*Math.PI/180
+
+    	olddistx1=distx1;
+    	oldtime=currenttime;
+    	
+    	if(t>1){            //Ziel theoretisch erreicht
+    		w=0;
+    		v=0;
+    	}
+    	
+    	drive(v,w);
+
+    	}
+	}
+	
+    
+    private void exec_SETPOSE_ALGO_V2(){
    	 //Aufgabe 3.3 
-   	double v=10;
+   
+   	double v=15;
    	double w=0;   //Winkelgeschwindigkeit
-   	double kp=4;   //auf 4 lassen
+   	double kp=2;   //auf 4 lassen
    	double kd=0.0000001;
    	double x=0;
    	double y=0;
@@ -344,12 +462,12 @@ public class ControlRST implements IControl {
    	double rel_angle=0;
    	x=currentPosition.getX();
    	y=currentPosition.getY();
-   	angle=currentPosition.getHeading()*180/Math.PI;  //in °
+   	angle=currentPosition.getHeading()*180/Math.PI;  //in ∞
    	destx=destination.getX();
    	desty=destination.getY();
    	destangle=destination.getHeading()*180/Math.PI;
    	interncurrentPosition.setLocation((float)x, (float)y);
-   	interncurrentPosition.setHeading(currentPosition.getHeading()*180/(float)Math.PI);     //neue aktuelle Position mit Heading in °
+   	interncurrentPosition.setHeading(currentPosition.getHeading()*180/(float)Math.PI);     //neue aktuelle Position mit Heading in ∞
    	
    	if((Math.abs(destx-x)>0.05)||(Math.abs(desty-y)>0.05)){
    		if(interncurrentPosition.relativeBearing(destination.getLocation())<(-10)){
@@ -377,11 +495,11 @@ public class ControlRST implements IControl {
    			w=0;
    		}
    		else if((angle<180)&&((angle-destangle)>5)){
-			w=-0.6;
+			w=0.6;
 			v=0;
 		}
 		else if((angle>180)&&(angle-destangle)>340){
-			w=0.6;
+			w=-0.6;
 			v=0;
 		}
 		else{
@@ -396,59 +514,88 @@ public class ControlRST implements IControl {
    		
    	}
    	
+   	
+   	
+   	
+//   	if((interncurrentPosition.getX()<destination.getX()+0.05)&&(interncurrentPosition.getX()>destination.getX()-0.05)&&(interncurrentPosition.getY()<destination.getY()+0.05)&&(interncurrentPosition.getY()>destination.getY()-0.05)){
+//			v=0;
+//			Sound.buzz();
+//			if(interncurrentPosition.getHeading()-(destination.getHeading()*180/Math.PI)>10){
+//				w=-0.6;
+//			}
+//			else if(interncurrentPosition.getHeading()-(destination.getHeading()*180/Math.PI)<-10){
+//				w=0.6;
+//			}
+//			else{
+//				w=0;
+//			}
+//   		}
+//   	else{
+//   		if(interncurrentPosition.relativeBearing(destination.getLocation())<(-10)){
+//   			v=0;
+//   			w=0.7;
+////   		drive(0,0.7);   //drehen mit  ca 30∞/sec
+//   			}
+//   		else if(interncurrentPosition.relativeBearing(destination.getLocation())>(10)){
+////   		drive(0,-0.7);
+//   			v=0;
+//   			w=-0.7;
+//   			}
+//   		else{                //Ausrichtung erreicht
+//   			w=kp*interncurrentPosition.relativeBearing(destination.getLocation())+kd*(interncurrentPosition.relativeBearing(destination.getLocation())-oldangle);
+//   			w=w*Math.PI/180;
+//   			oldangle=interncurrentPosition.relativeBearing(destination.getLocation());
+//   			}
+//   		}
+   	
    	drive(v,w);
    	}
 
-    
-    /**
-     * method to lead the robot to a destination given
-     * works with the angle to the destination
-     */
-    private void exec_SETPOSE_ALGO_V2(){
+    private void exec_SETPOSE_ALGO_V3(){
    	 //Aufgabe 3.3 mit querabweichung
+
    	double x;
    	double y;
     double distx1=0;
    	double idealposex=0;
    	double idealposey=0;
-   	double t=0;  //Parameter für Streckenfortschritt
-   	double v=15;
+   	double t=0;  //Parameter f¸r Streckenfortschritt
+   	double v=20;
    	double w=0;   //Winkelgeschwindigkeit
-   	double kp=0.1;    //laut Matllab größer 0.4
-   	double kd=0.0000000001;
+   	double kp=0.4;    //laut Matllab grˆﬂer 0.4
+   	//double kd=0.001;
    	
    	int direction=0;
    	
    	interncurrentPosition.setLocation(currentPosition.getX(), currentPosition.getY());
-   	interncurrentPosition.setHeading(currentPosition.getHeading()*180/(float)Math.PI);     //neue aktuelle Position mit Heading in °
+   	interncurrentPosition.setHeading(currentPosition.getHeading()*180/(float)Math.PI);     //neue aktuelle Position mit Heading in ∞
    	x=currentPosition.getX();
    	y=currentPosition.getY();
    	
    if(interncurrentPosition.relativeBearing(destination.getLocation())<(-5)){
-   	v=0;
-   	w=0.7;//drehen mit  ca 30°/sec
+   	drive(0,0.7);   //drehen mit  ca 30∞/sec
    	}
    else if(interncurrentPosition.relativeBearing(destination.getLocation())>(5)){
-   	v=0;
-   	w=-0.7;
+   	drive(0,-0.7);
    	}
    else{                //Ausrichtung erreicht
    	
    	if((destination.getX()!=olddestx) ||(destination.getY()!= olddesty)){     //Neue Startposition
+   		starttime=currenttime;//    Startzeit
    		startx=currentPosition.getX();
    		starty=currentPosition.getY();
    		endx=destination.getX();
    		endy=destination.getY();
    		xvect=endx-startx;   //in m
    		yvect=endy-starty;   //in m
-   		length=(float) Math.sqrt(xvect*xvect+yvect*yvect);   //Länge der Wegstrecke in m
+   		length=(float) Math.sqrt(xvect*xvect+yvect*yvect);   //L‰nge der Wegstrecke in m
        	olddestx=destination.getX(); //in m
        	olddesty=destination.getY();  //in m		
    		}
    	
-       t=(Math.sqrt(xvect*(x-startx)+yvect*(y-starty)))/length; 
+       t=((xvect*(x-startx)+yvect*(y-starty)))/length; 
        idealposex=startx*+(t*xvect);  //in m
-       idealposey=starty*+(t*yvect); //in m
+       idealposey=endx*+(t*yvect); //in m
 
        distx1=Math.sqrt((x-idealposex)*(x-idealposex)+(y-idealposey)*(y-idealposey));
    	
@@ -497,6 +644,7 @@ public class ControlRST implements IControl {
        }
        else if(endx>startx && endy==starty){
        	direction=8;
+       	Sound.buzz();
        	if(currentPosition.getY()<idealposey){
        		distx1=-distx1;
        		Sound.buzz();
@@ -508,36 +656,20 @@ public class ControlRST implements IControl {
        }
        
        
-   	w=kp*distx1+kd*(distx1-olddistx1);   //formel wie im matlabskript
-   	w=-w;    //*Math.PI/180
+   	w=kp*(distx1+(distx1-olddistx1));   //formel wie im matlabskript
+   	//w=-w;    //*Math.PI/180
 
    	olddistx1=distx1;
-
+   	oldtime=currenttime;
    	
-//   	if(t>=1){            //Ziel theoretisch erreicht
-//   		w=0;
-//   		v=0;
-//   	}
-   	
+   	if(t>=1){            //Ziel theoretisch erreicht
+   		w=0;
+   		v=0;
    	}
-   if(Math.sqrt((x-destination.getX())*(x-destination.getX())+(y-destination.getY())*(y-destination.getY()))<0.05){
-	   destination_reached=true;
-	   double currentangle=currentPosition.getHeading();
-	   if((currentangle-destination.getHeading())*180/Math.PI>3){
-		   w=-0.5;
-		   v=0;
-	   }
-	   else if((destination.getHeading()-currentangle)*180/Math.PI<(-357)){
-		   w=0.5;
-		   v=0;
-	   }
-	   else{
-		   w=0;
-		   v=0;
-	   }
-   }
-   
-   drive(v,w);
+   	
+   	drive(v,w);
+
+   	}
 	}
 
     
@@ -549,8 +681,8 @@ public class ControlRST implements IControl {
 		double T=5; //dauer der einparkzeit in s 
 		double vstart = -0.7; 
 		double vend = -0.7;     
-		double theta_i=0;
-		double theta_f=0;
+		double theta_i=currentPosition.getHeading();
+		double theta_f=destination.getHeading(); 
 		double t=0;
 		double dots=0;
 		double s=0;
@@ -563,16 +695,15 @@ public class ControlRST implements IControl {
 		double v=0;
 		double w=0;
 		//Reglerparameter
-		double kp_v=0.4;
-		double kp_w=0.005;
+		double kp_v=0;
+		double kp_w=0;
 		double delta_v=0;
 		double delta_w=0;
 		
 		if((destination.getX()!=olddestx) ||(destination.getY()!= olddesty)){     //Neue Startposition ->koeffizientenberechnung alles in cm und s
     		Sound.beep();
 			starttime=currenttime;//    Startzeit in s
-			theta_i=currentPosition.getHeading();
-			theta_f=destination.getHeading();    		
+			   		
     		a0 = currentPosition.getX()*1;
     		a1 = vstart*Math.cos(theta_i);
     		a2 = 3*(destination.getX()-currentPosition.getX())*1 - 2*a1 - vend*Math.cos(destination.getHeading());
@@ -619,7 +750,7 @@ public class ControlRST implements IControl {
 			delta_w=kp_w*currentPosition.relativeBearing(idealPose.getLocation());
 			}
 		} else {
-			//catch special case: phi_dest = 0 -> phi_current might be higher than 180°
+			//catch special case: phi_dest = 0 -> phi_current might be higher than 180∞
 			if ((Math.abs(theta_f)<Math.PI*5/180)&&(currentPosition.getHeading()>Math.PI)){
 				 theta_f = Math.PI*2;
 				 }
@@ -659,8 +790,8 @@ public class ControlRST implements IControl {
 		leftMotor.forward();
 		rightMotor.forward();
 		int lowPower = 1;
-		int midPower = 20; //mittlere Power eingeführt
-		int highPower = 40; //maximale geschwindigkeiten bei den keine linienüberschreitung stattfindet
+		int midPower = 20; //mittlere Power eingef¸hrt
+		int highPower = 40; //maximale geschwindigkeiten bei den keine linien¸berschreitung stattfindet
 		
 
         if(this.lineSensorLeft == 2 && (this.lineSensorRight == 1)){
@@ -704,7 +835,7 @@ public class ControlRST implements IControl {
 		}
 		else if (this.lineSensorLeft == 0 && this.lineSensorRight == 0) { 
 			
-			//wenn beide Sensoren auf weiß sind, geradeaus fahren
+			//wenn beide Sensoren auf weiﬂ sind, geradeaus fahren
 			leftMotor.setPower(highPower);
 			rightMotor.setPower(highPower);
 		}
@@ -712,15 +843,15 @@ public class ControlRST implements IControl {
 	
 	
 	
-	//für 3.1.3 methode mit PID-Regler
+	//f¸r 3.1.3 methode mit PID-Regler
 	/**
-	 * line-follow with PID control
+	 * Line-Follow mit PID-Regler
 	 */
 	private void exec_LINECTRL_ALGO_PID() {  
 		double kp = 0.387;
 		double ki =0.00001;//0.0042; 1.Einstellung//0.0025
 		double kd = 0.0000001;//0.00008; 2.Einstellung//0.000001
-		int speedconst = 38;
+		int speedconst = 35;//38
 		leftMotor.forward();
 		rightMotor.forward();
 
@@ -769,18 +900,18 @@ public class ControlRST implements IControl {
      */
 	private void drive(double v, double omega){
 		//Aufgabe 3.2
-		double radius = 0;   //für methode drive(V;W-Control)
+		double radius = 0;   //f¸r methode drive(V;W-Control)
 		double rightSpeed = 0;
 		double leftSpeed = 0;
 		double dleft = 0;
 		double dright = 0;
 		double yleft =0;
 		double yright =0;
-		double KP1 =0.2;    //für v-w-control
-		double KI1 =0.016;//für v-w-control
-		double KD1 =0.0001;//für v-w-control
-		double MOTORKONSTRIGHT=2.5806452+0.087;//für Power/speed-verhältnis
-		double MOTORKONSTLEFT=2.272727272+0.15;//für Power/Speed-Verhältnis
+		double KP1 =0.2;    //f¸r v-w-control
+		double KI1 =0.016;//f¸r v-w-control
+		double KD1 =0.0001;//f¸r v-w-control
+		double MOTORKONSTRIGHT=2.5806452+0.087;//f¸r Power/speed-verh‰ltnis
+		double MOTORKONSTLEFT=2.272727272+0.15;//f¸r Power/Speed-Verh‰ltnis
 
 
 				
@@ -805,6 +936,8 @@ public class ControlRST implements IControl {
 		double right_length=right_encoder.getAngleSum()*1000*distancePerDegree;
 		double left_deltat=left_encoder.getDeltaT();
 		double right_deltat=right_encoder.getDeltaT();
+//		double left_rspeed=0;
+//		double right_rspeed=0;
 		if(left_deltat==0){
 			left_rspeed=0;
 		}
@@ -818,7 +951,7 @@ public class ControlRST implements IControl {
 			right_rspeed=right_length/right_deltat;
 		}
 		
-		//PIDRegler für jedes Rad
+		//PIDRegler f¸r jedes Rad
 		dleft = leftSpeed - (left_rspeed);                //Fehler des linken Rades
 		dright = rightSpeed - (right_rspeed);			  //Fehler der rechten Rades
 		
@@ -838,7 +971,7 @@ public class ControlRST implements IControl {
 		}
 		
 		
-		leftMotor.setPower((Math.round((float)((leftSpeed+yleft)*MOTORKONSTLEFT))));   //berechneter Powerwert*Reglerausgang mit Power-Speed-Verhältnis
+		leftMotor.setPower((Math.round((float)((leftSpeed+yleft)*MOTORKONSTLEFT))));   //berechneter Powerwert*Reglerausgang mit Power-Speed-Verh‰ltnis
 		rightMotor.setPower((Math.round((float)((rightSpeed+yright)*MOTORKONSTRIGHT))));
 		leftMotor.forward();
 		rightMotor.forward();
@@ -848,25 +981,25 @@ public class ControlRST implements IControl {
 	
 	//Aufgabe 3.2
 	/**
-     * reworked drive method
+     * ¸berarbeitete Drive-Methode
      * @param v in cm/s velocity of the robot
      * @param omega in rad/s angle velocity of the robot
      */
 	private void drive_V2(double v, double omega){
 
-		double radius = 0;   //für methode drive(V;W-Control)
+		double radius = 0;   //f¸r methode drive(V;W-Control)
 		double rightSpeed = 0;
 		double leftSpeed = 0;
 		double dleft = 0;
 		double dright = 0;
 		double yleft =0;
 		double yright =0;
-		double KPl1 =2.39;    //für v-w-control
-		double KIl1 =0.57;//für v-w-control
-		double KDl1 =0.0004921;//für v-w-control
-		double KPr1 =2.16;    //für v-w-control
-		double KIr1 =0.5;//für v-w-control
-		double KDr1 =0.000498;//für v-w-control
+		double KPl1 =2.39;    //f¸r v-w-control
+		double KIl1 =0.57;//f¸r v-w-control
+		double KDl1 =0.0004921;//f¸r v-w-control
+		double KPr1 =2.16;    //f¸r v-w-control
+		double KIr1 =0.5;//f¸r v-w-control
+		double KDr1 =0.000498;//f¸r v-w-control
 		double left_length=left_encoder.getAngleSum()*1000*distancePerDegree;
 		double right_length=right_encoder.getAngleSum()*1000*distancePerDegree;
 		double left_deltat=left_encoder.getDeltaT();
@@ -904,7 +1037,7 @@ public class ControlRST implements IControl {
 		};
 
 		
-		//PIDRegler für jedes Rad
+		//PIDRegler f¸r jedes Rad
 		dleft = leftSpeed - left_rspeed;                //Fehler des linken Rades
 		dright = rightSpeed - right_rspeed;			  //Fehler der rechten Rades
 		
@@ -931,7 +1064,7 @@ public class ControlRST implements IControl {
 	
 	
 	/**
-	 * method to give back the state of destination reached
+	 * ‹bergabemethode, um anzuzeigen, ob Zielposition erreicht ist
 	 */
 	public boolean destination_reached(){
 		return destination_reached;
@@ -939,8 +1072,8 @@ public class ControlRST implements IControl {
 	
 	
 	/**
-	 * method to back out of a parking space
-	 * @param isON activates the state of driving backwards
+	 * methode f¸r Ausparkvorgang mittels Trajektorie
+	 * @param isON aktiviert Zustand des R¸ckw‰rtsfahrens
 	 */
 	public void drive_backwards(boolean isOn)
 		{ 
@@ -954,15 +1087,16 @@ public class ControlRST implements IControl {
 	
 	
 	/**
-	 * test method for datalogger to get the actual velocity of the left wheel
+	 * testmethode f¸r datalogger, um aktuelle geschwindigkeit des rechten Rades zu ermitteln
 	 */
 	public double get_rvelocity(){
 		return left_rspeed;
 	}
 	/**
-	 * test method for datalogger to get the actual velocity of the left wheel
+	 * testmethode f¸r datalogger, um aktuelle geschwindigkeit des linken Rades zu ermitteln
 	 */
 	public double get_lvelocity(){
 		return right_rspeed;
 	}
 	
+}
