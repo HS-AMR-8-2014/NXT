@@ -78,6 +78,7 @@ public class GuidanceAT {
 	/**
 	 * Substates for the parallel state machine. 
 	 * Not supposed to be sent to the tablet, needed to realize submissions
+	 *
 	 */
 	private enum CurrentSubStatus {
 		/**
@@ -149,7 +150,7 @@ public class GuidanceAT {
 	/**
 	 * Converts currentSubStatus to String. Needed to show current Status on display.
 	 * Possibly only needed for testing
-	 * @return currentSubStatus as String
+	 * @return
 	 */
 	private static String CurrentSubStatusAsString(){
 		String currentSubStatusString = null;
@@ -235,7 +236,7 @@ public class GuidanceAT {
 //        lastSubStatus = CurrentSubStatus.SEARCH;
 
 //		//TestStates PARK NOW + PARK
-//		//usable for testing trajectory without tablet
+//		//also good for testing trajectory
 //		currentStatus = CurrentStatus.PARK_NOW;
 //		lastStatus    = CurrentStatus.PARK_NOW;
 //        currentSubStatus = CurrentSubStatus.PARK;
@@ -301,7 +302,6 @@ public class GuidanceAT {
 								navigation.setDetectionState(false);
 								navigation.setParkingActive(false);
 								control.setCtrlMode(ControlMode.INACTIVE);
-								Thread.sleep(200);
 							}
 							//State transition check; orders are overwritten!
 							lastSubStatus = currentSubStatus;
@@ -320,7 +320,7 @@ public class GuidanceAT {
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.DRIVE_BACKWARDS ){
 								//navigation states do not change coming from WAIT
-								control.setVelocity(-5);
+								control.setVelocity(-10);
 								control.setAngularVelocity(0);	
 								control.setCtrlMode(ControlMode.VW_CTRL);
 							}
@@ -385,7 +385,6 @@ public class GuidanceAT {
 					
 					//parallel state machine INACTIVE				
 					switch ( currentSubStatus ) {
-					
 						case WAITING_ON_LINE:
 							//State transition check
 							lastSubStatus = currentSubStatus;
@@ -424,7 +423,6 @@ public class GuidanceAT {
 					
 					//parallel state machine PARK_THIS					
 					switch ( currentSubStatus ) {	
-					
 						case MOVE_TO_PARKING_POSITION:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.MOVE_TO_PARKING_POSITION ){																		
@@ -449,7 +447,7 @@ public class GuidanceAT {
 							}
 							
 							//check, if parking position is reached
-							if(destination_reached(navigation)){
+							if(x_reached(navigation)&&(y_reached(navigation))){
 								currentSubStatus = CurrentSubStatus.PARK;
 							}
 							break;	
@@ -493,7 +491,6 @@ public class GuidanceAT {
 					
 					//parallel state machine PARK_NOW				
 					switch ( currentSubStatus ) {
-					
 						case SEARCH:
 							//Into action
 							if ( lastSubStatus != CurrentSubStatus.SEARCH ){
@@ -565,7 +562,12 @@ public class GuidanceAT {
 						case MOVE_TO_PARKING_POSITION:
 							//Into action							
 							if ( lastSubStatus != CurrentSubStatus.MOVE_TO_PARKING_POSITION ){																		
-								setDestination(control);								
+								setDestination(control);	
+								
+								control.setCtrlMode(ControlMode.INACTIVE);
+								Thread.sleep(200);
+								
+							
 								
 								//catch the case, that the detected parking slot is close, but behind the robot
 								boolean forward = true;
@@ -607,9 +609,8 @@ public class GuidanceAT {
 										control.setDestination(destination_pose.getHeading(),destination_pose.getX(),destination_pose.getY());
 										control.setCtrlMode(ControlMode.SETPOSE);
 									} else {
-										control.setCtrlMode(ControlMode.INACTIVE);
-										Thread.sleep (200);
-										control.setVelocity(-5);
+										
+										control.setVelocity(-10);
 										control.setAngularVelocity(0);
 										control.setCtrlMode(ControlMode.VW_CTRL);
 									}
@@ -631,9 +632,30 @@ public class GuidanceAT {
 							}
 							
 							//check, if parking position is reached
-							if(destination_reached(navigation)){
-								currentSubStatus = CurrentSubStatus.PARK;
-							}
+							if(x_reached(navigation)){
+								if(phi_reached(navigation)){
+									double theta_f = destination_pose.getHeading();
+									Pose currentPosition = navigation.getPose();
+								//catch special case: phi_dest = 0 -> phi_current might be higher than 180∞
+								if ((Math.abs(theta_f)<Math.PI*5/180)&&(currentPosition.getHeading()>Math.PI)){
+									 theta_f = Math.PI*2;
+									 }
+								double delta_phi = currentPosition.getHeading()-theta_f;
+								if 	(Math.abs(delta_phi)>Math.PI*4/180){
+									if (delta_phi<0){
+										control.setVelocity(0);
+										control.setAngularVelocity(-0.7);
+										control.setCtrlMode(ControlMode.VW_CTRL);
+									} else if (delta_phi>0){
+										control.setVelocity(0);
+										control.setAngularVelocity(+0.7);
+										control.setCtrlMode(ControlMode.VW_CTRL);
+									} 
+								} 
+								 } else{
+									
+							
+								currentSubStatus = CurrentSubStatus.PARK;} } 
 							break;	
 							
 						case PARK:
@@ -747,8 +769,8 @@ public class GuidanceAT {
 		LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 1);
 		LCD.drawString("Phi (grd): " + (navigation.getPose().getHeading()/Math.PI*180), 0, 2);
 		LCD.drawString( CurrentSubStatusAsString() , 0, 3);
-		LCD.drawString("X_dest: " + (destination_pose.getX()*100), 0, 4);
-		LCD.drawString("Y_dest: " + (destination_pose.getY()*100), 0, 5);
+		LCD.drawString("LINE NO " + (navigation.getLine()), 0, 4);
+		LCD.drawString("PHI_SOLL " + (navigation.getPhi()), 0, 5);
 		LCD.drawString("PHI_dest: " + (destination_pose.getHeading()/Math.PI*180), 0, 6);
 		LCD.drawString("sensor " + perception.getRightLineSensorValue(), 0, 7);
 //		if (navigation.getParkingSlots()[3]!=null){
@@ -757,7 +779,6 @@ public class GuidanceAT {
 //		LCD.drawString("X Back " + navigation.getParkingSlots()[3].getBackBoundaryPosition().getX(),0,6);
 //		LCD.drawString("Y Back " + navigation.getParkingSlots()[3].getBackBoundaryPosition().getY(),0,7);
 //		}
-		
 //		perception.showSensorData();
 		
 //    	if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
@@ -797,9 +818,11 @@ public class GuidanceAT {
 			
 			if(middle_Y<0){
 				phi = 0;
-			} else if(middle_X>1.8){
+			}
+			if(middle_X>1.8){
 				phi = (float)Math.PI*1/2;
-			}else {
+			}
+			if(middle_Y>0.5){
 				phi = (float)Math.PI;
 			}
 			//coordinates on black line, which are supposed to be driven to before parking
@@ -808,9 +831,13 @@ public class GuidanceAT {
 			double line_X = middle_X + distance_to_go*Math.cos(phi) - distance_slot_to_line*Math.sin(phi);
 			double line_Y = middle_Y + distance_slot_to_line*Math.cos(phi) + distance_to_go*Math.sin(phi);
 			
+			//offset to improve parking behaviour
+			double middle_X_co = middle_X + 0.1*Math.cos (phi);
+			double middle_Y_co = middle_Y - 0.1*Math.sin (phi);
+			
 			//avoid parking maneuver while in the middle of the second corner
 			if (line_Y>0.55){
-				line_Y = 0.5;
+				line_Y = line_Y-0.03;
 			}
 			destination_pose.setHeading(phi);
 			
@@ -820,8 +847,8 @@ public class GuidanceAT {
 				destination_pose.setLocation((float)line_X, (float)line_Y);
 			}
 			if(currentSubStatus == CurrentSubStatus.PARK){
-				destination_pose.setLocation((float)middle_X, (float)middle_Y);
-				control.setDestination(phi, middle_X, middle_Y);
+				destination_pose.setLocation((float)middle_X_co, (float)middle_Y_co);
+				control.setDestination(phi, middle_X_co, middle_Y_co);
 			} else {
 				//make sound if method fails
 				Sound.buzz();;
@@ -834,7 +861,47 @@ public class GuidanceAT {
 		 * @return true if destined coordinates are reached
 		 * @throws Exception
 		 */
-		private static boolean destination_reached(INavigation navigation)throws Exception{
+		private static boolean x_reached(INavigation navigation)throws Exception{
+			boolean destination_reached = false;
+			Pose current_position = navigation.getPose();
+			float current_X = current_position.getX();
+//			float current_Y = current_position.getY();
+//			float current_phi = current_position.getHeading();
+			double tollerance = 0.04;
+			//compare current position with destined position
+			if((Math.abs(current_X-destination_pose.getX())<tollerance)){//&&(Math.abs(current_Y-destination_pose.getY())<tollerance)&&(Math.abs(current_phi-destination_pose.getHeading())<100*tollerance/180*Math.PI)){
+				Sound.beep();
+				destination_reached = true;
+			}
+			return destination_reached;
+		}	
+		/**
+		 * compares current position with destined position and returns true if close to destination
+		 * @param navigation reference to the navigation class for getting pose information
+		 * @return true if destined coordinates are reached
+		 * @throws Exception
+		 */
+		private static boolean y_reached(INavigation navigation)throws Exception{
+			boolean destination_reached = false;
+			Pose current_position = navigation.getPose();
+//			float current_X = current_position.getX();
+			float current_Y = current_position.getY();
+//			float current_phi = current_position.getHeading();
+			double tollerance = 0.04;
+			//compare current position with destined position
+			if((Math.abs(current_Y-destination_pose.getY())<tollerance)){//if((Math.abs(current_X-destination_pose.getX())<tollerance)&&(Math.abs(current_Y-destination_pose.getY())<tollerance)&&(Math.abs(current_phi-destination_pose.getHeading())<100*tollerance/180*Math.PI)){
+				Sound.beep();
+				destination_reached = true;
+			}
+			return destination_reached;
+		}	
+		/**
+		 * compares current position with destined position and returns true if close to destination
+		 * @param navigation reference to the navigation class for getting pose information
+		 * @return true if destined coordinates are reached
+		 * @throws Exception
+		 */
+		private static boolean phi_reached(INavigation navigation)throws Exception{
 			boolean destination_reached = false;
 			Pose current_position = navigation.getPose();
 			float current_X = current_position.getX();
@@ -842,7 +909,7 @@ public class GuidanceAT {
 			float current_phi = current_position.getHeading();
 			double tollerance = 0.04;
 			//compare current position with destined position
-			if((Math.abs(current_X-destination_pose.getX())<tollerance)&&(Math.abs(current_Y-destination_pose.getY())<tollerance)&&(Math.abs(current_phi-destination_pose.getHeading())<100*tollerance/180*Math.PI)){
+			if((Math.abs(current_phi-destination_pose.getHeading())<100*tollerance/180*Math.PI)){//if((Math.abs(current_X-destination_pose.getX())<tollerance)&&(Math.abs(current_Y-destination_pose.getY())<tollerance)&&(Math.abs(current_phi-destination_pose.getHeading())<100*tollerance/180*Math.PI)){
 				Sound.beep();
 				destination_reached = true;
 			}
