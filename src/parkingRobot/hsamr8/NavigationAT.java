@@ -116,7 +116,7 @@ public class NavigationAT implements INavigation {
 	/**
 	 * robot specific constant: distance between wheels
 	 */
-	static final double WHEEL_DISTANCE = 0.13885; // only rough guess, to be in meters  //FIXME
+	static final double WHEEL_DISTANCE = 0.13885; // only rough guess, to be in meters  //FIXME //0.13885
 	private static final String NULL = null;
 	
 	// measured exactly and maybe
@@ -574,7 +574,7 @@ public class NavigationAT implements INavigation {
 		// line switch and known points are set as actual pose
 	if(onLine==true){
 		if (detectionecke == true) {
-			poseFehler=0;
+//			poseFehler=0;
 			switch (akt_linie) {
 			case 0:
 				if(this.pose.getX()>1.6*e){
@@ -658,8 +658,8 @@ public class NavigationAT implements INavigation {
 //		// vmid in cm/s
 
 		//angle with Triangulation and reset
-	if(onLine==true)	
-		angleResult = angleWithTriang(w, deltaT);
+//	if(onLine==true)	
+//		angleResult = angleWithTriang(w, deltaT);
 		
 //		mouseNav=false;
 ////		if ((vMid < 0.05 && mouseNav == true) || (poseFehler > 200 && mouseNav == true)) {
@@ -676,24 +676,27 @@ public class NavigationAT implements INavigation {
 //			xResult =e*( this.pose.getX() - 0.1*mouseX*Math.cos(this.pose.getHeading())+mouseY*Math.sin(this.pose.getHeading()));
 //			yResult =e*( this.pose.getY() + 0.1*mouseY*Math.sin(this.pose.getHeading())-mouseX*Math.cos(this.pose.getHeading()));
 			if(onLine==true){
-			poseFehler=0;
-			if(this.pose.getX()<1.55 && this.pose.getX()>0.2 && akt_linie==0) angleResult=2*0+0.5*angleResult;
+//			poseFehler=0;
+			if(this.pose.getX()<1.5 && this.pose.getX()>0.2 && akt_linie==0) angleResult=phi_kontroll;
 			if(akt_linie==7 && this.pose.getY()<0.5 && this.pose.getY()>0.1) angleResult= phi_kontroll;
-//			if(this.pose.getX()<1.2 && this.pose.getX()>0.9 && akt_linie==4) angleResult=phi_kontroll;
-//			if(this.pose.getX()<0.8 && this.pose.getX()>0.6 && akt_linie==4) angleResult=phi_kontroll;
+			if(akt_linie==4 && this.pose.getX()<1 && this.pose.getX()>0.65) angleResult=phi_kontroll;
+			if(this.pose.getX()<1.2 && this.pose.getX()>0.9 && akt_linie==4) angleResult=phi_kontroll;
+			if(this.pose.getX()<0.8 && this.pose.getX()>0.6 && akt_linie==4) angleResult=phi_kontroll;
+			if(this.pose.getY()>0.2 && this.pose.getY()<0.45&& akt_linie==1) angleResult=phi_kontroll;
 	//	}	
-			if(seite_ist_was==false && akt_linie==0 && this.pose.getX()<1.6 && this.pose.getX()>0.05) angleResult=phi_kontroll;
-			if(this.frontSensorDistance>50 && akt_linie== 0 && this.pose.getX()<1.2 && this.pose.getX()>0.15){
-				angleResult=phi_kontroll*2 + angleResult*0.5;
-				
-			}
-			if(this.frontSensorDistance>50 && akt_linie==4 && this.pose.getX()>0.6 && this.pose.getX()<1.2){
-				angleResult=phi_kontroll;
-				yResult=0.30;
-			}
-			if(this.backSensorDistance>50 && akt_linie==0 && this.pose.getX()>1.2 && this.pose.getX()<1.6){
-				angleResult=2*0+0.5*angleResult;
-			}
+//			if(seite_ist_was==false && akt_linie==0 && this.pose.getX()<1.6 && this.pose.getX()>0.05) angleResult=0;
+//			if(this.frontSensorDistance>50 && akt_linie== 0 && this.pose.getX()<1.2 && this.pose.getX()>0.15){
+//				angleResult=phi_kontroll;
+//				
+//			}
+//			if(this.frontSensorDistance>50 && akt_linie==4 && this.pose.getX()>0.6 && this.pose.getX()<1.2){
+//				angleResult=phi_kontroll;
+//				yResult=0.30;
+//			}
+//			if(this.backSensorDistance>50 && akt_linie==0 && this.pose.getX()>1.2 && this.pose.getX()<1.6){
+//				angleResult=phi_kontroll;
+//			}
+//			}
 			}
 		
 		// detection ON the line by Line Sensor and no corner is being detected
@@ -841,7 +844,7 @@ public class NavigationAT implements INavigation {
 		if ((seite_ist_was == true) && (Math.abs(this.frontSideSensorDistance - this.backSideSensorDistance) <4)) {
 			angleResult = phi_kontroll*Math.PI/180;
 		}else{
-			angleResult=(this.pose.getHeading() + w * deltaT)*1;
+			angleResult=(this.pose.getHeading() + w * deltaT);
 		}
 		return angleResult;
 	}
@@ -911,7 +914,7 @@ public class NavigationAT implements INavigation {
 		detectionactive=false;
 		speichern_bereit=false;
 	}
-		
+	if((akt_linie==2 || akt_linie==1)&&(parkingactive==true)) akt_linie=1;	
 		
 		
 		if(suchen==true){	
@@ -1108,7 +1111,7 @@ public class NavigationAT implements INavigation {
 			gueteSlot=false;
 			idWinkel=0;
 			wahr=false;
-			Sound.playTone(5, 10, 1);
+//			Sound.playTone(5, 10, 1);
 //			Sound.beep();
 						}else{
 							if(list_ParkingSlot[id_bekannte_luecke].getStatus().ordinal()==ParkingSlotStatus.RESCAN.ordinal() && this.gueteMeasurement==true){
@@ -1173,9 +1176,9 @@ public class NavigationAT implements INavigation {
 //		else abstand_sens_band=25;
 		
 		//detection on line 0
-		if (akt_linie==0 &&(this.frontSideSensorDistance < 18) && detectionactive == true && bmeasurement==true && this.frontSideSensorDistance!=0 && this.backSideSensorDistance>30) {
+		if (akt_linie==0 &&(this.frontSideSensorDistance < 22) && detectionactive == true && bmeasurement==true && this.frontSideSensorDistance!=0 && this.backSideSensorDistance>25) {
 
-			ende= new Point (((float)(this.pose.getX()+0.01*frontY)), (float) (-0.3));
+			ende= new Point (((float)(this.pose.getX()+0.01*(frontY+3))), (float) (-0.3));
 			
 //			endpos=new Point((float) this.pose.getX(), (float) this.pose.getY());
 			detectionactive=false;
@@ -1185,7 +1188,7 @@ public class NavigationAT implements INavigation {
 		// detection on line 1
 		if (akt_linie==1 &&(this.frontSideSensorDistance < 25) && this.backSideSensorDistance>20 && detectionactive == true && bmeasurement==true && this.frontSideSensorDistance!=0) {
 
-			ende= new Point (((float)(0.01*210 )), (float) (this.pose.getY()+0.01*frontY));
+			ende= new Point (((float)(0.01*210 )), (float) (this.pose.getY()+0.075));
 			
 //			endpos=new Point((float) this.pose.getX(), (float) this.pose.getY());
 			detectionactive=false;
@@ -1197,8 +1200,8 @@ public class NavigationAT implements INavigation {
 		if(akt_linie==4 && this.pose.getX()>0.4 && this.pose.getX()<1.0){
 			
 			if(this.frontSideSensorDistance<30 && this.backSideSensorDistance>45 && bmeasurement==true && this.frontSideSensorDistance!=0){
-				ende= new Point (((float)(this.pose.getX() -0.01*frontY)), (float) (0.60));
-				Sound.playTone(10, 30, 1);
+				ende= new Point (((float)(this.pose.getX() -0.01*(frontY+3))), (float) (0.60));
+//				Sound.playTone(10, 30, 1);
 //				ende= new Point ((float) 0.7,(float) 0.6);
 			detectionactive=false;
 			speichern_bereit=true;
@@ -1221,7 +1224,7 @@ public class NavigationAT implements INavigation {
 		//detection on Line 0
 		if ((akt_linie==0 && this.frontSideSensorDistance > abstand_sens_band) && (this.backSideSensorDistance>abstand_sens_band) && (this.frontSideSensorDistance != 0) && (this.backSideSensorDistance != 0) && (detectionactive == false) && (bmeasurement=true)) {			
 //			
-			anfang=new Point((float) (this.pose.getX()-  0.11), (float) (-0.01*30) ); 
+			anfang=new Point((float) (this.pose.getX()-  0.14), (float) (-0.01*30) ); 
 			detectionactive = true;
 			beginpos= new Point((float) this.pose.getX(), (float) this.pose.getY());
 			
@@ -1232,7 +1235,7 @@ public class NavigationAT implements INavigation {
 		//detection on line 1
 		if ((akt_linie==1 && this.backSideSensorDistance > 27) && this.frontSideSensorDistance>25 && (this.frontSideSensorDistance != 0) && (this.backSideSensorDistance != 0) && (detectionactive == false) && (bmeasurement=true) && this.pose.getY()<0.4) {			
 //			
-			anfang=new Point((float) (0.01*210 ), (float) (this.pose.getY()-0.13) ); 
+			anfang=new Point((float) (0.01*210 ), (float) (this.pose.getY()-0.15) ); 
 			detectionactive = true;
 			beginpos= new Point((float) this.pose.getX(), (float) this.pose.getY());
 			
@@ -1241,7 +1244,7 @@ public class NavigationAT implements INavigation {
 		}
 	
 		// detection on Line 4
-		if(akt_linie==4 && this.pose.getX()<1.35 && this.pose.getX()>0.6){
+		if(akt_linie==4 && this.pose.getX()<1.4 && this.pose.getX()>0.6){
 			if(this.frontSideSensorDistance>40 && detectionactive==false && this.frontSideSensorDistance!=0){
 			anfang=new Point(((float) (this.pose.getX() - 0.08)), (float) (0.60) ); 
 //				anfang=new Point ((float)1.2,(float)0.6);
